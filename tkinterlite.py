@@ -14,14 +14,14 @@ from tkinter import messagebox
 
 from engine import Engine
 import product
-
+import categories
+import suppliers
 
 class App(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
 
         self.engine = Engine()
-        
         self.master = master
         self.master.resizable(800,800)
         self.init_style()
@@ -49,14 +49,18 @@ class App(tk.Frame):
         mnuMain = Menu(self.master, bd = 1)
         
         mFile = Menu(mnuMain, tearoff=0, bd = 1)
-        mParameters = Menu(mnuMain, tearoff=0, bd = 1)
+        mTools = Menu(mnuMain, tearoff=0, bd = 1)
         mAbout = Menu(mnuMain, tearoff=0, bd = 1)
         
         mnuMain.add_cascade(label="File", menu=mFile)
-        mnuMain.add_cascade(label="Tools", menu=mParameters)
+        mnuMain.add_cascade(label="Tools", menu=mTools)
         mnuMain.add_cascade(label="Info", menu=mAbout)
+        
        
         mFile.add_command(label="Exit", command=self.on_exit)
+        mTools.add_command(label="Categories", command=self.on_categories)
+        mTools.add_command(label="Suppliers", command=self.on_suppliers)
+        mAbout.add_command(label="About", command=self.on_about)
              
         self.master.config(menu=mnuMain)
 
@@ -123,6 +127,9 @@ class App(tk.Frame):
         self.btnNew = tk.Button(self.frame_buttons, text="New", command=self.on_add_product)
         self.btnNew.pack(fill = X,anchor=W, pady=10)
 
+        self.btnEdit = tk.Button(self.frame_buttons, text="Edit", command=self.on_edit)
+        self.btnEdit.pack(fill = X,anchor=W, pady=10)
+
         self.btClose = tk.Button(self.frame_buttons, text="Close", command=self.on_exit)
         self.btClose.pack(fill = X,anchor=W, pady=10)
         #-----------------------------------------------------------------------
@@ -136,6 +143,7 @@ class App(tk.Frame):
 
     def on_open(self):
 
+        self.selected_product = None
         sql = "SELECT * FROM products ORDER BY product DESC"
         self.set_tree_values(sql,())
         self.set_combo_values()
@@ -147,23 +155,38 @@ class App(tk.Frame):
         obj.wait_visibility()
         obj.grab_set()
         self.master.wait_window(obj)
-        
+
+    def on_categories(self):
+
+        obj = categories.Dialog(self,self.engine)
+        obj.on_open()
+      
+    def on_suppliers(self):
+
+        obj = suppliers.Dialog(self,self.engine)
+        obj.on_open()
+
+    def on_edit(self,):
+
+        if self.selected_product is not None:
+            obj = product.Dialog(self,self.engine)
+            obj.on_open(self.selected_product)
+            obj.wait_visibility()
+            obj.grab_set()
+            self.master.wait_window(obj)
+        else:
+            msg = "Please select an item."
+            messagebox.showwarning(self.engine.title,msg)
+
+      
     def on_double_click(self,event):
 
-        obj = product.Dialog(self,self.engine)
-        obj.on_open(self.selected_dict_product)
-        obj.wait_visibility()
-        obj.grab_set()
-        self.master.wait_window(obj)
-        
+        self.on_edit()
+ 
     def get_selected_product(self, event):
         
-        #x = self.lstProducts.identify_row(event.x)
-        #print (x,type(x))
-        #selected_items = self.lstProducts.selection()
-        #print (selected_items[0])
         pk = int(self.lstProducts.item(self.lstProducts.focus())['text'])
-        self.selected_dict_product = self.engine.get_selected('products','product_id', pk)
+        self.selected_product = self.engine.get_selected('products','product_id', pk)
 
     def get_selected_category(self, event):
         
@@ -203,9 +226,13 @@ class App(tk.Frame):
             l.append(i[1])
 
         self.cbCategories['values']=l
+
+    def on_about(self,):
+        messagebox.showinfo(self.engine.title, self.engine.about)   
+        
         
     def on_exit(self):
-        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+        if messagebox.askokcancel(self.engine.title, "Do you want to quit?"):
             self.master.destroy()
 
 def main():
