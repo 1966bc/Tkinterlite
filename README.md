@@ -1,6 +1,15 @@
 # tkinterlite
-a study on tkinter and sqlite
+
+2017-04-10
 Hi all, here we are!
-This is my personal study on python 3, its tkinter incarnation, and sqlite and by the way start to study git-hub.
+tkinterlite, (Tkinter Sqlite) is my personal study on tkinter and sqlite, and by the way start to study git-hub.
+To run the project, execute tkinterlite.py , something like...
+
+bc@hal9000:~/tkinterlite$ python3 tkinterlite.py 
+
+enjoy yourself
+
+
+
 
 
