@@ -26,8 +26,8 @@ class Dialog(tk.Toplevel):
 
         Label(self, text="Category:").grid(row=0)
         Label(self, text="Description:").grid(row=1)
-        self.txtCategory = Entry(self)
-        self.txtDescription = Entry(self)
+        self.txtCategory = Entry(self, bg='white')
+        self.txtDescription = Entry(self, bg='white')
         self.txtCategory.grid(row=0, column=1)
         self.txtDescription.grid(row=1, column=1)
        
