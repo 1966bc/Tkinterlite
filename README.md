@@ -12,7 +12,6 @@ bc@hal9000:~/tkinterlite$ python3 tkinterlite.py
 
 enjoy yourself
 
-written by 1966bc mailto[giuseppe.costanzi@gmail.com] Location: Milky Way Solar System Third Planet (Earth) Italy Rome.
 
 
 
