@@ -25,7 +25,7 @@ class Dialog(tk.Toplevel):
         self.enable =  BooleanVar()
 
         Label(self, text="Suplier:").grid(row=0)
-        self.txtSupplier = Entry(self)
+        self.txtSupplier = Entry(self, bg='white')
         self.txtSupplier.grid(row=0, column=1)
        
         self.btnSave = tk.Button(self,text="Save", command=self.on_save)
