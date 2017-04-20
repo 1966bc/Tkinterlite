@@ -17,14 +17,14 @@ class Dialog(tk.Toplevel):
         tk.Toplevel.__init__(self,)
 
         self.resizable(0,0)
-        
         self.parent = parent
+        self.grid()
         self.engine = engine
         self.index = index
 
         self.enable =  BooleanVar()
 
-        Label(self, text="Suplier:").grid(row=0)
+        Label(self, text="Suplier:").grid(row=0, sticky = W)
         self.txtSupplier = Entry(self, bg='white')
         self.txtSupplier.grid(row=0, column=1)
        
