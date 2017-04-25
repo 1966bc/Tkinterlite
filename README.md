@@ -1,6 +1,6 @@
 # Tkinterlite
 
-2017-04-10
+Spring 2017
 
 Hi all, here we are!
 
