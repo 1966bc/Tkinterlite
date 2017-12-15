@@ -1,0 +1,10 @@
+*font: Verdana 10
+*Label*font: Verdana 10 bold
+#*background: Gray80
+*Entry*background: white
+*foreground: black
+#*Listbox*foreground: orange
+*Listbox*background: lightyellow
+*Button*Width : 10
+
+
