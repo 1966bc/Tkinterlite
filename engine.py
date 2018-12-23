@@ -20,13 +20,19 @@ class Engine(DBMS, Widgets):
         
         self.title = "Tkinterlite"
 
-        self.version = 2
+        self.version = self.get_version()
 
         platform = "Debian Release 9 (stretch) 64-bit"
         s = "%s ver %s\nwritten by\n1966bc\nMilk galaxy\nSolar System\nThird planet(Earth) Italy(Rome)\ngiuseppecostanzi@gmail.com\n%s"
         msg = (s % (self.title,self.version,platform))
 
         self.about = msg
+
+        self.no_selected = "Attention!\nNo record selected!"
+        self.mandatory = "Attention!\nField %s is mandatory!"
+        self.delete = "Delete data?"
+        self.ask_to_save = "Save data?"
+        self.abort = "Operation aborted!"
         
         
     def __str__(self):
@@ -38,6 +44,35 @@ class Engine(DBMS, Widgets):
         #for debug...
         for k, v in obj.iteritems():
                 print (k,v,type(v))
+
+    def get_version(self):
+        
+        try:
+            f = open('version', 'r')
+            s = f.readline()
+            f.close()
+            return s
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])
+
+    def get_dimensions(self):
+
+        try:
+            d = {}
+            with open("dimensions", "r") as filestream:
+                for line in filestream:
+                    currentline = line.split(",")
+                    d[currentline[0]] = currentline[1]
+                      
+            return d
+        except:
+            print(inspect.stack()[0][3])
+            print (sys.exc_info()[0])
+            print (sys.exc_info()[1])
+            print (sys.exc_info()[2])                
 
    
 def main():

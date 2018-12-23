@@ -139,13 +139,8 @@ class DBMS(object):
             
         return d
 
-    def get_update_sql_args(self, args, item):
-        l = list(args)
-        l.append(item)
-        return tuple(l)
-                
-
-    
+ 
+               
 def main():
     
 

@@ -1,5 +1,10 @@
 # Tkinterlite
 
+Winter 2018
+Heavy refactoring, change thread, it doesn't jam anymore now ;)
+Tkinterlite it's useful to study threads.
+Just go to the class ClockThread in main.py file. 
+
 Spring 2017
 
 Hi all, here we are!
