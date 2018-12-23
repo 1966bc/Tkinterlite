@@ -1,6 +1,8 @@
-# Tkinterlite
+# Tkinterlite (Tkinter & Sqlite)
 
 ![alt tag](https://user-images.githubusercontent.com/5463566/50382888-785b4d80-06a9-11e9-9558-8fc48d307cb3.png)
+
+Developend on Debian Release 9 (stretch) 64-bit.
 
 changelog
 
