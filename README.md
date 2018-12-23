@@ -1,9 +1,15 @@
 # Tkinterlite
 
+![alt tag](https://user-images.githubusercontent.com/5463566/50382888-785b4d80-06a9-11e9-9558-8fc48d307cb3.png)
+
+changelog
+
 Winter 2018
 
 Heavy refactoring, change thread, it doesn't jam anymore now ;)
+
 Tkinterlite it's useful to study threads.
+
 Just go to the class ClockThread in main.py file. 
 
 Spring 2017
@@ -17,9 +23,6 @@ To run the project, execute tkinterlite.py , something like...
 bc@hal9000:~/tkinterlite$ python3 tkinterlite.py 
 
 enjoy yourself
-
-![alt tag](https://user-images.githubusercontent.com/5463566/34051614-905e2232-e1bf-11e7-9c72-28b0a07fda34.png)
-
 
 
 
