@@ -11,9 +11,9 @@ import sys
 import shelve
 
 from dbms import DBMS
-from widgets import Widgets
+from tools import Tools
 
-class Engine(DBMS, Widgets):
+class Engine(DBMS, Tools):
     def __init__(self):
         super(Engine, self).__init__()
 
