@@ -54,7 +54,7 @@ class App(tk.Frame):
         self.clock = None
         #attention please, master is an attribute of self ergo root=Tk()
         self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
-
+        self.objs = []
         self.ops = ('Cateogries','Suppliers')
         self.status_bar_text = tk.StringVar()
         self.filter_id = tk.IntVar()
@@ -215,7 +215,7 @@ class App(tk.Frame):
     def on_open(self, evt=None):
 
         self.selected_product = None
-        sql = "SELECT * FROM products ORDER BY product DESC"
+        sql = "SELECT * FROM products ORDER BY product ASC"
         self.set_tree_values(sql,())
         self.cbCombo.set('')
         self.set_combo_values()
@@ -246,10 +246,14 @@ class App(tk.Frame):
         obj.on_open()
 
     def on_edit(self, evt):
+        
 
         if self.lstProducts.focus():
-            obj = frames.product.Dialog(self,self.engine)
-            obj.on_open(self.selected_product)
+
+            item_iid = self.lstProducts.selection()
+            obj = frames.product.Dialog(self, self.engine, item_iid)
+            obj.on_open(self.selected_product,)
+            
         else:
             msg = "Please select an item."
             messagebox.showwarning(self.engine.title,msg)
@@ -259,27 +263,28 @@ class App(tk.Frame):
         self.on_edit(self)
  
     def get_selected_product(self, evt):
-        
-        pk = int(self.lstProducts.item(self.lstProducts.focus())['text'])
-        self.selected_product = self.engine.get_selected('products','product_id', pk)
 
+        if self.lstProducts.focus():
+            pk = int(self.lstProducts.item(self.lstProducts.focus())['text'])
+            self.selected_product = self.engine.get_selected('products', 'product_id', pk)
+         
     def get_selected_combo_item(self, evt):
         
         index = self.cbCombo.current()
         selected_id = self.dict_combo_values[index]
 
         if self.filter_id.get() !=1:
-            sql = "SELECT * FROM products WHERE supplier_id =? ORDER BY product DESC"
+            sql = "SELECT * FROM products WHERE supplier_id =? ORDER BY product"
         else:
-            sql = "SELECT * FROM products WHERE category_id =? ORDER BY product DESC"
+            sql = "SELECT * FROM products WHERE category_id =? ORDER BY product"
             
         args = (selected_id,)
         self.set_tree_values(sql, args)
         
     def set_tree_values(self, sql, args):
 
-        self.lstProducts.tag_configure('is_enable', background='gray')
-        self.lstProducts.tag_configure('is_zero', background='red')
+        self.lstProducts.tag_configure('is_enable', background='light gray')
+        self.lstProducts.tag_configure('is_zero', background=self.engine.get_rgb(255,160,122))
 
         for i in self.lstProducts.get_children():
             self.lstProducts.delete(i)
@@ -291,12 +296,12 @@ class App(tk.Frame):
             for i in rs:
                 if i[7] !=0:
                     if i[6]<1:
-                        self.lstProducts.insert('', 0, text=i[0],values=(i[1],i[4],i[6],i[5]), tags = ('is_zero',))
+                        self.lstProducts.insert('', tk.END, iid=i[0], text=i[0],values=(i[1],i[4],i[6],i[5]), tags = ('is_zero',))
                     else:
-                        self.lstProducts.insert('', 0, text=i[0],values=(i[1],i[4],i[6],i[5]))
+                        self.lstProducts.insert('', tk.END, iid=i[0], text=i[0],values=(i[1],i[4],i[6],i[5]))
                         
                 else:
-                    self.lstProducts.insert('', 0, text=i[0],values=(i[1],i[4],i[6],i[5]), tags = ('is_enable',))
+                    self.lstProducts.insert('', tk.END, iid=i[0], text=i[0],values=(i[1],i[4],i[6],i[5]), tags = ('is_enable',))
         else:self.lblProdutcs['text'] = 'Products 0'
            
 

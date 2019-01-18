@@ -12,13 +12,14 @@ from tkinter import messagebox
 from tkinter import ttk
 
 class Dialog(tk.Toplevel):     
-    def __init__(self, parent, engine):
+    def __init__(self, parent, engine, item_iid=None):
         super().__init__(name='product')
 
         self.transient(parent)
         self.resizable(0,0)
         self.parent = parent
         self.engine = engine
+        self.item_iid = item_iid
         self.vcmd = (self.register(self.validate), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
         self.product = tk.StringVar()
         self.stock = tk.IntVar()
@@ -51,8 +52,6 @@ class Dialog(tk.Toplevel):
         tk.Label(w, text="Package:").grid(row=r, sticky=tk.W)
         self.txtPackage = tk.Entry(w,
                            bg='white',
-                           validate = 'key',
-                           validatecommand = self.vcmd,
                            textvariable=self.package)
         self.txtPackage.grid(row=r, column=1, padx=5, pady=5)
 
@@ -88,16 +87,15 @@ class Dialog(tk.Toplevel):
 
     def on_open(self, selected_product=None):
 
-        self.selected_product = selected_product
+        
         self.set_categories()
         self.set_suppliers()
 
-        if self.selected_product is not None:
+        if self.item_iid is not None:
             self.selected_product = selected_product
             msg = "Update  %s" % (self.selected_product[1],)
             self.set_values()
         else:
-            self.insert_mode = True
             msg = "Insert new product"
             self.enable.set(1)
 
@@ -136,7 +134,7 @@ class Dialog(tk.Toplevel):
 
             args =  self.get_values()
 
-            if self.selected_product is not None:
+            if self.item_iid is not None:
 
                 sql = self.engine.get_update_sql('products','product_id')
                 args.append(self.selected_product[0])
@@ -147,6 +145,12 @@ class Dialog(tk.Toplevel):
 
             self.engine.write(sql,args)
             self.parent.on_open()
+
+            if self.item_iid is not None:
+                #self.parent.lstProducts.focus(self.item_iid)
+                self.parent.lstProducts.selection_set(self.item_iid)
+                self.parent.lstProducts.see(self.item_iid)
+                
             self.on_cancel()
     
     def set_categories(self):
