@@ -8,6 +8,7 @@
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 
 class Dialog(tk.Toplevel):     
@@ -23,8 +24,7 @@ class Dialog(tk.Toplevel):
         self.category = tk.StringVar()
         self.description = tk.StringVar()
         self.enable =  tk.BooleanVar()
-
-       
+        self.engine.center_me(self)
         self.init_ui()
 
     def init_ui(self):
@@ -32,25 +32,25 @@ class Dialog(tk.Toplevel):
         w = self.engine.get_init_ui(self)
 
         r =0
-        tk.Label(w, text="Category:",).grid(row=r, sticky=tk.W)
-        self.txtCategory = tk.Entry(w, bg='white', textvariable=self.category)
+        ttk.Label(w, text="Category:",).grid(row=r, sticky=tk.W)
+        self.txtCategory = ttk.Entry(w, textvariable=self.category)
         self.txtCategory.grid(row=r, column=1, padx=5, pady=5)
 
-        r =1
-        tk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
-        self.txtDescription = tk.Entry(w, bg='white', textvariable=self.description)
+        r +=1
+        ttk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
+        self.txtDescription = ttk.Entry(w, textvariable=self.description)
         self.txtDescription.grid(row=1, column=1, padx=5, pady=5)
 
-        r =2
-        tk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        tk.Checkbutton(w,
+        r +=1
+        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        ttk.Checkbutton(w,
                        onvalue=1,
                        offvalue=0,
                        variable = self.enable,).grid(row=r,
                                                     column=1,
                                                     sticky=tk.W)
 
-        self.engine.get_save_cancel(self, self)
+        self.engine.get_save_cancel(self, w)
        
 
     def on_open(self, selected_item=None):
@@ -69,10 +69,9 @@ class Dialog(tk.Toplevel):
 
     def on_save(self, evt):
 
-        fields =(self.txtCategory, self.txtDescription)
-        
-        if self.engine.on_fields_control(fields)==False:return
+        if self.engine.on_fields_control(self)==False:return
         if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+
             args =  self.get_values()
 
             if self.index is not None:
@@ -85,7 +84,6 @@ class Dialog(tk.Toplevel):
 
             self.engine.write(sql,args)
             self.parent.on_open()
-
 
             if self.index is not None:
                 self.parent.lstItems.see(self.index)

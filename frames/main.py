@@ -1,11 +1,4 @@
-#!/usr/bin/python3
-#-----------------------------------------------------------------------------
-# project:  tkinterlite
-# authors:  1966bc
-# mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2018-12-23
-# version:  0.2                                                                
-#-----------------------------------------------------------------------------
+
 import os
 import threading
 import queue
@@ -15,11 +8,21 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
-
 from engine import Engine
 import frames.product
 import frames.categories
 import frames.suppliers
+
+
+__author__ = "1966bc aka giuseppe costanzi"
+__copyright__ = "Copyleft"
+__credits__ = ["hal9000",]
+__license__ = "GNU GPL Version 3, 29 June 2007"
+__version__ = "42"
+__maintainer__ = "1966bc"
+__email__ = "giuseppecostanzi@gmail.com"
+__date__ = "2018-12-23"
+__status__ = "Production"
 
 
 class ClockThread(threading.Thread):
@@ -74,6 +77,21 @@ class App(tk.Frame):
         self.init_toolbar()
         self.init_ui()
         self.init_status_bar()
+
+    def set_style(self):
+        self.master.style = ttk.Style()
+        #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
+        self.master.style.theme_use("clam")
+        self.master.style.configure('.', background=self.engine.get_rgb(240,240,237))
+
+    def set_icon(self):
+        imgicon = tk.PhotoImage(file=os.path.join('icons','warehouse.png'))
+        self.master.call('wm', 'iconphoto', self.master._w, '-default', imgicon)
+
+    def set_title(self):
+        s = "{0} {1}".format(self.engine.title, __version__)
+        self.master.title(s)
+           
         
     def init_menu(self):
 
@@ -121,21 +139,6 @@ class App(tk.Frame):
 
         toolbar.pack(side=tk.TOP, fill=tk.X)
 
-    def set_style(self):
-        self.master.option_readfile('option_db')
-        self.master.style = ttk.Style()
-        #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-        self.master.style.theme_use("clam")        
-
-    def set_icon(self):
-        imgicon = tk.PhotoImage(file=os.path.join('icons','warehouse.png'))
-        self.master.call('wm', 'iconphoto', self.master._w, '-default', imgicon)
-
-    def set_title(self):
-        s = "{0} {1}".format(self.engine.title, self.engine.get_version())
-        self.master.title(s)
-        self.master.protocol("WM_DELETE_WINDOW", self.on_exit)
-
     def center_ui(self):
 
         ws = self.master.winfo_screenwidth()
@@ -166,9 +169,9 @@ class App(tk.Frame):
 
         #products
         #-----------------------------------------------------------------------
-        w = tk.Frame(self,)
+        w = self.engine.get_frame(self, 8)
 
-        self.lblProdutcs = tk.LabelFrame(w,text='Products',)
+        self.lblProdutcs = ttk.LabelFrame(w,text='Products',)
         self.lstProducts = self.engine.get_tree(self.lblProdutcs, self.cols,)
         self.lstProducts.bind("<<TreeviewSelect>>", self.get_selected_product)
         self.lstProducts.bind("<Double-1>", self.on_double_click)
@@ -177,39 +180,35 @@ class App(tk.Frame):
 
         #categories
         #-----------------------------------------------------------------------
-        self.lblCombo = tk.LabelFrame(w,)
+        self.lblCombo = ttk.LabelFrame(w,)
         
         self.cbCombo =  ttk.Combobox(self.lblCombo)
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
         
-        self.lblCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=0)
+        self.lblCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X,pady=5, expand=0)
         
         w.pack(side=tk.LEFT, fill=tk.BOTH, anchor=tk.W, expand=1)
 
         #buttons and radio
         #-----------------------------------------------------------------------
-        bts = self.engine.get_label_frame(self)
+        f = self.engine.get_frame(self, 8)
 
-        self.btnReset = self.engine.get_button(bts, "Reset")
-        self.btnReset.bind("<Button-1>", self.on_open)
+        bts = (('Reset', self.on_open),
+               ('New', self.on_add),
+               ('Edit', self.on_edit),
+               ('Close', self.on_exit))
 
-        self.btnAdd = self.engine.get_button(bts, "New")
-        self.btnAdd.bind("<Button-1>", self.on_add)
-        
-        self.btnEdit = self.engine.get_button(bts, "Edit")
-        self.btnEdit.bind("<Button-1>", self.on_edit)
-        
-        self.btClose = self.engine.get_button(bts, "Close")
-        self.btClose.bind("<Button-1>", self.on_exit)
+        for btn in bts:
+            self.engine.get_button(f, btn[0] ).bind("<Button-1>", btn[1])
 
-        self.engine.get_radio_buttons(bts,
+        self.engine.get_radio_buttons(f,
                                       'Combo data',
                                       self.ops,
                                       self.filter_id,
                                       self.set_combo_values).pack()
 
-        bts.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
+        f.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
    
           
     def on_open(self, evt=None):
