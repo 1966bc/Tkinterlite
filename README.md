@@ -1,6 +1,6 @@
 # Tkinterlite (Tkinter & Sqlite)
 
-![alt tag](https://user-images.githubusercontent.com/5463566/51383458-c41edc80-1b19-11e9-8eaa-ae7ee2303d99.png)
+![alt tag](https://user-images.githubusercontent.com/5463566/52619311-a4bd6a00-2ea1-11e9-9223-b8988e843ee7.png)
 
 Developend on Debian Release 9 (stretch) 64-bit.
 
