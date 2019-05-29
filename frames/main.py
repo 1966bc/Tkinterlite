@@ -219,13 +219,10 @@ class App(tk.Frame):
         self.cbCombo.set('')
         self.set_combo_values()
 
-        if (threading.active_count()>1):
-            pass
-                  
-        else:
-            self.clock = ClockThread(self.queue)
-            self.clock.start()
-            self.periodiccall()
+     
+        self.clock = ClockThread(self.queue)
+        self.clock.start()
+        self.periodic_call()
 
 
     def on_add(self, evt):
@@ -339,18 +336,19 @@ class App(tk.Frame):
     def on_exit(self, evt=None):
         if messagebox.askokcancel(self.engine.title, "Do you want to quit?"):
             if(threading.active_count()!=1):
-                self.clock.stop()
+                if self.clock is not None:
+                    self.clock.stop()
                 self.master.destroy()
 
-    def periodiccall(self):
+    def periodic_call(self):
 
-        self.checkqueue()
+        self.check_queue()
         if self.clock.is_alive():
-            self.after(1, self.periodiccall)
+            self.after(1, self.periodic_call)
         else:
             pass
 
-    def checkqueue(self):
+    def check_queue(self):
         while self.queue.qsize():
             try:
                 x = self.queue.get(0)
