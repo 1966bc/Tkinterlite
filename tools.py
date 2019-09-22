@@ -1,18 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-""" This is the tools module. 
+""" This is the tools module of Biovarase. 
 It helps to draw the windwos."""
-import sys
-import os
 import datetime
-from datetime import date
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 from tkinter import font
-from tkinter import ttk
-from tkinter.scrolledtext import ScrolledText
-from PIL import Image, ImageTk
-
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -24,14 +18,26 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "2018-12-25"
 __status__ = "Production"
 
-class Tools(object):
-
+class Tools:
     def __init__(self,*args, **kwargs):
-
-        super(Tools, self).__init__( *args, **kwargs)
+        
+        self.args = args
+        self.kwargs = kwargs
         
     def __str__(self):
-        return "class: %s\nMRO: %s" % (self.__class__.__name__,  [x.__name__ for x in Tools.__mro__])
+        return "class: %s" % (self.__class__.__name__, )
+
+    def on_log(self, container, function, exc_value, exc_type, module):
+
+        now = datetime.datetime.now()
+        log_text = "{0}\n {1}\n{2}\n{3}\n{4}\n\n".format(now, function, exc_value, exc_type, module)
+        log_file = open('log.txt','a')
+        log_file.write(log_text)
+        log_file.close()
+
+        msg = "Except type: {0}\n\nModule:{1}\n\nFunction{2}\n\n{3}".format(exc_type, module, function, exc_value)
+        messagebox.showwarning(self.title, msg, parent=container)
+        
 
 
     def get_rgb(self, r,g,b):
@@ -80,6 +86,18 @@ class Tools(object):
         
         return w
 
+    def get_radio_buttons(self, container, text, ops, v, callback=None):
+
+        w = self.get_label_frame(container, text = text)
+        
+        for index, text in enumerate(ops):
+            ttk.Radiobutton(w,
+                            text=text,
+                            variable=v,
+                            command=callback,
+                            value=index,).pack(anchor=tk.W)     
+        return w
+
     def get_label(self, container, text ,textvariable=None, anchor=None, args=()):
 
         w = ttk.Label(container,
@@ -110,29 +128,7 @@ class Tools(object):
         return w
 
 
-    def get_scale(self, container, text, frm, to, width, var=None, callback=None):
-
-        w = self.get_label_frame(container, text = text,)
-        
-        tk.Scale(w,
-                 from_=frm,
-                 to=to,
-                 orient=tk.HORIZONTAL,
-                 variable=var).pack(anchor=tk.N) 
-        return w
-
-    def get_radio_buttons(self, container, text, ops, v, callback=None):
-
-        w = self.get_label_frame(container, text = text)
-        
-        for index, text in enumerate(ops):
-            ttk.Radiobutton(w,
-                            text=text,
-                            variable=v,
-                            command=callback,
-                            value=index,).pack(anchor=tk.W)     
-        return w
-
+  
     def set_font(self,family,size,weight=None):
 
         if weight is not None:
@@ -150,6 +146,7 @@ class Tools(object):
         w = tk.Listbox(container,
                     relief=tk.GROOVE,
                     selectmode=tk.BROWSE,
+                    exportselection=0,
                     height=height,
                     width=width,
                     background = 'white',
@@ -162,43 +159,35 @@ class Tools(object):
         sb.pack(fill=tk.Y, expand=1)
 
         return w
-
-    def get_text_box(self, container, height=None, width=None, row=None, col=None):
-
-        w = ScrolledText(container,
-                    bg='white',
-                    relief=tk.GROOVE,
-                    height=height,
-                    width=width,
-                    font='TkFixedFont',)
-     
-        if row is not None:
-            #print(row,col)
-            w.grid(row=row, column=1,sticky=tk.W)
-        else:
-            w.pack(side=tk.LEFT,fill=tk.BOTH, expand =1)
-           
-        return w
-        
-
+      
     def get_save_cancel(self, caller, container):
 
         caller.btnSave = self.get_button(container, "Save",0,2)
         caller.btnSave.bind("<Button-1>", caller.on_save)
         caller.btnSave.bind("<Return>", caller.on_save)
-    
-        caller.btCancel = self.get_button(container, "Cancel", 1,2)
+        caller.btCancel = self.get_button(container, "Close", 1,2)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
+
+        caller.bind("<Alt-s>", caller.on_save)
+        caller.bind("<Alt-c>", caller.on_cancel)
 
 
     def get_export_cancel(self, caller, container):
 
-        caller.btnExport = self.get_button(container, "Export",0,2)
+        w = self.get_frame(container,5)
+
+        caller.btnExport = self.get_button(w, "Export",0,1,)
         caller.btnExport.bind("<Button-1>", caller.on_export)
         caller.btnExport.bind("<Return>", caller.on_export)
     
-        caller.btCancel = self.get_button(container, "Close", 1,2)
+        caller.btCancel = self.get_button(w, "Close", 1,1)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
+
+        caller.bind("<Alt-e>", caller.on_export)
+        caller.bind("<Alt-c>", caller.on_cancel)
+        
+
+        w.grid(row=0, column=2, sticky=tk.N+tk.E, padx=5, pady=5)
 
 
     def get_save_cancel_delete(self, caller, container):
@@ -213,6 +202,10 @@ class Tools(object):
         caller.btCancel = self.get_button(container, "Close", 2,2)
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
+        caller.bind("<Alt-s>", caller.on_save)
+        caller.bind("<Alt-d>", caller.on_delete)
+        caller.bind("<Alt-c>", caller.on_cancel)
+
 
     def get_add_edit_cancel(self, caller, container):
 
@@ -224,113 +217,10 @@ class Tools(object):
         caller.btCancel = self.get_button(container, "Close")
         caller.btCancel.bind("<Button-1>", caller.on_cancel)
 
-       
+        caller.bind("<Alt-a>", caller.on_add)
+        caller.bind("<Alt-e>", caller.on_edit)
+        caller.bind("<Alt-c>", caller.on_cancel)
 
-
-    def get_add_edit_delete_cancel(self, caller, container):
-
-        bts = self.get_label_frame(container)
-
-        caller.btnAdd = self.get_button(bts, "Add")
-        caller.btnAdd.bind("<Return>", caller.on_add)
-        caller.btnAdd.bind("<Button-1>", caller.on_add)
-        caller.btnEdit = self.get_button(bts, "Edit")
-        caller.btnEdit.bind("<Button-1>", caller.on_edit)
-        caller.btnDelete = self.get_button(bts, "Delete")
-        caller.btnDelete.bind("<Button-1>", caller.on_delete)
-        caller.btCancel = self.get_button(bts, "Close")
-        caller.btCancel.bind("<Button-1>", caller.on_cancel)
-
-        bts.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
-
-        return bts
-
-    def get_a_pic(self, filename=None):
-
-        if filename is not None:
-            if os.path.isfile(filename):
-                pass
-            else:
-                filename = os.path.join('images', 'logo.jpg')
-        else:
-            filename = os.path.join('images', 'logo.jpg')
-            
-        image = Image.open(filename)
-        image = image.resize((80, 80), Image.ANTIALIAS)
-        return ImageTk.PhotoImage(image)
-    
-
-    def get_toolbar(self, caller, callbacks):
-
-        toolbar = ttk.Frame(caller,)
-
-        for k, v in enumerate(callbacks):
-            
-            img = tk.PhotoImage(file=os.path.join('icons', v[0]))
-            btn =ttk.Button(toolbar,
-                      width=20,
-                      image=img,
-                      command=v[1])
-            btn.image = img
-            btn.pack(side=tk.TOP, padx=2, pady=2)
-
-        toolbar.pack(side=tk.LEFT, fill=tk.Y, expand=0)              
-            
-
-        return  toolbar
-
-
-    def get_calendar(self, caller, container, row=None, column=None):
-
-        w = tk.LabelFrame(container, borderwidth=2)
-
-        d = tk.Spinbox(w, bg='white', fg='blue',width=2, from_=1, to=31, textvariable=caller.day,relief=tk.GROOVE,)
-        
-        m = tk.Spinbox(w, bg='white',fg='blue', width=2, from_=1, to=12, textvariable=caller.month,relief=tk.GROOVE,)
-
-        y = tk.Spinbox(w, bg='white', fg='blue',width=4, from_=1900, to=3000, textvariable=caller.year,relief=tk.GROOVE,)
-
-        for p,i in enumerate((d,m,y)):
-             if row is not None:
-                 i.grid(row=0, column=p, padx=5, pady=5,sticky=tk.W)
-             else:
-                 i.pack(side=tk.LEFT, fill=tk.X, padx=2)
-                 
-                 
-        if row is not None:
-            w.grid(row = row, column = column,sticky=tk.W)
-        else:
-            w.pack()
-
-        return w
-
-    def set_calendar_date(self, caller):
-
-        today = date.today()
-
-        caller.day.set(today.day)
-        caller.month.set(today.month)
-        caller.year.set(today.year)
-
-    def get_calendar_date(self, caller):
-
-        try:
-            return datetime.date(caller.year.get(), caller.month.get(), caller.day.get())
-        except:
-            msg = "Format data error:\n%s"%str(sys.exc_info()[1])
-            messagebox.showerror(self.title, msg)
-            return False
-
-    def get_calendar_timestamp(self, caller):
-
-        try:
-            t = datetime.datetime.now()
-            return datetime.datetime(caller.year.get(), caller.month.get(), caller.day.get(), t.hour , t.minute, t.second)
-            
-        except:
-            msg = "Format data error:\n%s"%str(sys.exc_info()[1])
-            messagebox.showerror(self.title, msg)
-            return False
 
     def on_fields_control(self, container):
 
@@ -343,17 +233,24 @@ class Tools(object):
                     #for i in field.keys():
                     #    print (i)
                     if not field.get():
-                        messagebox.showwarning(self.title,msg)
+                        messagebox.showwarning(self.title,msg,parent=container)
                         field.focus()
                         return 0
                     elif type(field)==ttk.Combobox:
                           if field.get() not in field.cget('values'):
                               msg = "You can choice only values in the list."
-                              messagebox.showwarning(self.title,msg)
+                              messagebox.showwarning(self.title,msg,parent=container)
                               field.focus()
                               return 0
 
     def get_tree(self, container, cols, size=None, show=None):
+
+
+        #this is a patch because with tkinter version with Tk 8.6.9 the color assignment with tags dosen't work
+        #https://bugs.python.org/issue36468
+        style = ttk.Style()
+        style.map('Treeview', foreground=self.fixed_map('foreground'),background=self.fixed_map('background'))
+
 
         ttk.Style().configure("Treeview.Heading",background = self.get_rgb(240,240,237))
         ttk.Style().configure("Treeview.Heading", font=('Helvetica', 10 ))
@@ -387,34 +284,29 @@ class Tools(object):
 
         return w
 
-    def get_validate_text(self, caller, what=None ):
+    def fixed_map(self, option):
+        
+        style = ttk.Style()
+        # Fix for setting text colour for Tkinter 8.6.9
+        # From: https://core.tcl.tk/tk/info/509cafafae
+        #
+        # Returns the style map for 'option' with any styles starting with
+        # ('!disabled', '!selected', ...) filtered out.
 
-        if what is not None:
-            callback = self.validate_integer
-        else:
-            callback = self.validate_float
-            
-        return (caller.register(callback),
-             '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        # style.map() returns an empty list for missing options, so this
+        # should be future-safe.
+        return [elm for elm in style.map('Treeview', query_opt=option) if
+                elm[:2] != ('!disabled', '!selected')]        
+
 
     def get_validate_integer(self, caller ):
-        return (caller.register(self.validate_integer),
-             '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        return (caller.register(self.validate_integer), '%d', '%P', '%S')
 
     def get_validate_float(self, caller ):
-        return (caller.register(self.validate_float),
-             '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+        return (caller.register(self.validate_float),'%d', '%P', '%S')
 
 
-    def limit_chars(self, c, v, *args):
-        
-        if len(v.get())>c:
-               v.set(v.get()[:-1])
-         
-
-    def validate_integer(self, action, index, value_if_allowed,
-                 prior_value, text, validation_type,
-                 trigger_type, widget_name):
+    def validate_integer(self, action, value_if_allowed, text,):
         # action=1 -> insert
         if(action=='1'):
             if text in '0123456789':
@@ -427,12 +319,11 @@ class Tools(object):
                 return False
         else:
             return True
-
-    def validate_float(self, action, index, value_if_allowed,
-                       prior_value, text, validation_type, trigger_type, widget_name):
+        
+    def validate_float(self, action, value_if_allowed, text,):
         # action=1 -> insert
         if(action=='1'):
-            if text in '0123456789.-+':
+            if text in '0123456789.':
                 try:
                     float(value_if_allowed)
                     return True
@@ -441,27 +332,8 @@ class Tools(object):
             else:
                 return False
         else:
-            return True              
-
-    def get_widget_attributes(self,container):
-        all_widgets = container.winfo_children()
-        for widg in all_widgets:
-            print('\nWidget Name: {}'.format(widg.winfo_class()))
-            keys = widg.keys()
-            for key in keys:
-                print("Attribute: {:<20}".format(key), end=' ')
-                value = widg[key]
-                vtype = type(value)
-                print('Value: {:<30} Type: {}'.format(value, str(vtype)))
-
-    def get_widgets(self,container):
-        all_widgets = container.winfo_children()
-        for widg in all_widgets:
-            print(widg)
-            print('\nWidget Name: {}'.format(widg.winfo_class()))
-            #keys = widg.keys()
-            
-                                
+            return True            
+                            
 def main():
     
     foo = Tools()
