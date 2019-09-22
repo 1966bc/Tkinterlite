@@ -1,4 +1,4 @@
-
+import sys
 import os
 import threading
 import queue
@@ -8,10 +8,12 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
-from engine import Engine
+
 import frames.product
 import frames.categories
 import frames.suppliers
+
+from engine import Engine
 
 
 __author__ = "1966bc aka giuseppe costanzi"
@@ -21,18 +23,18 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "42"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2018-12-23"
+__date__ = "2019-09-22"
 __status__ = "Production"
 
 
 class ClockThread(threading.Thread):
 
-    def __init__(self, queue,):
+    def __init__(self, queue, engine):
         threading.Thread.__init__(self)
 
         self.queue = queue
         self.check = True
-        self.engine = Engine()
+        self.engine = engine
 
     def stop(self):
         self.check = False
@@ -48,15 +50,17 @@ class ClockThread(threading.Thread):
             self.queue.put(msg)
            
 
-class App(tk.Frame):
-    def __init__(self, engine):
+class Tkinterlite(tk.Frame):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__()
 
-        self.engine = engine
+        self.parent = parent
+        self.engine = kwargs['engine']
+        self.info = kwargs['info']
+        self.args = args
         self.queue = queue.Queue()
         self.clock = None
-        #attention please, master is an attribute of self ergo root=Tk()
-        self.master.protocol("WM_DELETE_WINDOW",self.on_exit)
+        
         self.objs = []
         self.ops = ('Cateogries','Suppliers')
         self.status_bar_text = tk.StringVar()
@@ -69,30 +73,13 @@ class App(tk.Frame):
                       ["#4",'Price','w',True,20,20],)
 
     
-        self.set_style()
-        self.set_icon()
-        self.set_title()
-        self.center_ui()
         self.init_menu()
         self.init_toolbar()
         self.init_ui()
         self.init_status_bar()
+        self.center_ui()
 
-    def set_style(self):
-        self.master.style = ttk.Style()
-        #('winnative', 'clam', 'alt', 'default', 'classic', 'vista', 'xpnative')
-        self.master.style.theme_use("clam")
-        self.master.style.configure('.', background=self.engine.get_rgb(240,240,237))
-
-    def set_icon(self):
-        imgicon = tk.PhotoImage(file=os.path.join('icons','warehouse.png'))
-        self.master.call('wm', 'iconphoto', self.master._w, '-default', imgicon)
-
-    def set_title(self):
-        s = "{0} {1}".format(self.engine.title, __version__)
-        self.master.title(s)
-           
-        
+    
     def init_menu(self):
 
         m_main = tk.Menu(self, bd=1)
@@ -115,7 +102,7 @@ class App(tk.Frame):
 
         m_file.add_separator()
  
-        m_file.add_command(label="Exit", underline=0, command=self.on_exit)
+        m_file.add_command(label="Exit", underline=0, command=self.parent.on_exit)
 
         m_about.add_command(label="About", underline=0, command=self.on_about)
 
@@ -125,10 +112,10 @@ class App(tk.Frame):
 
         toolbar = tk.Frame(self, bd=1, relief=tk.RAISED)
 
-        img_exit = tk.PhotoImage(file=os.path.join('icons', 'exit.png'))
-        img_info = tk.PhotoImage(file=os.path.join('icons', 'info.png'))
+        img_exit = tk.PhotoImage(data=self.engine.get_exit__icon())
+        img_info = tk.PhotoImage(data=self.engine.get_info_icon())
 
-        exitButton = tk.Button(toolbar,width=20, image=img_exit, relief=tk.FLAT, command=self.on_exit)
+        exitButton = tk.Button(toolbar,width=20, image=img_exit, relief=tk.FLAT, command=self.parent.on_exit)
         infoButton = tk.Button(toolbar,width=20, image=img_info, relief=tk.FLAT, command=self.on_about)
         
         exitButton.image = img_exit
@@ -139,19 +126,7 @@ class App(tk.Frame):
 
         toolbar.pack(side=tk.TOP, fill=tk.X)
 
-    def center_ui(self):
-
-        ws = self.master.winfo_screenwidth()
-        hs = self.master.winfo_screenheight()
-        # calculate position x, y
-        d = self.engine.get_dimensions()
-        w = int(d['w'])
-        h = int(d['h'])
-        x = (ws/2) - (w/2)    
-        y = (hs/2) - (h/2)
-        self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))     
-        
-
+   
     def init_status_bar(self):
 
         self.status = tk.Label(self.master,
@@ -197,7 +172,7 @@ class App(tk.Frame):
         bts = (('Reset', self.on_open),
                ('New', self.on_add),
                ('Edit', self.on_edit),
-               ('Close', self.on_exit))
+               ('Close', self.parent.on_exit))
 
         for btn in bts:
             self.engine.get_button(f, btn[0] ).bind("<Button-1>", btn[1])
@@ -209,6 +184,19 @@ class App(tk.Frame):
                                       self.set_combo_values).pack()
 
         f.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
+
+
+    def center_ui(self):
+
+        ws = self.master.winfo_screenwidth()
+        hs = self.master.winfo_screenheight()
+        # calculate position x, y
+        d = self.engine.get_dimensions()
+        w = int(d['w'])
+        h = int(d['h'])
+        x = (ws/2) - (w/2)    
+        y = (hs/2) - (h/2)
+        self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))                
    
           
     def on_open(self, evt=None):
@@ -219,36 +207,29 @@ class App(tk.Frame):
         self.cbCombo.set('')
         self.set_combo_values()
 
-     
-        self.clock = ClockThread(self.queue)
+        self.clock = ClockThread(self.queue, engine=self.engine)
+        #notice this, we use it on exit function that is in App class....to remember it.
+        self.parent.clock = self.clock
         self.clock.start()
         self.periodic_call()
 
 
     def on_add(self, evt):
-
-        obj = frames.product.Dialog(self,self.engine)
-        obj.transient(self)
-        obj.on_open()
-                   
+        obj = frames.product.Product(self, engine=self.engine, index=None).on_open()
+              
     def on_categories(self):
-
-        obj = frames.categories.Dialog(self,self.engine)
-        obj.on_open()
+        frames.categories.Categories(self, engine=self.engine).on_open()
       
     def on_suppliers(self):
-
-        obj = frames.suppliers.Dialog(self,self.engine)
-        obj.on_open()
+        frames.suppliers.Suppliers(self, engine=self.engine).on_open()
 
     def on_edit(self, evt):
         
-
         if self.lstProducts.focus():
 
-            item_iid = self.lstProducts.selection()
-            obj = frames.product.Dialog(self, self.engine, item_iid)
-            obj.on_open(self.selected_product,)
+            index = self.lstProducts.selection()
+
+            frames.product.Product(self, engine=self.engine, index=index).on_open(self.selected_product,)
             
         else:
             msg = "Please select an item."
@@ -331,15 +312,9 @@ class App(tk.Frame):
         self.cbCombo['values']=l
 
     def on_about(self,):
-        messagebox.showinfo(self.engine.title, self.engine.about)   
+        messagebox.showinfo(self.master.title(), self.info, parent=self)  
         
-    def on_exit(self, evt=None):
-        if messagebox.askokcancel(self.engine.title, "Do you want to quit?"):
-            if(threading.active_count()!=1):
-                if self.clock is not None:
-                    self.clock.stop()
-                self.master.destroy()
-
+        
     def periodic_call(self):
 
         self.check_queue()
@@ -355,12 +330,60 @@ class App(tk.Frame):
                 msg = "%s"%(x)
                 self.status_bar_text.set(msg)
             except queue.Empty:
-                pass                  
+                pass
 
+class App(tk.Tk):
+    """Tkinterlite Main Application start here"""
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+
+        self.protocol("WM_DELETE_WINDOW", self.on_exit)
+        self.style = ttk.Style()
+        self.engine = kwargs['engine']
+        self.set_title(kwargs['title'])
+        self.set_icon()
+        self.set_style(kwargs['style'])
+
+        frame = Tkinterlite(self, *args, **kwargs)
+        frame.on_open()
+        frame.pack(fill=tk.BOTH, expand=1)
+
+    def set_title(self, title):
+        s = "{0} {1}".format(title,  __version__)
+        self.title(s)        
+
+    def set_style(self, style):
+        self.style.theme_use(style)        
+        self.style.configure('.', background=self.engine.get_rgb(240,240,237))
+
+    def set_icon(self):
+        icon = tk.PhotoImage(data=self.engine.get_icon())
+        self.call('wm', 'iconphoto', self._w, '-default', icon)        
+
+    def on_exit(self,evt=None):
+        if messagebox.askokcancel(self.engine.title, "Do you want to quit?"):
+            if self.clock is not None:
+                    self.clock.stop()
+            self.destroy()
+         
 def main():
-    app = App(Engine())
-    app.on_open()
+
+    args = []
+    
+    for i in sys.argv:
+        args.append(i)
+
+    msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
+
+    info = msg.format("Tkinterlite"
+                      ,__author__,__copyright__,__credits__,__license__,
+                      __version__,__maintainer__,__email__,__date__,__status__)
+
+    kwargs={"style":"clam", "title":"Tkinterlite", "info":info, "engine":Engine()}
+    
+    app = App(*args, **kwargs)
+
     app.mainloop()
-  
+    
 if __name__ == '__main__':
     main()

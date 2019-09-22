@@ -3,30 +3,31 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2018-12-23
-# version:  0.2                                                                
+# modify:   2019-09-22
+# version:  0.3                                                                 
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-class Dialog(tk.Toplevel):     
-    def __init__(self,parent,engine,index=None):
+class Category(tk.Toplevel):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='category')
 
-        self.transient(parent)
-        self.resizable(0,0)
         self.parent = parent
-        self.engine = engine
-        self.index = index
-
+        self.engine = kwargs['engine']
+        self.index = kwargs['index']
+        self.resizable(0, 0)
+        self.transient(parent)
+        
         self.category = tk.StringVar()
         self.description = tk.StringVar()
         self.enable =  tk.BooleanVar()
-        self.engine.center_me(self)
+        
         self.init_ui()
-
+        self.engine.center_me(self)
+        
     def init_ui(self):
 
         w = self.engine.get_init_ui(self)
@@ -57,7 +58,7 @@ class Dialog(tk.Toplevel):
 
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "Update  %s" % (self.selected_item[1],)
+            msg = "{0} {1}".format("Update ", self.selected_item[1])
             self.set_values()
         else:
             self.insert_mode = True
@@ -67,10 +68,22 @@ class Dialog(tk.Toplevel):
         self.title(msg)
         self.txtCategory.focus()
 
+    def set_values(self,):
+
+        self.category.set(self.selected_item[1])
+        self.description.set(self.selected_item[2])
+        self.enable.set(self.selected_item[3])                
+
+    def get_values(self,):
+
+        return [self.category.get(),
+                self.description.get(),
+                self.enable.get()]
+    
     def on_save(self, evt):
 
         if self.engine.on_fields_control(self)==False:return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.master.title(), self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
 
@@ -91,17 +104,5 @@ class Dialog(tk.Toplevel):
                     
             self.on_cancel()
             
-    def get_values(self,):
-
-        return [self.category.get(),
-                self.description.get(),
-                self.enable.get()]
-    
-    def set_values(self,):
-
-        self.category.set(self.selected_item[1])
-        self.description.set(self.selected_item[2])
-        self.enable.set(self.selected_item[3])
-
     def on_cancel(self, evt=None):
         self.destroy()        

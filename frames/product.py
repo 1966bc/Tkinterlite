@@ -3,25 +3,23 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2018-12-23
-# version:  0.2                                                             
+# modify:   2019-09-22
+# version:  0.3                                                            
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
-
-class Dialog(tk.Toplevel):     
-    def __init__(self, parent, engine, item_iid=None):
+class Product(tk.Toplevel):
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='product')
 
-        self.transient(parent)
-        self.resizable(0,0)
         self.parent = parent
-        self.engine = engine
-        self.item_iid = item_iid
-        self.vcmd = self.engine.get_validate_float(self)
+        self.engine = kwargs['engine']
+        self.index = kwargs['index']
+        self.resizable(0, 0)
+        self.transient(parent)
 
         self.product = tk.StringVar()
         self.stock = tk.IntVar()
@@ -29,6 +27,7 @@ class Dialog(tk.Toplevel):
         self.price = tk.DoubleVar() 
         self.enable = tk.BooleanVar()
 
+        self.vcmd = self.engine.get_validate_float(self)
         self.set_style()
         self.engine.center_me(self)
         self.init_ui()
@@ -42,8 +41,6 @@ class Dialog(tk.Toplevel):
         s.configure('Package.TLabel',
                     foreground=self.engine.get_rgb(255,0,0),
                     background=self.engine.get_rgb(255,255,255))
-
-        
 
     def init_ui(self):
 
@@ -107,9 +104,9 @@ class Dialog(tk.Toplevel):
         self.set_categories()
         self.set_suppliers()
 
-        if self.item_iid is not None:
+        if self.index is not None:
             self.selected_product = selected_product
-            msg = "Update  %s" % (self.selected_product[1],)
+            msg = "{0} {1}".format("Update ", self.selected_product[1])
             self.set_values()
         else:
             msg = "Insert new product"
@@ -119,7 +116,6 @@ class Dialog(tk.Toplevel):
         self.txtProduct.focus()
 
     def set_values(self,):
-
 
         self.product.set(self.selected_product[1])
 
@@ -147,11 +143,11 @@ class Dialog(tk.Toplevel):
     def on_save(self, evt):
 
         if self.engine.on_fields_control(self)==False:return
-        if messagebox.askyesno(self.engine.title, self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.master.title(), self.engine.ask_to_save, parent=self) == True:
 
             args =  self.get_values()
 
-            if self.item_iid is not None:
+            if self.index is not None:
 
                 sql = self.engine.get_update_sql('products','product_id')
                 args.append(self.selected_product[0])
@@ -162,9 +158,9 @@ class Dialog(tk.Toplevel):
             self.engine.write(sql,args)
             self.parent.on_open()
 
-            if self.item_iid is not None:
-                self.parent.lstProducts.selection_set(self.item_iid)
-                self.parent.lstProducts.see(self.item_iid)
+            if self.index is not None:
+                self.parent.lstProducts.selection_set(self.index)
+                self.parent.lstProducts.see(self.index)
                 
             self.on_cancel()
     

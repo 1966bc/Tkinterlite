@@ -3,8 +3,8 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2018-12-23
-# version:  0.2                                                              
+# modify:   2019-09-22
+# version:  0.3                                                              
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -12,16 +12,17 @@ from tkinter import messagebox
 
 import frames.category
 
-class Dialog(tk.Toplevel):     
-    def __init__(self, parent, engine,):
+class Categories(tk.Toplevel):     
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='categories')
 
         self.parent = parent
-        self.engine = engine
+        self.engine = kwargs['engine']
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.obj = None
-        self.engine.center_me(self)
         self.init_ui()
-   
+        self.engine.center_me(self)
+
     def init_ui(self):
 
         f0 = self.engine.get_frame(self, 8)
@@ -54,19 +55,19 @@ class Dialog(tk.Toplevel):
 
     def on_add(self, evt):
 
-        obj = frames.category.Dialog(self,self.engine)
-        obj.on_open()
+        frames.category.Category(self, engine=self.engine, index=None).on_open()
 
+       
     def on_edit(self, evt):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            self.obj = frames.category.Dialog(self, self.engine, index)
+            self.obj = frames.category.Category(self, engine=self.engine, index=index)
             self.obj.on_open(self.selected_item,)
 
         else:
             msg = "Please select an item."
-            messagebox.showwarning(self.engine.title,msg)
+            messagebox.showwarning(self.master.title(), msg)
 
     def on_item_activated(self, evt):
 

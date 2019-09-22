@@ -3,8 +3,8 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2018-12-23
-# version:  0.2                                                                 
+# modify:   2019-09-22
+# version:  0.3                                                                
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -12,18 +12,17 @@ from tkinter import messagebox
 
 import frames.supplier
 
-class Dialog(tk.Toplevel):     
-    def __init__(self,parent,engine,):
+class Suppliers(tk.Toplevel):     
+    def __init__(self, parent, *args, **kwargs):
         super().__init__(name='suppliers')
 
-    
         self.parent = parent
-        self.engine = engine
+        self.engine = kwargs['engine']
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.obj = None
-        self.engine.center_me(self)
         self.init_ui()
-
-          
+        self.engine.center_me(self)
+   
     def init_ui(self):
 
         f0 = self.engine.get_frame(self, 8)
@@ -55,24 +54,20 @@ class Dialog(tk.Toplevel):
         self.title("Suppliers")
 
     def on_add(self, evt):
+        frames.supplier.Supplier(self, engine=self.engine, index=None).on_open()
 
-        obj = frames.supplier.Dialog(self,self.engine)
-        obj.on_open()
-
-    def on_edit(self, evt):
+    def on_edit(self, evt=None):
+        self.on_item_activated()
+       
+    def on_item_activated(self, evt=None):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            self.obj = frames.supplier.Dialog(self, self.engine, index)
+            self.obj = frames.supplier.Supplier(self, engine=self.engine, index=index)
             self.obj.on_open(self.selected_item,)
-
         else:
             msg = "Please select an item."
-            messagebox.showwarning(self.engine.title,msg)
-
-    def on_item_activated(self, evt):
-
-        self.on_edit(self)
+            messagebox.showwarning(self.master.title(), msg)
 
     def on_item_selected(self, evt):
 
