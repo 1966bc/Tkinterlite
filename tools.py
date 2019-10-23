@@ -1,7 +1,9 @@
+#!/usr/bin/python3
 #-----------------------------------------------------------------------------
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
+# modify:   10/04/2017
 #-----------------------------------------------------------------------------
 import datetime
 import tkinter as tk
@@ -14,11 +16,14 @@ class Tools:
 
         self.args = args
         self.kwargs = kwargs
+        
 
     def __str__(self):
-        return "class: %s" % (self.__class__.__name__, )
+        return "class: {0}\nMRO: {1}".format(self.__class__.__name__,
+                                             [x.__name__ for x in Tools.__mro__],)
 
-    
+
+
     def get_rgb(self, r, g, b):
         """translates an rgb tuple of int to a tkinter friendly color code"""
         return "#%02x%02x%02x" % (r, g, b)
@@ -36,6 +41,7 @@ class Tools:
         w.columnconfigure(0, weight=1)
         w.columnconfigure(1, weight=1)
         w.columnconfigure(2, weight=1)
+        
 
     def get_init_ui(self, container):
         """All insert,update modules have this same configuration on init_ui.
@@ -46,6 +52,7 @@ class Tools:
         w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E)
 
         return w
+    
 
     def get_frame(self, container, padding=None):
         return ttk.Frame(container, padding=padding)
@@ -90,6 +97,7 @@ class Tools:
             w.pack(fill=tk.X, padx=5, pady=5)
 
         return w
+    
 
     def get_spin_box(self, container, text, frm, to, width, var=None, callback=None):
 
@@ -115,6 +123,7 @@ class Tools:
             weight = tk.NORMAL
 
         return font.Font(family=family, size=size, weight=weight)
+    
 
     def get_listbox(self, container, height=None, width=None):
 
@@ -137,6 +146,7 @@ class Tools:
         sb.pack(fill=tk.Y, expand=1)
 
         return w
+    
 
     def get_save_cancel(self, caller, container):
 
@@ -148,42 +158,7 @@ class Tools:
 
         caller.bind("<Alt-s>", caller.on_save)
         caller.bind("<Alt-c>", caller.on_cancel)
-
-
-    def get_export_cancel(self, caller, container):
-
-        w = self.get_frame(container, 5)
-
-        caller.btnExport = self.get_button(w, "Export", 0, 1,)
-        caller.btnExport.bind("<Button-1>", caller.on_export)
-        caller.btnExport.bind("<Return>", caller.on_export)
-
-        caller.btCancel = self.get_button(w, "Close", 1, 1)
-        caller.btCancel.bind("<Button-1>", caller.on_cancel)
-
-        caller.bind("<Alt-e>", caller.on_export)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
-
-        w.grid(row=0, column=2, sticky=tk.N+tk.E, padx=5, pady=5)
-
-
-    def get_save_cancel_delete(self, caller, container):
-
-        caller.btnSave = self.get_button(container, "Save", 0, 2)
-        caller.btnSave.bind("<Button-1>", caller.on_save)
-        caller.btnSave.bind("<Return>", caller.on_save)
-
-        caller.btDelete = self.get_button(container, "Delete", 1, 2)
-        caller.btDelete.bind("<Button-1>", caller.on_delete)
-
-        caller.btCancel = self.get_button(container, "Close", 2, 2)
-        caller.btCancel.bind("<Button-1>", caller.on_cancel)
-
-        caller.bind("<Alt-s>", caller.on_save)
-        caller.bind("<Alt-d>", caller.on_delete)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
+        
 
     def get_add_edit_cancel(self, caller, container):
 
@@ -207,9 +182,6 @@ class Tools:
         for w in container.winfo_children():
             for field in w.winfo_children():
                 if type(field) in(ttk.Entry, ttk.Combobox):
-                    #print(type(field),)
-                    #for i in field.keys():
-                    #    print (i)
                     if not field.get():
                         messagebox.showwarning(self.title, msg, parent=container)
                         field.focus()
@@ -222,7 +194,6 @@ class Tools:
                               return 0
 
     def get_tree(self, container, cols, size=None, show=None):
-
 
         #this is a patch because with tkinter version with Tk 8.6.9 the color assignment with tags dosen't work
         #https://bugs.python.org/issue36468
