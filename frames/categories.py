@@ -14,8 +14,6 @@ class UI(tk.Toplevel):
         super().__init__(name='categories')
 
         self.attributes('-topmost', True)
-        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
-
         self.parent = parent
         self.engine = kwargs['engine']
         self.table = "categories"
