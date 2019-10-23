@@ -1,9 +1,7 @@
-#!/usr/bin/python3
 #-----------------------------------------------------------------------------
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   10/04/2017
 #-----------------------------------------------------------------------------
 import datetime
 import tkinter as tk
