@@ -4,53 +4,34 @@
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
 # modify:   10/04/2017
-# version:  0.1                                                                
 #-----------------------------------------------------------------------------
-import os
 import sys
-import shelve
-
+import inspect
 from dbms import DBMS
 from tools import Tools
 
 class Engine(DBMS, Tools):
-    def __init__(self):
-        super(Engine, self).__init__()
-
-        
-        self.title = "Tkinterlite"
-
-        self.version = self.get_version()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.no_selected = "Attention!\nNo record selected!"
         self.mandatory = "Attention!\nField %s is mandatory!"
         self.delete = "Delete data?"
         self.ask_to_save = "Save data?"
         self.abort = "Operation aborted!"
-        
-        
+
     def __str__(self):
-        return "class: %s" % (self.__class__.__name__, )
+        return "class: {0}\nMRO:{1}".format(self.__class__.__name__,
+                       [x.__name__ for x in Engine.__mro__])
 
+    def on_log(self, container, function, exc_value, exc_type, module):
 
-       
-    def explode_dict(self, obj):
-        #for debug...
-        for k, v in obj.iteritems():
-                print (k,v,type(v))
+        now = datetime.datetime.now()
+        log_text = "{0}\n{1}\n{2}\n{3}\n{4}\n\n".format(now, function, exc_value, exc_type, module)
+        log_file = open('log.txt','a')
+        log_file.write(log_text)
+        log_file.close()
 
-    def get_version(self):
-        
-        try:
-            f = open('version', 'r')
-            s = f.readline()
-            f.close()
-            return s
-        except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
 
     def get_dimensions(self):
 
@@ -60,13 +41,14 @@ class Engine(DBMS, Tools):
                 for line in filestream:
                     currentline = line.split(",")
                     d[currentline[0]] = currentline[1]
-                      
+
             return d
         except:
-            print(inspect.stack()[0][3])
-            print (sys.exc_info()[0])
-            print (sys.exc_info()[1])
-            print (sys.exc_info()[2])
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     def get_icon(self):
         return """iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABmJLR0QA/wD/A
@@ -114,7 +96,7 @@ class Engine(DBMS, Tools):
                   rAWkiQmCAKABgdtkDiOkVLy/K/nCCxvvT1HKuXjum5z2IdhzwizNFv6P8HBTs
                   Aff/7OxKvN4yIsjUadhmk0gR2q6DCSxFKplKG5PfqDR46OLN/+8fZid+eJg2Z
                   kV+q01svsWUlt+wfnpXqRmhuUSQAAAABJRU5ErkJggg=="""
-    
+
     def get_info_icon(self):
         return """iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAABHNCSVQICAgIf
                   AhkiAAAAAlwSFlzAAAK6wAACusBgosNWgAAABh0RVh0U29mdHdhcmUAQWRvYm
@@ -153,26 +135,13 @@ class Engine(DBMS, Tools):
                   I+NghBCC6IdHaqdKl5bFHz7CvNN1/8dKb/SS17aMdoOnjn8+24Z1s3iqsAFW+
                   SXtM5UG79+9Vzf9x95Gb5/wVqoFAAkdjM6AAAAABJRU5ErkJggg=="""
 
-   
+
 def main():
-
     #testing some stuff
-
-    print ("MRO:", [x.__name__ for x in Engine.__mro__])
-   
     foo = Engine()
-
-    print (foo)
-
-    print (foo.get_connection())
-
-    print (foo.title)
-
-    x = foo.get_parameters()
-
-    print (x)
-    
+    print(foo)
+    print(foo.get_connection())
     input('end')
-       
+
 if __name__ == "__main__":
     main()
