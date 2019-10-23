@@ -364,6 +364,7 @@ class App(tk.Tk):
         self.set_title(kwargs['title'])
         self.set_icon()
         self.set_style(kwargs['style'])
+        self.engine.title = self.title()
 
         w = Tkinterlite(self, *args, **kwargs)
         w.on_open()
