@@ -28,6 +28,7 @@ class UI(tk.Toplevel):
         self.enable = tk.BooleanVar()
 
         self.vcmd = self.engine.get_validate_float(self)
+        self.vcmd2 = self.engine.get_validate_integer(self)
         self.set_style()
         self.engine.center_me(self)
         self.init_ui()
@@ -86,7 +87,7 @@ class UI(tk.Toplevel):
                                   justify=tk.CENTER,
                                   width=8,
                                   validate='key',
-                                  validatecommand=self.vcmd,
+                                  validatecommand=self.vcmd2,
                                   textvariable=self.stock)
         self.txtStock.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
