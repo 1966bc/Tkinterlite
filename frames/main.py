@@ -1,5 +1,6 @@
+#!/usr/bin/python3
+""" This is the main module of Tkinterlite."""
 import sys
-import os
 import threading
 import queue
 import datetime
@@ -8,13 +9,11 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
-
 import frames.product
 import frames.categories
 import frames.suppliers
 
 from engine import Engine
-
 
 __author__ = "1966bc aka giuseppe costanzi"
 __copyright__ = "Copyleft"
@@ -23,7 +22,7 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "42"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-09-22"
+__date__ = "2019-10-23"
 __status__ = "Production"
 
 
@@ -38,9 +37,9 @@ class ClockThread(threading.Thread):
 
     def stop(self):
         self.check = False
-        
+
     def run(self):
-      
+
         while self.check:
             s = "Astral date: "
             t = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -48,9 +47,9 @@ class ClockThread(threading.Thread):
             msg = s+t
             time.sleep(1)
             self.queue.put(msg)
-           
 
-class Tkinterlite(tk.Frame):
+
+class Tkinterlite(ttk.Frame):
     def __init__(self, parent, *args, **kwargs):
         super().__init__()
 
@@ -60,35 +59,33 @@ class Tkinterlite(tk.Frame):
         self.args = args
         self.queue = queue.Queue()
         self.clock = None
-        
-        self.objs = []
-        self.ops = ('Cateogries','Suppliers')
+
+        self.ops = ('Categories', 'Suppliers')
         self.status_bar_text = tk.StringVar()
         self.filter_id = tk.IntVar()
 
-        self.cols = (["#0",'id','w',False,0,0],
-                      ["#1",'Product','w',True,100,100],
-                      ["#2",'Description','w',True,100,100],
-                      ["#3",'Stock','w',True,20,20],
-                      ["#4",'Price','w',True,20,20],)
+        self.cols = (["#0", 'id', 'w', False, 0, 0],
+                     ["#1", 'Product', 'w', True, 100, 100],
+                     ["#2", 'Description', 'w', True, 100, 100],
+                     ["#3", 'Stock', 'center', True, 20, 20],
+                     ["#4", 'Price', 'center', True, 20, 20],)
 
-    
         self.init_menu()
         self.init_toolbar()
         self.init_ui()
         self.init_status_bar()
         self.center_ui()
 
-    
+
     def init_menu(self):
 
         m_main = tk.Menu(self, bd=1)
-               
+
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
         s_menu = tk.Menu(m_file)
-                
+
         m_about = tk.Menu(m_main, tearoff=0, bd=1)
-        
+
         m_main.add_cascade(label="File", underline=0, menu=m_file)
         m_main.add_cascade(label="?", underline=0, menu=m_about)
 
@@ -101,12 +98,12 @@ class Tkinterlite(tk.Frame):
             s_menu.add_command(label=i[0], underline=0, command=i[1])
 
         m_file.add_separator()
- 
+
         m_file.add_command(label="Exit", underline=0, command=self.parent.on_exit)
 
         m_about.add_command(label="About", underline=0, command=self.on_about)
 
-        self.master.config(menu=m_main)      
+        self.master.config(menu=m_main)
 
     def init_toolbar(self):
 
@@ -115,9 +112,11 @@ class Tkinterlite(tk.Frame):
         img_exit = tk.PhotoImage(data=self.engine.get_exit__icon())
         img_info = tk.PhotoImage(data=self.engine.get_info_icon())
 
-        exitButton = tk.Button(toolbar,width=20, image=img_exit, relief=tk.FLAT, command=self.parent.on_exit)
-        infoButton = tk.Button(toolbar,width=20, image=img_info, relief=tk.FLAT, command=self.on_about)
-        
+        exitButton = tk.Button(toolbar, width=20, image=img_exit,
+                               relief=tk.FLAT, command=self.parent.on_exit)
+        infoButton = tk.Button(toolbar, width=20, image=img_info,
+                               relief=tk.FLAT, command=self.on_about)
+
         exitButton.image = img_exit
         infoButton.image = img_info
 
@@ -126,14 +125,11 @@ class Tkinterlite(tk.Frame):
 
         toolbar.pack(side=tk.TOP, fill=tk.X)
 
-   
+
     def init_status_bar(self):
 
-        self.status = tk.Label(self.master,
-                            textvariable=self.status_bar_text,
-                            bd=1,
-                            relief=tk.SUNKEN,
-                            anchor=tk.W)
+        self.status = tk.Label(self.master, textvariable=self.status_bar_text,
+                               bd=1, relief=tk.SUNKEN, anchor=tk.W)
         self.status.pack(side=tk.BOTTOM, fill=tk.X)
 
     def init_ui(self):
@@ -146,7 +142,7 @@ class Tkinterlite(tk.Frame):
         #-----------------------------------------------------------------------
         w = self.engine.get_frame(self, 8)
 
-        self.lblProdutcs = ttk.LabelFrame(w,text='Products',)
+        self.lblProdutcs = ttk.LabelFrame(w, text='Products',)
         self.lstProducts = self.engine.get_tree(self.lblProdutcs, self.cols,)
         self.lstProducts.bind("<<TreeviewSelect>>", self.get_selected_product)
         self.lstProducts.bind("<Double-1>", self.on_double_click)
@@ -156,13 +152,13 @@ class Tkinterlite(tk.Frame):
         #categories
         #-----------------------------------------------------------------------
         self.lblCombo = ttk.LabelFrame(w,)
-        
-        self.cbCombo =  ttk.Combobox(self.lblCombo)
+
+        self.cbCombo = ttk.Combobox(self.lblCombo)
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
-        
-        self.lblCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X,pady=5, expand=0)
-        
+
+        self.lblCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, pady=5, expand=0)
+
         w.pack(side=tk.LEFT, fill=tk.BOTH, anchor=tk.W, expand=1)
 
         #buttons and radio
@@ -175,7 +171,12 @@ class Tkinterlite(tk.Frame):
                ('Close', self.parent.on_exit))
 
         for btn in bts:
-            self.engine.get_button(f, btn[0] ).bind("<Button-1>", btn[1])
+            self.engine.get_button(f, btn[0]).bind("<Button-1>", btn[1])
+
+        self.parent.bind("<Alt-r>", self.on_open)
+        self.parent.bind("<Alt-n>", self.on_add)
+        self.parent.bind("<Alt-e>", self.on_edit)
+        self.parent.bind("<Alt-c>", self.parent.on_exit)
 
         self.engine.get_radio_buttons(f,
                                       'Combo data',
@@ -194,16 +195,16 @@ class Tkinterlite(tk.Frame):
         d = self.engine.get_dimensions()
         w = int(d['w'])
         h = int(d['h'])
-        x = (ws/2) - (w/2)    
+        x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
-        self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))                
-   
-          
+        self.master.geometry('%dx%d+%d+%d' % (w, h, x, y))
+
+
     def on_open(self, evt=None):
 
         self.selected_product = None
         sql = "SELECT * FROM products ORDER BY product ASC"
-        self.set_tree_values(sql,())
+        self.set_tree_values(sql, ())
         self.cbCombo.set('')
         self.set_combo_values()
 
@@ -213,82 +214,101 @@ class Tkinterlite(tk.Frame):
         self.clock.start()
         self.periodic_call()
 
-
     def on_add(self, evt):
-        obj = frames.product.Product(self, engine=self.engine, index=None).on_open()
-              
+        frames.product.UI(self, engine=self.engine, index=None).on_open()
+
     def on_categories(self):
-        frames.categories.Categories(self, engine=self.engine).on_open()
-      
+        frames.categories.UI(self, engine=self.engine).on_open()
+
     def on_suppliers(self):
-        frames.suppliers.Suppliers(self, engine=self.engine).on_open()
+        frames.suppliers.UI(self, engine=self.engine).on_open()
 
     def on_edit(self, evt):
-        
+
         if self.lstProducts.focus():
 
             index = self.lstProducts.selection()
 
-            frames.product.Product(self, engine=self.engine, index=index).on_open(self.selected_product,)
-            
+            frames.product.UI(self, engine=self.engine, index=index).on_open(self.selected_product,)
+
         else:
-            msg = "Please select an item."
-            messagebox.showwarning(self.engine.title,msg)
+            messagebox.showwarning(self.master.title(), self.engine.no_selected, parent=self)
 
     def on_double_click(self, evt):
 
         self.on_edit(self)
- 
+
     def get_selected_product(self, evt):
 
         if self.lstProducts.focus():
             pk = int(self.lstProducts.item(self.lstProducts.focus())['text'])
             self.selected_product = self.engine.get_selected('products', 'product_id', pk)
-         
-    def get_selected_combo_item(self, evt):
-        
-        index = self.cbCombo.current()
-        selected_id = self.dict_combo_values[index]
 
-        if self.filter_id.get() !=1:
-            sql = "SELECT * FROM products WHERE supplier_id =? ORDER BY product"
+    def get_selected_combo_item(self, evt):
+
+        if self.cbCombo.current() != -1:
+
+            index = self.cbCombo.current()
+            selected_id = self.dict_combo_values[index]
+
+            if self.filter_id.get() != 1:
+                sql = "SELECT * FROM products WHERE supplier_id =? ORDER BY product"
+            else:
+                sql = "SELECT * FROM products WHERE category_id =? ORDER BY product"
+
+            args = (selected_id,)
+            self.set_tree_values(sql, args)
         else:
-            sql = "SELECT * FROM products WHERE category_id =? ORDER BY product"
-            
-        args = (selected_id,)
-        self.set_tree_values(sql, args)
-        
+            self.on_open()
+
     def set_tree_values(self, sql, args):
 
-        self.lstProducts.tag_configure('is_enable', background='light gray')
-        self.lstProducts.tag_configure('is_zero', background=self.engine.get_rgb(255,160,122))
+        self.lstProducts.tag_configure('is_enable',
+                                       background='light gray')
+        self.lstProducts.tag_configure('is_zero',
+                                       background=self.engine.get_rgb(255, 160, 122))
 
         for i in self.lstProducts.get_children():
             self.lstProducts.delete(i)
 
-        rs  = self.engine.read(True, sql, args)
+        rs = self.engine.read(True, sql, args)
 
         if rs:
             self.lblProdutcs['text'] = 'Products %s'%len(rs)
             for i in rs:
-                if i[7] !=0:
-                    if i[6]<1:
-                        self.lstProducts.insert('', tk.END, iid=i[0], text=i[0],values=(i[1],i[4],i[6],i[5]), tags = ('is_zero',))
+                if i[7] != 0:
+                    if i[6] < 1:
+                        self.lstProducts.insert('',
+                                                tk.END,
+                                                iid=i[0],
+                                                text=i[0],
+                                                values=(i[1], i[4], i[6], i[5]),
+                                                tags=('is_zero',))
                     else:
-                        self.lstProducts.insert('', tk.END, iid=i[0], text=i[0],values=(i[1],i[4],i[6],i[5]))
-                        
+                        self.lstProducts.insert('',
+                                                tk.END,
+                                                iid=i[0],
+                                                text=i[0],
+                                                values=(i[1], i[4], i[6], i[5]))
+
                 else:
-                    self.lstProducts.insert('', tk.END, iid=i[0], text=i[0],values=(i[1],i[4],i[6],i[5]), tags = ('is_enable',))
-        else:self.lblProdutcs['text'] = 'Products 0'
-           
+                    self.lstProducts.insert('',
+                                            tk.END,
+                                            iid=i[0],
+                                            text=i[0],
+                                            values=(i[1], i[4], i[6], i[5]),
+                                            tags=('is_enable',))
+        else:
+            self.lblProdutcs['text'] = 'Products 0'
+
 
     def set_combo_values(self):
 
         index = 0
-        self.dict_combo_values={}
-        l = []
+        self.dict_combo_values = {}
+        values = []
 
-        if self.filter_id.get() !=1:
+        if self.filter_id.get() != 1:
             self.lblCombo['text'] = 'Categories'
             sql = "SELECT category_id, category\
                    FROM categories\
@@ -300,21 +320,21 @@ class Tkinterlite(tk.Frame):
                    FROM suppliers\
                    WHERE enable =1\
                    ORDER BY company"
-            
+
         rs = self.engine.read(True, sql, ())
-            
+
         for i in rs:
-            self.dict_combo_values[index]=i[0]
-            index+=1
-            l.append(i[1])
+            self.dict_combo_values[index] = i[0]
+            index += 1
+            values.append(i[1])
 
         self.cbCombo.set('')
-        self.cbCombo['values']=l
+        self.cbCombo['values'] = values
 
     def on_about(self,):
-        messagebox.showinfo(self.master.title(), self.info, parent=self)  
-        
-        
+        messagebox.showinfo(self.master.title(), self.info, parent=self)
+
+
     def periodic_call(self):
 
         self.check_queue()
@@ -324,10 +344,11 @@ class Tkinterlite(tk.Frame):
             pass
 
     def check_queue(self):
+        
         while self.queue.qsize():
             try:
                 x = self.queue.get(0)
-                msg = "%s"%(x)
+                msg = "{0}".format(x)
                 self.status_bar_text.set(msg)
             except queue.Empty:
                 pass
@@ -344,46 +365,50 @@ class App(tk.Tk):
         self.set_icon()
         self.set_style(kwargs['style'])
 
-        frame = Tkinterlite(self, *args, **kwargs)
-        frame.on_open()
-        frame.pack(fill=tk.BOTH, expand=1)
+        w = Tkinterlite(self, *args, **kwargs)
+        w.on_open()
+        w.pack(fill=tk.BOTH, expand=1)
 
     def set_title(self, title):
-        s = "{0} {1}".format(title,  __version__)
-        self.title(s)        
+        s = "{0} {1}".format(title, __version__)
+        self.title(s)
 
     def set_style(self, style):
-        self.style.theme_use(style)        
-        self.style.configure('.', background=self.engine.get_rgb(240,240,237))
+        self.style.theme_use(style)
+        self.style.configure('.', background=self.engine.get_rgb(240, 240, 237))
 
     def set_icon(self):
         icon = tk.PhotoImage(data=self.engine.get_icon())
-        self.call('wm', 'iconphoto', self._w, '-default', icon)        
+        self.call('wm', 'iconphoto', self._w, '-default', icon)
 
-    def on_exit(self,evt=None):
-        if messagebox.askokcancel(self.engine.title, "Do you want to quit?"):
+    def on_exit(self, evt=None):
+        if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
             if self.clock is not None:
-                    self.clock.stop()
+                self.clock.stop()
             self.destroy()
-         
+
+
 def main():
 
     args = []
-    
+
     for i in sys.argv:
         args.append(i)
 
-    msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
+    database = {"path":'biovarase.db'}
 
-    info = msg.format("Tkinterlite"
-                      ,__author__,__copyright__,__credits__,__license__,
-                      __version__,__maintainer__,__email__,__date__,__status__)
+    kwargs = {"style":"clam", "title":"Tkinterlite", "engine":Engine(*args, **database)}
 
-    kwargs={"style":"clam", "title":"Tkinterlite", "info":info, "engine":Engine()}
-    
+    msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\
+           \nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
+    info = msg.format(kwargs['title'], __author__, __copyright__, __credits__, __license__,
+                      __version__, __maintainer__, __email__, __date__, __status__)
+
+    kwargs['info'] = info
+
     app = App(*args, **kwargs)
 
     app.mainloop()
-    
+
 if __name__ == '__main__':
     main()
