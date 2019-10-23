@@ -396,9 +396,8 @@ def main():
     for i in sys.argv:
         args.append(i)
 
-    database = {"path":'biovarase.db'}
-
-    kwargs = {"style":"clam", "title":"Tkinterlite", "engine":Engine(*args, **database)}
+    
+    kwargs = {"style":"clam", "title":"Tkinterlite", "engine":Engine(*args,)}
 
     msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\
            \nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
