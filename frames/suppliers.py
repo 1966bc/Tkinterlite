@@ -16,7 +16,6 @@ class UI(tk.Toplevel):
         super().__init__(name='suppliers')
 
         self.attributes('-topmost', True)
-       
         self.parent = parent
         self.engine = kwargs['engine']
         self.table = "suppliers"
