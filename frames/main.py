@@ -22,7 +22,7 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "42"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2019-10-23"
+__date__ = "2020-02-29"
 __status__ = "Production"
 
 
@@ -90,7 +90,7 @@ class Tkinterlite(ttk.Frame):
 
         m_file.add_cascade(label="Tools", menu=s_menu, underline=0)
 
-        items = (("Cateogries", self.on_categories),
+        items = (("Categories", self.on_categories),
                  ("Suppliers", self.on_suppliers),)
 
         for i in items:
@@ -388,6 +388,7 @@ class App(tk.Tk):
 
     def on_exit(self, evt=None):
         if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
+            self.engine.con.close()
             if self.clock is not None:
                 self.clock.stop()
             self.destroy()
