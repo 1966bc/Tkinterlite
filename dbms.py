@@ -4,7 +4,7 @@
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
 # modify:   29/02/2020
-# version:  0.1
+# version:  0.2
 #-----------------------------------------------------------------------------
 import sys
 import inspect
@@ -111,6 +111,16 @@ class DBMS:
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
+        finally:
+            try:
+                cur.close()
+            except:
+                self.on_log(self,
+                            inspect.stack()[0][3],
+                            sys.exc_info()[1],
+                            sys.exc_info()[0],
+                            sys.modules[__name__])
+            
 
     def get_update_sql(self, table, pk):
 
