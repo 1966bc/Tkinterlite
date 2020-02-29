@@ -3,7 +3,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   10/04/2017
+# modify:   29/02/2020
 # version:  0.1
 #-----------------------------------------------------------------------------
 import sys
