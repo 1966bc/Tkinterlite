@@ -15,6 +15,7 @@ class DBMS:
 
         self.args = args
         self.kwargs = kwargs
+        self.set_connection()
 
 
     def __str__(self):
@@ -22,58 +23,44 @@ class DBMS:
                                              [x.__name__ for x in DBMS.__mro__],)
 
 
-    def get_connection(self,):
+    def set_connection(self):
 
-        con = lite.connect('northwind.sl3', isolation_level='IMMEDIATE')
-        con.text_factory = lambda x: str(x, 'iso-8859-1')
-        return con
+        self.con = lite.connect("northwind.sl3",
+                                detect_types=lite.PARSE_DECLTYPES|lite.PARSE_COLNAMES,
+                                isolation_level='IMMEDIATE')
+        self.con.text_factory = lite.OptimizedUnicode
 
 
     def read(self, fetch, sql, args=()):
 
         try:
-
-            con = self.get_connection()
-
-            cur = con.cursor()
-
+            cur = self.con.cursor()
             cur.execute(sql, args)
 
             if fetch == True:
                 rs = cur.fetchall()
             else:
                 rs = cur.fetchone()
-
+            cur.close()
             return rs
 
         except:
-             self.on_log(self,
-                         inspect.stack()[0][3],
-                         sys.exc_info()[1],
-                         sys.exc_info()[0],
-                         sys.modules[__name__])
-
-        finally:
-            try:
-                cur.close()
-                con.close()
-            except:
-                self.on_log(self,
-                            inspect.stack()[0][3],
-                            sys.exc_info()[1],
-                            sys.exc_info()[0],
-                            sys.modules[__name__])
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
 
     def write(self, sql, args=()):
+
         try:
-            con = self.get_connection()
-            cur = con.cursor()
+            cur = self.con.cursor()
             cur.execute(sql, args)
-            con.commit()
+            self.con.commit()
 
         except:
-            con.rollback()
+            self.con.rollback()
             self.on_log(self,
                         inspect.stack()[0][3],
                         sys.exc_info()[1],
@@ -83,7 +70,6 @@ class DBMS:
         finally:
             try:
                 cur.close()
-                con.close()
             except:
                 self.on_log(self,
                             inspect.stack()[0][3],
@@ -92,18 +78,23 @@ class DBMS:
                             sys.modules[__name__])
 
 
-    def get_fields(self, table):
-        """Return fields name for the passed table ordered by field position"""
 
+    def get_fields(self, table):
+        """return fields name of the args table ordered by field number
+
+        @param name: table,
+        @return: fields
+        @rtype: tuple
+        """
         try:
 
             columns = []
-            ret = []
+            fields = []
 
             sql = 'SELECT * FROM %s ' % table
-            con = self.get_connection()
-            cur = con.cursor()
+            cur = self.con.cursor()
             cur.execute(sql)
+
 
             for field in cur.description:
                 columns.append(field[0])
@@ -111,25 +102,15 @@ class DBMS:
 
             for k, v in enumerate(columns):
                 if k > 0:
-                    ret.append(v)
-            return ret
-        except:
-             self.on_log(self,
-                         inspect.stack()[0][3],
-                         sys.exc_info()[1],
-                         sys.exc_info()[0],
-                         sys.modules[__name__])
+                    fields.append(v)
 
-        finally:
-            try:
-                cur.close()
-                con.close()
-            except:
-                 self.on_log(self,
-                            inspect.stack()[0][3],
-                            sys.exc_info()[1],
-                            sys.exc_info()[0],
-                            sys.modules[__name__])
+            return tuple(fields)
+        except:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])
 
     def get_update_sql(self, table, pk):
 

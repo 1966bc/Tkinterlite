@@ -7,6 +7,7 @@
 #-----------------------------------------------------------------------------
 import sys
 import inspect
+import datetime
 from dbms import DBMS
 from tools import Tools
 
@@ -28,7 +29,7 @@ class Engine(DBMS, Tools):
 
         now = datetime.datetime.now()
         log_text = "{0}\n{1}\n{2}\n{3}\n{4}\n\n".format(now, function, exc_value, exc_type, module)
-        log_file = open('log.txt','a')
+        log_file = open("log.txt", "a")
         log_file.write(log_text)
         log_file.close()
 
@@ -140,7 +141,7 @@ def main():
     #testing some stuff
     foo = Engine()
     print(foo)
-    print(foo.get_connection())
+    print(foo.set_connection())
     input('end')
 
 if __name__ == "__main__":
