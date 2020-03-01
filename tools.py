@@ -3,9 +3,8 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   10/04/2017
+# modify:   2020-03-01
 #-----------------------------------------------------------------------------
-import datetime
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -17,15 +16,11 @@ class Tools:
         self.args = args
         self.kwargs = kwargs
         
-
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__,
                                              [x.__name__ for x in Tools.__mro__],)
-
-
-
     def get_rgb(self, r, g, b):
-        """translates an rgb tuple of int to a tkinter friendly color code"""
+        """translates an rgb tuple of into a tkinter friendly color code"""
         return "#%02x%02x%02x" % (r, g, b)
 
     def center_me(self, container):
@@ -35,28 +30,24 @@ class Tools:
         y = (container.winfo_screenheight() - container.winfo_reqheight()) / 2
         container.geometry("+%d+%d" % (x, y))
 
-
     def cols_configure(self, w):
 
         w.columnconfigure(0, weight=1)
         w.columnconfigure(1, weight=1)
         w.columnconfigure(2, weight=1)
         
-
     def get_init_ui(self, container):
         """All insert,update modules have this same configuration on init_ui.
            A Frame, a columnconfigure and a grid method.
-           So, why rewrite every time?"""
+           So, why rewrite every time?, remember to be DRY!"""
         w = self.get_frame(container)
         self.cols_configure(w)
         w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E)
 
         return w
     
-
     def get_frame(self, container, padding=None):
         return ttk.Frame(container, padding=padding)
-
 
     def get_label_frame(self, container, text=None, ):
         return ttk.LabelFrame(container, text=text,)
@@ -83,47 +74,6 @@ class Tools:
                             command=callback,
                             value=index,).pack(anchor=tk.W)
         return w
-
-    def get_label(self, container, text, textvariable=None, anchor=None, args=()):
-
-        w = ttk.Label(container,
-                      text=text,
-                      textvariable=textvariable,
-                      anchor=anchor)
-
-        if args:
-            w.grid(row=args[0], column=args[1], sticky=args[2])
-        else:
-            w.pack(fill=tk.X, padx=5, pady=5)
-
-        return w
-    
-
-    def get_spin_box(self, container, text, frm, to, width, var=None, callback=None):
-
-        w = self.get_label_frame(container, text=text,)
-
-        tk.Spinbox(w, bg='white',
-                   from_=frm,
-                   to=to,
-                   justify=tk.CENTER,
-                   width=width,
-                   wrap=False,
-                   insertwidth=1,
-                   textvariable=var).pack(anchor=tk.CENTER)
-        return w
-
-
-
-    def set_font(self, family, size, weight=None):
-
-        if weight is not None:
-            weight = weight
-        else:
-            weight = tk.NORMAL
-
-        return font.Font(family=family, size=size, weight=weight)
-    
 
     def get_listbox(self, container, height=None, width=None):
 
