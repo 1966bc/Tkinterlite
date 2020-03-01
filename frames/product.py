@@ -2,7 +2,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2019-09-22
+# modify:   2020-03-01
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
