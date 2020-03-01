@@ -11,11 +11,11 @@ from tkinter import messagebox
 
 class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='product')
+        super().__init__(name="product")
 
         self.parent = parent
-        self.engine = kwargs['engine']
-        self.index = kwargs['index']
+        self.engine = kwargs["engine"]
+        self.index = kwargs["index"]
         self.table = "products"
         self.field = "product_id"
         self.resizable(0, 0)
@@ -35,72 +35,60 @@ class UI(tk.Toplevel):
 
     def set_style(self):
         s = ttk.Style()
-        s.configure('Product.TLabel',
+        s.configure("Product.TLabel",
                     foreground=self.engine.get_rgb(0, 0, 255),
                     background=self.engine.get_rgb(255, 255, 255))
 
-        s.configure('Package.TLabel',
+        s.configure("Package.TLabel",
                     foreground=self.engine.get_rgb(255, 0, 0),
                     background=self.engine.get_rgb(255, 255, 255))
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        f = self.engine.get_init_ui(self)
 
         r = 0
-        ttk.Label(w, text="Product:",).grid(row=r, sticky=tk.W)
-        self.txtProduct = ttk.Entry(w,
-                                    style='Product.TLabel',
+        ttk.Label(f, text="Product:",).grid(row=r, sticky=tk.W)
+        self.txtProduct = ttk.Entry(f,
+                                    style="Product.TLabel",
                                     textvariable=self.product)
         self.txtProduct.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Suppliers:",).grid(row=r, sticky=tk.W)
-        self.cbSuppliers = ttk.Combobox(w,)
+        ttk.Label(f, text="Suppliers:",).grid(row=r, sticky=tk.W)
+        self.cbSuppliers = ttk.Combobox(f,)
         self.cbSuppliers.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Categories:",).grid(row=r, sticky=tk.W)
-        self.cbCategories = ttk.Combobox(w,)
+        ttk.Label(f, text="Categories:",).grid(row=r, sticky=tk.W)
+        self.cbCategories = ttk.Combobox(f,)
         self.cbCategories.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Package:").grid(row=r, sticky=tk.W)
-        self.txtPackage = ttk.Entry(w,
-                                    style='Package.TLabel',
-                                    textvariable=self.package)
-        self.txtPackage.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(f, text="Package:").grid(row=r, sticky=tk.W)
+        w = ttk.Entry(f, style="Package.TLabel", textvariable=self.package)
+        w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Price:").grid(row=r, sticky=tk.W)
-        self.txtPrice = ttk.Entry(w,
-                                  justify=tk.CENTER,
-                                  width=8,
-                                  validate='key',
-                                  validatecommand=self.vcmd,
-                                  textvariable=self.price)
-        self.txtPrice.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(f, text="Price:").grid(row=r, sticky=tk.W)
+        w = ttk.Entry(f, justify=tk.CENTER, width=8, validate="key",
+                      validatecommand=self.vcmd, textvariable=self.price)
+        w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Stock:").grid(row=r, sticky=tk.W)
-        self.txtStock = ttk.Entry(w,
-                                  justify=tk.CENTER,
-                                  width=8,
-                                  validate='key',
-                                  validatecommand=self.vcmd2,
-                                  textvariable=self.stock)
-        self.txtStock.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
-
+        ttk.Label(f, text="Stock:").grid(row=r, sticky=tk.W)
+        w = ttk.Entry(f, justify=tk.CENTER, width=8, validate="key",
+                      validatecommand=self.vcmd2, textvariable=self.stock)
+        w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
-        chk.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(f, text="Enable:").grid(row=r, sticky=tk.W)
+        w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
+        w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
-        self.engine.get_save_cancel(self, w)
+        self.engine.get_save_cancel(self, f)
 
     def on_open(self, selected_item=None):
-
 
         self.set_categories()
         self.set_suppliers()
@@ -120,10 +108,16 @@ class UI(tk.Toplevel):
 
         self.product.set(self.selected_item[1])
 
-        key = next(key for key, value in self.dict_suppliers.items() if value == self.selected_item[2])
+        key = next(key
+                   for key, value
+                   in self.dict_suppliers.items()
+                   if value == self.selected_item[2])
         self.cbSuppliers.current(key)
 
-        key = next(key for key, value in self.dict_categories.items() if value == self.selected_item[3])
+        key = next(key
+                   for key, value
+                   in self.dict_categories.items()
+                   if value == self.selected_item[3])
         self.cbCategories.current(key)
 
         self.package.set(self.selected_item[4])
@@ -144,16 +138,20 @@ class UI(tk.Toplevel):
     def on_save(self, evt):
 
         if self.engine.on_fields_control(self) == False: return
-        if messagebox.askyesno(self.master.title(), self.engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.master.title(),
+                               self.engine.ask_to_save,
+                               parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
-                sql = self.engine.get_update_sql(self.table, self.field)
                 args.append(self.selected_item[0])
 
+                sql = self.engine.get_update_sql(self.table, self.field)
+
             else:
+                
                 sql = self.engine.get_insert_sql(self.table, len(args))
 
             self.engine.write(sql, args)
@@ -178,7 +176,7 @@ class UI(tk.Toplevel):
             index += 1
             values.append(i[1])
 
-        self.cbCategories['values'] = values
+        self.cbCategories["values"] = values
 
     def set_suppliers(self,):
 
@@ -194,7 +192,7 @@ class UI(tk.Toplevel):
             index += 1
             values.append(i[1])
 
-        self.cbSuppliers['values'] = values
+        self.cbSuppliers["values"] = values
 
     def on_cancel(self, evt=None):
         self.destroy()
