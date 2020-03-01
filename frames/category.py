@@ -2,7 +2,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2019-09-22
+# modify:   2020-03-01
 #-----------------------------------------------------------------------------
 
 import tkinter as tk
@@ -11,18 +11,17 @@ from tkinter import messagebox
 
 class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='category')
+        super().__init__(name="category")
 
-        self.attributes('-topmost', True)
+        self.attributes("-topmost", True)
         self.transient(parent)
         self.resizable(0, 0)
 
         self.parent = parent
-        self.engine = kwargs['engine']
-        self.table = kwargs['table']
-        self.field = kwargs['field']
-        self.index = kwargs['index']
-
+        self.engine = kwargs["engine"]
+        self.table = kwargs["table"]
+        self.field = kwargs["field"]
+        self.index = kwargs["index"]
 
         self.category = tk.StringVar()
         self.description = tk.StringVar()
@@ -33,24 +32,24 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        f = self.engine.get_init_ui(self)
 
         r = 0
-        ttk.Label(w, text="Category:",).grid(row=r, sticky=tk.W)
-        self.txtCategory = ttk.Entry(w, textvariable=self.category)
+        ttk.Label(f, text="Category:",).grid(row=r, sticky=tk.W)
+        self.txtCategory = ttk.Entry(f, textvariable=self.category)
         self.txtCategory.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
-        self.txtDescription = ttk.Entry(w, textvariable=self.description)
-        self.txtDescription.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(f, text="Description:").grid(row=r, sticky=tk.W)
+        w = ttk.Entry(f, textvariable=self.description)
+        w.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
-        chk.grid(row=r, column=1, sticky=tk.W)
+        ttk.Label(f, text="Enable:").grid(row=r, sticky=tk.W)
+        w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
+        w.grid(row=r, column=1, sticky=tk.W)
 
-        self.engine.get_save_cancel(self, w)
+        self.engine.get_save_cancel(self, f)
 
 
     def on_open(self, selected_item=None):
@@ -107,7 +106,6 @@ class UI(tk.Toplevel):
                 self.parent.lstItems.selection_set(self.index)
 
             self.on_cancel()
-
 
     def on_cancel(self, evt=None):
         self.destroy()

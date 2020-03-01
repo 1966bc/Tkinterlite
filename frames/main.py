@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """ This is the main module of Tkinterlite."""
 import sys
 import threading
@@ -165,18 +164,14 @@ class Tkinterlite(ttk.Frame):
         #-----------------------------------------------------------------------
         f = self.engine.get_frame(self, 8)
 
-        bts = (("Reset", self.on_open),
-               ("New", self.on_add),
-               ("Edit", self.on_edit),
-               ("Close", self.parent.on_exit))
+        bts = (("Reset", self.on_open, "<Alt-r>"),
+               ("New", self.on_add, "<Alt-n>"),
+               ("Edit", self.on_edit, "<Alt-e>"),
+               ("Close", self.parent.on_exit, "<Alt-c>"))
 
         for btn in bts:
             self.engine.get_button(f, btn[0]).bind("<Button-1>", btn[1])
-
-        self.parent.bind("<Alt-r>", self.on_open)
-        self.parent.bind("<Alt-n>", self.on_add)
-        self.parent.bind("<Alt-e>", self.on_edit)
-        self.parent.bind("<Alt-c>", self.parent.on_exit)
+            self.parent.bind(btn[2], btn[1])
 
         self.engine.get_radio_buttons(f,
                                       "Combo data",
@@ -279,30 +274,20 @@ class Tkinterlite(ttk.Frame):
         rs = self.engine.read(True, sql, args)
 
         if rs:
+            
             self.lblProdutcs["text"] = "Products %s"%len(rs)
+            
             for i in rs:
-                if i[7] != 0:
-                    if i[6] < 1:
-                        self.lstProducts.insert("",
-                                                tk.END,
-                                                iid=i[0],
-                                                text=i[0],
-                                                values=(i[1], i[4], i[6], i[5]),
-                                                tags=("is_zero",))
-                    else:
-                        self.lstProducts.insert("",
-                                                tk.END,
-                                                iid=i[0],
-                                                text=i[0],
-                                                values=(i[1], i[4], i[6], i[5]))
-
-                else:
-                    self.lstProducts.insert("",
-                                            tk.END,
-                                            iid=i[0],
-                                            text=i[0],
-                                            values=(i[1], i[4], i[6], i[5]),
-                                            tags=("is_enable",))
+                self.lstProducts.insert("",
+                                        tk.END,
+                                        iid=i[0],
+                                        text=i[0],
+                                        values=(i[1], i[4], i[6], i[5]))
+                if i[7] == 0:
+                    self.lstProducts.item(i[0], tags=("is_enable"))
+                elif i[6] < 1:
+                    self.lstProducts.item(i[0], tags=("is_zero"))
+                      
         else:
             self.lblProdutcs["text"] = "Products 0"
 

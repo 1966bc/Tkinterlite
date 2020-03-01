@@ -2,7 +2,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2019-09-22
+# modify:   2020-03-01
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -10,17 +10,17 @@ from tkinter import messagebox
 
 class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='supplier')
+        super().__init__(name="supplier")
 
-        self.attributes('-topmost', True)
+        self.attributes("-topmost", True)
         self.transient(parent)
         self.resizable(0, 0)
 
         self.parent = parent
-        self.engine = kwargs['engine']
-        self.table = kwargs['table']
-        self.field = kwargs['field']
-        self.index = kwargs['index']
+        self.engine = kwargs["engine"]
+        self.table = kwargs["table"]
+        self.field = kwargs["field"]
+        self.index = kwargs["index"]
 
         self.company = tk.StringVar()
         self.enable = tk.BooleanVar()
@@ -30,23 +30,19 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        w = self.engine.get_init_ui(self)
+        f = self.engine.get_init_ui(self)
 
         r = 0
-        ttk.Label(w, text="Company:",).grid(row=r, sticky=tk.W)
-        self.txtCompany = ttk.Entry(w, textvariable=self.company)
+        ttk.Label(f, text="Company:",).grid(row=r, sticky=tk.W)
+        self.txtCompany = ttk.Entry(f, textvariable=self.company)
         self.txtCompany.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
-        ttk.Checkbutton(w,
-                        onvalue=1,
-                        offvalue=0,
-                        variable=self.enable,).grid(row=r,
-                                                    column=1,
-                                                    sticky=tk.W)
+        ttk.Label(f, text="Enable:").grid(row=r, sticky=tk.W)
+        w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
+        w.grid(row=r, column=1, sticky=tk.W)
 
-        self.engine.get_save_cancel(self, w)
+        self.engine.get_save_cancel(self, f)
 
 
     def on_open(self, selected_item=None):

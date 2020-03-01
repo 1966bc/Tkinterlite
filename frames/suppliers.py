@@ -1,10 +1,8 @@
-#!/usr/bin/python3
 #-----------------------------------------------------------------------------
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2019-09-22
-# version:  0.3
+# modify:   2020-03-01
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -13,11 +11,11 @@ import frames.supplier as ui
 
 class UI(tk.Toplevel):
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(name='suppliers')
+        super().__init__(name="suppliers")
 
-        self.attributes('-topmost', True)
+        self.attributes("-topmost", True)
         self.parent = parent
-        self.engine = kwargs['engine']
+        self.engine = kwargs["engine"]
         self.table = "suppliers"
         self.field = "supplier_id"
         self.obj = None
@@ -49,7 +47,7 @@ class UI(tk.Toplevel):
                 self.lstItems.insert(tk.END, i[1])
 
                 if i[2] != 1:
-                    self.lstItems.itemconfig(index, {'bg':'light gray'})
+                    self.lstItems.itemconfig(index, {"bg":"light gray"})
 
                 self.dict_items[index] = i[0]
                 index += 1
@@ -95,7 +93,6 @@ class UI(tk.Toplevel):
             self.selected_item = self.engine.get_selected(self.table,
                                                           self.field,
                                                           pk)
-
 
     def on_cancel(self, evt=None):
 
