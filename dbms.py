@@ -58,6 +58,7 @@ class DBMS:
             cur = self.con.cursor()
             cur.execute(sql, args)
             self.con.commit()
+            return cur.lastrowid
 
         except:
             self.con.rollback()
