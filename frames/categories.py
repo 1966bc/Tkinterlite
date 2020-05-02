@@ -35,7 +35,7 @@ class UI(tk.Toplevel):
 
     def on_open(self,):
 
-        sql = "SELECT * FROM categories"
+        sql = "SELECT * FROM categories ORDER BY category ASC;"
         rs = self.engine.read(True, sql, ())
         index = 0
         self.dict_items = {}

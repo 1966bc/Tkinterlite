@@ -89,12 +89,18 @@ class UI(tk.Toplevel):
 
                 sql = self.engine.get_insert_sql(self.table, len(args))
 
-            self.engine.write(sql, args)
+            supplier_id = self.engine.write(sql, args)
             self.parent.on_open()
 
             if self.index is not None:
                 self.parent.lstItems.see(self.index)
                 self.parent.lstItems.selection_set(self.index)
+            else:
+                #force focus on listbox
+                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(supplier_id)]
+                self.parent.lstItems.selection_set(idx)
+                self.parent.lstItems.see(idx)
+                         
 
             self.on_cancel()
 

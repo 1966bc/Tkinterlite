@@ -164,7 +164,7 @@ class Tkinterlite(ttk.Frame):
         #-----------------------------------------------------------------------
         f = self.engine.get_frame(self, 8)
 
-        bts = (("Reset", self.on_open, "<Alt-r>"),
+        bts = (("Reset", self.on_reset, "<Alt-r>"),
                ("New", self.on_add, "<Alt-n>"),
                ("Edit", self.on_edit, "<Alt-e>"),
                ("Close", self.parent.on_exit, "<Alt-c>"))
@@ -195,18 +195,22 @@ class Tkinterlite(ttk.Frame):
 
     def on_open(self, evt=None):
 
-        self.selected_product = None
-        sql = "SELECT * FROM products ORDER BY product ASC"
-        self.set_tree_values(sql, ())
-        self.cbCombo.set("")
-        self.set_combo_values()
-
+        self.on_reset()
+        
         self.clock = ClockThread(self.queue, engine=self.engine)
         #notice this, we use it on exit function that is in App class....just to remember it.
         self.parent.clock = self.clock
         self.clock.start()
         self.periodic_call()
 
+    def on_reset(self, evt=None):
+
+        self.selected_product = None
+        sql = "SELECT * FROM products ORDER BY product ASC"
+        self.set_tree_values(sql, ())
+        self.set_combo_values()
+            
+        
     def on_add(self, evt):
         frames.product.UI(self, engine=self.engine, index=None).on_open()
 
@@ -292,6 +296,8 @@ class Tkinterlite(ttk.Frame):
             self.lblProdutcs["text"] = "Products 0"
 
     def set_combo_values(self):
+
+        self.cbCombo.set("")
 
         index = 0
         self.dict_combo_values = {}

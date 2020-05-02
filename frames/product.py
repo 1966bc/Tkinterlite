@@ -154,12 +154,15 @@ class UI(tk.Toplevel):
                 
                 sql = self.engine.get_insert_sql(self.table, len(args))
 
-            self.engine.write(sql, args)
-            self.parent.get_selected_combo_item(self.parent)
+            product_id = self.engine.write(sql, args)
+            self.parent.on_reset()
             
             if self.index is not None:
                 self.parent.lstProducts.selection_set(self.index)
                 self.parent.lstProducts.see(self.index)
+            else:
+                self.parent.lstProducts.selection_set(product_id)
+                self.parent.lstProducts.see(product_id)                
 
             self.on_cancel()
 
