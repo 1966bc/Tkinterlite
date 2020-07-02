@@ -71,8 +71,8 @@ class Tkinterlite(ttk.Frame):
 
         self.init_menu()
         self.init_toolbar()
-        self.init_ui()
         self.init_status_bar()
+        self.init_ui()
         self.center_ui()
 
     def init_menu(self):
@@ -101,7 +101,11 @@ class Tkinterlite(ttk.Frame):
 
         m_about.add_command(label="About", underline=0, command=self.on_about)
 
-        self.master.config(menu=m_main)
+        for i in (m_main, m_file, s_menu, m_about):
+            i.config(bg="light gray")
+            i.config(fg="black")
+
+        self.master.config(menu=m_main)            
 
     def init_toolbar(self):
 
@@ -121,15 +125,19 @@ class Tkinterlite(ttk.Frame):
         exitButton.pack(side=tk.LEFT, padx=2, pady=2)
         infoButton.pack(side=tk.LEFT, padx=2, pady=2)
 
+        toolbar.config(bg="light gray")
         toolbar.pack(side=tk.TOP, fill=tk.X)
+           
 
     def init_status_bar(self):
 
         self.status = tk.Label(self.master,
                                textvariable=self.status_bar_text,
                                bd=1,
+                               bg="light gray",
+                               fg="black",
                                relief=tk.SUNKEN,
-                               anchor=tk.W)
+                               anchor=tk.W)    
         self.status.pack(side=tk.BOTTOM, fill=tk.X)
 
     def init_ui(self):
@@ -137,11 +145,10 @@ class Tkinterlite(ttk.Frame):
         """create widgets"""
 
         self.pack(fill=tk.BOTH, expand=1)
+        w = self.engine.get_frame(self, 8)
 
         #products
         #-----------------------------------------------------------------------
-        w = self.engine.get_frame(self, 8)
-
         self.lblProdutcs = ttk.LabelFrame(w, text="Products",)
         self.lstProducts = self.engine.get_tree(self.lblProdutcs, self.cols,)
         self.lstProducts.bind("<<TreeviewSelect>>", self.get_selected_product)
@@ -151,7 +158,6 @@ class Tkinterlite(ttk.Frame):
         #categories
         #-----------------------------------------------------------------------
         self.lblCombo = ttk.LabelFrame(w,)
-
         self.cbCombo = ttk.Combobox(self.lblCombo)
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
@@ -247,7 +253,6 @@ class Tkinterlite(ttk.Frame):
             self.selected_product = self.engine.get_selected("products",
                                                              "product_id",
                                                              pk)
-
     def get_selected_combo_item(self, evt):
 
         if self.cbCombo.current() != -1:
@@ -279,22 +284,25 @@ class Tkinterlite(ttk.Frame):
 
         if rs:
             
-            self.lblProdutcs["text"] = "Products %s"%len(rs)
-            
             for i in rs:
-                self.lstProducts.insert("",
-                                        tk.END,
-                                        iid=i[0],
-                                        text=i[0],
-                                        values=(i[1], i[4], i[6], i[5]))
-                if i[7] == 0:
-                    self.lstProducts.item(i[0], tags=("is_enable"))
-                elif i[6] < 1:
-                    self.lstProducts.item(i[0], tags=("is_zero"))
-                      
-        else:
-            self.lblProdutcs["text"] = "Products 0"
 
+                if i[7] == 0:
+                     tag_config = ("is_enable")
+                elif i[6] < 1:
+                    tag_config = ("is_zero")
+                else:
+                    tag_config = ("")
+
+
+                self.lstProducts.insert("", tk.END, iid=i[0], text=i[0],
+                                     values=(i[1], i[4], i[6], i[5]),
+                                     tags=tag_config)                    
+                    
+        s = "{0} {1}".format("Products", len(self.lstProducts.get_children()))
+
+        self.lblProdutcs["text"] = s
+                      
+        
     def set_combo_values(self):
 
         self.cbCombo.set("")
@@ -366,7 +374,7 @@ class App(tk.Tk):
         w.pack(fill=tk.BOTH, expand=1)
 
     def set_title(self, title):
-        s = "{0} {1}".format(title, __version__)
+        s = "{0}".format(title)
         self.title(s)
 
     def set_style(self, style):
