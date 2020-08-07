@@ -1,11 +1,10 @@
 #!/usr/bin/python3
-#-----------------------------------------------------------------------------
-# project:  tkinterlite
-# authors:  1966bc
-# mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   29/02/2020
-# version:  0.2
-#-----------------------------------------------------------------------------
+"""
+project:  tkinterlite
+authors:  1966bc
+mailto:   [giuseppecostanzi@gmail.com]
+modify:   summer 2020
+"""
 import sys
 import inspect
 import sqlite3 as lite
@@ -21,7 +20,6 @@ class DBMS:
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__,
                                              [x.__name__ for x in DBMS.__mro__],)
-
 
     def set_connection(self):
 
@@ -91,11 +89,9 @@ class DBMS:
 
             columns = []
             fields = []
-
-            sql = 'SELECT * FROM %s ' % table
+            sql = "SELECT * FROM {0}".format(table)
             cur = self.con.cursor()
             cur.execute(sql)
-
 
             for field in cur.description:
                 columns.append(field[0])
@@ -124,14 +120,25 @@ class DBMS:
             
 
     def get_update_sql(self, table, pk):
+        """recive a table name and his pk to format an update sql statement
 
-        return "UPDATE %s SET %s =? WHERE %s =?"%(table, " =?, ".join(self.get_fields(table)), pk)
+        @param name: table, pk
+        @return: sql formatted stringstring
+        @rtype: string
+        """
+        return "UPDATE {0} SET {1} =? WHERE {2} =?".format(table, " =?, ".join(self.get_fields(table)), pk)
 
     def get_insert_sql(self, table, n):
+        """recive a table name and len of args, len(args),
+           to format an insert sql statement
 
-        #n = len(args)
+        @param name: table, n = len(args)
+        @return: sql formatted stringstring
+        @rtype: string
+        """
+        
+        return "INSERT INTO {0}({1})VALUES({2})".format(table, ",".join(self.get_fields(table)), ",".join("?"*n))
 
-        return "INSERT INTO %s(%s)VALUES(%s)"%(table, ",".join(self.get_fields(table)), ",".join("?"*n))
 
     def get_selected(self, table, field, *args):
         """recive table name, pk and return a dictionary
@@ -142,7 +149,7 @@ class DBMS:
         """
 
         d = {}
-        sql = "SELECT * FROM %s WHERE %s =?" % (table, field)
+        sql = "SELECT * FROM {0} WHERE {1} = ?".format(table, field)
 
         for k, v in enumerate(self.read(False, sql, args)):
             d[k] = v

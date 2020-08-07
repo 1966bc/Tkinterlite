@@ -47,7 +47,9 @@ class Tools:
         return w
     
     def get_frame(self, container, padding=None):
-        return ttk.Frame(container, padding=padding)
+        s = ttk.Style()
+        s.configure('new.TFrame', background=self.get_rgb(240, 240, 237))
+        return ttk.Frame(container, padding=padding, style='new.TFrame')
 
     def get_label_frame(self, container, text=None, ):
         return ttk.LabelFrame(container, text=text,)

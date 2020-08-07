@@ -5,6 +5,7 @@
 # mailto:   [giuseppe.costanzi@gmail.com]
 # modify:   10/04/2017
 #-----------------------------------------------------------------------------
+import os
 import sys
 import inspect
 import datetime
@@ -24,6 +25,12 @@ class Engine(DBMS, Tools):
     def __str__(self):
         return "class: {0}\nMRO:{1}".format(self.__class__.__name__,
                        [x.__name__ for x in Engine.__mro__])
+
+
+    def get_file(self, file):
+        """# return full path of the directory where program resides."""
+
+        return os.path.join(os.path.dirname(__file__), file)
 
     def on_log(self, container, function, exc_value, exc_type, module):
 
