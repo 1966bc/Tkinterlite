@@ -101,8 +101,8 @@ class Tkinterlite(ttk.Frame):
 
         m_about.add_command(label="About", underline=0, command=self.on_about)
 
-        for i in (m_main, m_file, s_menu, m_about):
-            i.config(bg="light gray")
+        for i in (m_main, m_file, ):
+            i.config(bg=self.engine.get_rgb(240, 240, 237),)
             i.config(fg="black")
 
         self.master.config(menu=m_main)            
@@ -134,8 +134,8 @@ class Tkinterlite(ttk.Frame):
         self.status = tk.Label(self.master,
                                textvariable=self.status_bar_text,
                                bd=1,
-                               bg="light gray",
-                               fg="black",
+                               fg=self.engine.get_rgb(0, 0, 0),
+                               bg=self.engine.get_rgb(240, 240, 237),
                                relief=tk.SUNKEN,
                                anchor=tk.W)    
         self.status.pack(side=tk.BOTTOM, fill=tk.X)
@@ -362,9 +362,10 @@ class App(tk.Tk):
         super().__init__()
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
-        self.style = ttk.Style()
         self.engine = kwargs["engine"]
         self.set_title(kwargs["title"])
+        self.style = ttk.Style()
+        self.set_option_db()
         self.set_icon()
         self.set_style(kwargs["style"])
         self.engine.title = self.title()
@@ -372,6 +373,10 @@ class App(tk.Tk):
         w = Tkinterlite(self, *args, **kwargs)
         w.on_open()
         w.pack(fill=tk.BOTH, expand=1)
+
+    def set_option_db(self):
+        file = self.engine.get_file("optionDB")
+        self.option_readfile(file)        
 
     def set_title(self, title):
         s = "{0}".format(title)
