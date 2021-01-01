@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is the main module of Tkinterlite."""
 import sys
 import threading
@@ -14,25 +15,23 @@ import frames.suppliers
 
 from engine import Engine
 
-__author__ = "1966bc aka giuseppe costanzi"
+__author__ = "1966bc"
 __copyright__ = "Copyleft"
 __credits__ = ["hal9000",]
 __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "42"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "2020-02-29"
-__status__ = "Production"
+__date__ = "hiems MMXX"
+__status__ = "production"
 
 
 class ClockThread(threading.Thread):
-
-    def __init__(self, queue, engine):
+    def __init__(self, queue):
         threading.Thread.__init__(self)
 
         self.queue = queue
         self.check = True
-        self.engine = engine
 
     def stop(self):
         self.check = False
@@ -42,8 +41,7 @@ class ClockThread(threading.Thread):
         while self.check:
             s = "Astral date: "
             t = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            #print(t)
-            msg = s+t
+            msg = "{0} {1}".format(s,t)
             time.sleep(1)
             self.queue.put(msg)
 
@@ -53,8 +51,8 @@ class Tkinterlite(ttk.Frame):
         super().__init__()
 
         self.parent = parent
-        self.engine = kwargs["engine"]
-        self.info = kwargs["info"]
+        self.master.engine = kwargs["engine"]
+        self.master.info = kwargs["info"]
         self.args = args
         self.queue = queue.Queue()
         self.clock = None
@@ -102,7 +100,7 @@ class Tkinterlite(ttk.Frame):
         m_about.add_command(label="About", underline=0, command=self.on_about)
 
         for i in (m_main, m_file, ):
-            i.config(bg=self.engine.get_rgb(240, 240, 237),)
+            i.config(bg=self.master.engine.get_rgb(240, 240, 237),)
             i.config(fg="black")
 
         self.master.config(menu=m_main)            
@@ -111,8 +109,8 @@ class Tkinterlite(ttk.Frame):
 
         toolbar = tk.Frame(self, bd=1, relief=tk.RAISED)
 
-        img_exit = tk.PhotoImage(data=self.engine.get_exit__icon())
-        img_info = tk.PhotoImage(data=self.engine.get_info_icon())
+        img_exit = tk.PhotoImage(data=self.master.engine.get_exit__icon())
+        img_info = tk.PhotoImage(data=self.master.engine.get_info_icon())
 
         exitButton = tk.Button(toolbar, width=20, image=img_exit,
                                relief=tk.FLAT, command=self.parent.on_exit)
@@ -125,7 +123,7 @@ class Tkinterlite(ttk.Frame):
         exitButton.pack(side=tk.LEFT, padx=2, pady=2)
         infoButton.pack(side=tk.LEFT, padx=2, pady=2)
 
-        toolbar.config(bg="light gray")
+        toolbar.config(bg=self.master.engine.get_rgb(240, 240, 237))
         toolbar.pack(side=tk.TOP, fill=tk.X)
            
 
@@ -134,8 +132,8 @@ class Tkinterlite(ttk.Frame):
         self.status = tk.Label(self.master,
                                textvariable=self.status_bar_text,
                                bd=1,
-                               fg=self.engine.get_rgb(0, 0, 0),
-                               bg=self.engine.get_rgb(240, 240, 237),
+                               fg=self.master.engine.get_rgb(0, 0, 0),
+                               bg=self.master.engine.get_rgb(240, 240, 237),
                                relief=tk.SUNKEN,
                                anchor=tk.W)    
         self.status.pack(side=tk.BOTTOM, fill=tk.X)
@@ -145,12 +143,14 @@ class Tkinterlite(ttk.Frame):
         """create widgets"""
 
         self.pack(fill=tk.BOTH, expand=1)
-        w = self.engine.get_frame(self, 8)
+        w = self.master.engine.get_frame(self, 8)
 
         #products
         #-----------------------------------------------------------------------
         self.lblProdutcs = ttk.LabelFrame(w, text="Products",)
-        self.lstProducts = self.engine.get_tree(self.lblProdutcs, self.cols,)
+        self.lstProducts = self.master.engine.get_tree(self.lblProdutcs, self.cols,)
+        self.lstProducts.tag_configure("is_enable", background="light gray")
+        self.lstProducts.tag_configure("is_zero", background=self.master.engine.get_rgb(255, 160, 122))
         self.lstProducts.bind("<<TreeviewSelect>>", self.get_selected_product)
         self.lstProducts.bind("<Double-1>", self.on_double_click)
         self.lblProdutcs.pack(fill=tk.BOTH, expand=1)
@@ -168,7 +168,7 @@ class Tkinterlite(ttk.Frame):
 
         #buttons and radio
         #-----------------------------------------------------------------------
-        f = self.engine.get_frame(self, 8)
+        f = self.master.engine.get_frame(self, 8)
 
         bts = (("Reset", self.on_reset, "<Alt-r>"),
                ("New", self.on_add, "<Alt-n>"),
@@ -176,10 +176,10 @@ class Tkinterlite(ttk.Frame):
                ("Close", self.parent.on_exit, "<Alt-c>"))
 
         for btn in bts:
-            self.engine.get_button(f, btn[0]).bind("<Button-1>", btn[1])
+            self.master.engine.get_button(f, btn[0]).bind("<Button-1>", btn[1])
             self.parent.bind(btn[2], btn[1])
 
-        self.engine.get_radio_buttons(f,
+        self.master.engine.get_radio_buttons(f,
                                       "Combo data",
                                       self.ops,
                                       self.filter_id,
@@ -192,7 +192,7 @@ class Tkinterlite(ttk.Frame):
         ws = self.master.winfo_screenwidth()
         hs = self.master.winfo_screenheight()
         # calculate position x, y
-        d = self.engine.get_dimensions()
+        d = self.master.engine.get_dimensions()
         w = int(d["w"])
         h = int(d["h"])
         x = (ws/2) - (w/2)
@@ -203,8 +203,8 @@ class Tkinterlite(ttk.Frame):
 
         self.on_reset()
         
-        self.clock = ClockThread(self.queue, engine=self.engine)
-        #notice this, we use it on exit function that is in App class....just to remember it.
+        self.clock = ClockThread(self.queue,)
+        #notice this, we use self.parent to calling on exit function that is in App class....just to remember it.
         self.parent.clock = self.clock
         self.clock.start()
         self.periodic_call()
@@ -215,16 +215,15 @@ class Tkinterlite(ttk.Frame):
         sql = "SELECT * FROM products ORDER BY product ASC"
         self.set_tree_values(sql, ())
         self.set_combo_values()
-            
-        
+                    
     def on_add(self, evt):
-        frames.product.UI(self, engine=self.engine, index=None).on_open()
+        frames.product.UI(self).on_open()
 
     def on_categories(self):
-        frames.categories.UI(self, engine=self.engine).on_open()
+        frames.categories.UI(self).on_open()
 
     def on_suppliers(self):
-        frames.suppliers.UI(self, engine=self.engine).on_open()
+        frames.suppliers.UI(self).on_open()
 
     def on_edit(self, evt):
 
@@ -232,9 +231,7 @@ class Tkinterlite(ttk.Frame):
 
             item_iid = self.lstProducts.selection()
 
-            frames.product.UI(self,
-                              engine=self.engine,
-                              index=item_iid).on_open(self.selected_product,)
+            frames.product.UI(self, item_iid).on_open(self.selected_product,)
 
         else:
             messagebox.showwarning(self.master.title(),
@@ -250,7 +247,7 @@ class Tkinterlite(ttk.Frame):
         if self.lstProducts.focus():
             item_iid = self.lstProducts.selection()
             pk = int(item_iid[0])
-            self.selected_product = self.engine.get_selected("products",
+            self.selected_product = self.master.engine.get_selected("products",
                                                              "product_id",
                                                              pk)
     def get_selected_combo_item(self, evt):
@@ -272,15 +269,10 @@ class Tkinterlite(ttk.Frame):
 
     def set_tree_values(self, sql, args):
 
-        self.lstProducts.tag_configure("is_enable",
-                                       background="light gray")
-        self.lstProducts.tag_configure("is_zero",
-                                       background=self.engine.get_rgb(255, 160, 122))
-
         for i in self.lstProducts.get_children():
             self.lstProducts.delete(i)
 
-        rs = self.engine.read(True, sql, args)
+        rs = self.master.engine.read(True, sql, args)
 
         if rs:
             
@@ -293,16 +285,14 @@ class Tkinterlite(ttk.Frame):
                 else:
                     tag_config = ("")
 
-
                 self.lstProducts.insert("", tk.END, iid=i[0], text=i[0],
-                                     values=(i[1], i[4], i[6], i[5]),
-                                     tags=tag_config)                    
+                                        values=(i[1], i[4], i[6], i[5]),
+                                        tags=tag_config)                    
                     
         s = "{0} {1}".format("Products", len(self.lstProducts.get_children()))
 
         self.lblProdutcs["text"] = s
                       
-        
     def set_combo_values(self):
 
         self.cbCombo.set("")
@@ -324,7 +314,7 @@ class Tkinterlite(ttk.Frame):
                    WHERE enable =1\
                    ORDER BY company"
 
-        rs = self.engine.read(True, sql, ())
+        rs = self.master.engine.read(True, sql, ())
 
         for i in rs:
             self.dict_combo_values[index] = i[0]
@@ -335,7 +325,7 @@ class Tkinterlite(ttk.Frame):
         self.cbCombo["values"] = values
 
     def on_about(self,):
-        messagebox.showinfo(self.master.title(), self.info, parent=self)
+        messagebox.showinfo(self.master.title(), self.master.info, parent=self)
 
     def periodic_call(self):
 
@@ -396,7 +386,6 @@ class App(tk.Tk):
             if self.clock is not None:
                 self.clock.stop()
             self.destroy()
-
 
 def main():
 

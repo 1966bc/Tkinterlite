@@ -1,21 +1,20 @@
+# -*- coding: utf-8 -*-
 #-----------------------------------------------------------------------------
 # project:  tkinterlite
 # authors:  1966bc
-# mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2020-03-01
+# mailto:   [giuseppecostanzi@gmail.com]
+# modify:   hiems MMXX
 #-----------------------------------------------------------------------------
-
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent, index=None):
         super().__init__(name="product")
 
         self.parent = parent
-        self.engine = kwargs["engine"]
-        self.index = kwargs["index"]
+        self.index = index
         self.table = "products"
         self.field = "product_id"
         self.resizable(0, 0)
@@ -27,25 +26,25 @@ class UI(tk.Toplevel):
         self.price = tk.DoubleVar()
         self.enable = tk.BooleanVar()
 
-        self.vcmd = self.engine.get_validate_float(self)
-        self.vcmd2 = self.engine.get_validate_integer(self)
+        self.vcmd = self.master.engine.get_validate_float(self)
+        self.vcmd2 = self.master.engine.get_validate_integer(self)
         self.set_style()
-        self.engine.center_me(self)
+        self.master.engine.center_me(self)
         self.init_ui()
 
     def set_style(self):
         s = ttk.Style()
         s.configure("Product.TLabel",
-                    foreground=self.engine.get_rgb(0, 0, 255),
-                    background=self.engine.get_rgb(255, 255, 255))
+                    foreground=self.master.engine.get_rgb(0, 0, 255),
+                    background=self.master.engine.get_rgb(255, 255, 255))
 
         s.configure("Package.TLabel",
-                    foreground=self.engine.get_rgb(255, 0, 0),
-                    background=self.engine.get_rgb(255, 255, 255))
+                    foreground=self.master.engine.get_rgb(255, 0, 0),
+                    background=self.master.engine.get_rgb(255, 255, 255))
 
     def init_ui(self):
 
-        f = self.engine.get_init_ui(self)
+        f = self.master.engine.get_init_ui(self)
 
         r = 0
         ttk.Label(f, text="Product:",).grid(row=r, sticky=tk.W)
@@ -86,7 +85,7 @@ class UI(tk.Toplevel):
         w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
         w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
-        self.engine.get_save_cancel(self, f)
+        self.master.engine.get_save_cancel(self, f)
 
     def on_open(self, selected_item=None):
 
@@ -95,10 +94,10 @@ class UI(tk.Toplevel):
 
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "Update {0}".format(self.winfo_name())
+            msg = "Update {0}".format(self.winfo_name().capitalize())
             self.set_values()
         else:
-            msg = "Insert {0}".format(self.winfo_name())
+            msg = "Insert {0}".format(self.winfo_name().capitalize())
             self.enable.set(1)
 
         self.title(msg)
@@ -137,9 +136,9 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt):
 
-        if self.engine.on_fields_control(self) == False: return
+        if self.master.engine.on_fields_control(self) == False: return
         if messagebox.askyesno(self.master.title(),
-                               self.engine.ask_to_save,
+                               self.master.engine.ask_to_save,
                                parent=self) == True:
 
             args = self.get_values()
@@ -148,13 +147,13 @@ class UI(tk.Toplevel):
 
                 args.append(self.selected_item[0])
 
-                sql = self.engine.get_update_sql(self.table, self.field)
+                sql = self.master.engine.get_update_sql(self.table, self.field)
 
             else:
                 
-                sql = self.engine.get_insert_sql(self.table, len(args))
+                sql = self.master.engine.get_insert_sql(self.table, len(args))
 
-            product_id = self.engine.write(sql, args)
+            product_id = self.master.engine.write(sql, args)
             self.parent.on_reset()
             
             if self.index is not None:
@@ -172,7 +171,7 @@ class UI(tk.Toplevel):
         index = 0
         self.dict_categories = {}
         values = []
-        rs = self.engine.read(True, sql, ())
+        rs = self.master.engine.read(True, sql, ())
 
         for i in rs:
             self.dict_categories[index] = i[0]
@@ -188,7 +187,7 @@ class UI(tk.Toplevel):
         self.dict_suppliers = {}
         values = []
 
-        rs = self.engine.read(True, sql, ())
+        rs = self.master.engine.read(True, sql, ())
 
         for i in rs:
             self.dict_suppliers[index] = i[0]

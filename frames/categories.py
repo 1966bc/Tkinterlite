@@ -1,42 +1,49 @@
+# -*- coding: utf-8 -*-
 #-----------------------------------------------------------------------------
 # project:  tkinterlite
 # authors:  1966bc
-# mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2020-03-01
+# mailto:   [giuseppecostanzi@gmail.com]
+# modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 import frames.category as ui
 
+SQL = "SELECT * FROM categories ORDER BY category ASC;"
+
 class UI(tk.Toplevel):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent):
         super().__init__(name="categories")
 
         self.attributes("-topmost", True)
         self.parent = parent
-        self.engine = kwargs["engine"]
         self.table = "categories"
         self.field = "category_id"
         self.obj = None
         self.init_ui()
-        self.engine.center_me(self)
+        self.master.engine.center_me(self)
 
     def init_ui(self):
 
-        f0 = self.engine.get_frame(self, 8)
+        f0 = self.master.engine.get_frame(self, 8)
         f1 = ttk.Frame(f0,)
-        self.lstItems = self.engine.get_listbox(f1, width=40)
+        self.lstItems = self.master.engine.get_listbox(f1, width=40)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
         f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
-        self.engine.get_add_edit_cancel(self, f0)
+        self.master.engine.get_add_edit_cancel(self, f0)
         f0.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
     def on_open(self,):
 
-        sql = "SELECT * FROM categories ORDER BY category ASC;"
-        rs = self.engine.read(True, sql, ())
+        msg = "{0}".format(self.winfo_name().capitalize())
+        self.title(msg)
+        self.set_values()
+
+    def set_values(self):        
+
+        rs = self.master.engine.read(True, SQL, ())
         index = 0
         self.dict_items = {}
 
@@ -52,49 +59,36 @@ class UI(tk.Toplevel):
                 self.dict_items[index] = i[0]
                 index += 1
 
-        self.title("Categories")
-
     def on_add(self, evt):
-
-        self.obj = ui.UI(self,
-                         engine=self.engine,
-                         table=self.table,
-                         field=self.field,
-                         index=None)
+        
+        self.obj = ui.UI(self)
         self.obj.on_open()
 
-
     def on_edit(self, evt):
+        
         self.on_item_activated()
-
 
     def on_item_activated(self, evt=None):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            self.obj = ui.UI(self,
-                             engine=self.engine,
-                             table=self.table,
-                             field=self.field,
-                             index=index)
+            self.obj = ui.UI(self, index)
             self.obj.on_open(self.selected_item,)
 
         else:
             messagebox.showwarning(self.master.title(),
-                                   self.engine.no_selected,
+                                   self.master.engine.no_selected,
                                    parent=self)
-
 
     def on_item_selected(self, evt):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
-            self.selected_item = self.engine.get_selected(self.table,
-                                                          self.field,
-                                                          pk)
-
-
+            self.selected_item = self.master.engine.get_selected(self.table,
+                                                                 self.field,
+                                                                 pk)
+            
     def on_cancel(self, evt=None):
 
         if self.obj is not None:
