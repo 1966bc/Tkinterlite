@@ -47,13 +47,10 @@ class ClockThread(threading.Thread):
 
 
 class Tkinterlite(ttk.Frame):
-    def __init__(self, parent, *args, **kwargs):
+    def __init__(self, parent):
         super().__init__()
 
         self.parent = parent
-        self.master.engine = kwargs["engine"]
-        self.master.info = kwargs["info"]
-        self.args = args
         self.queue = queue.Queue()
         self.clock = None
 
@@ -235,7 +232,7 @@ class Tkinterlite(ttk.Frame):
 
         else:
             messagebox.showwarning(self.master.title(),
-                                   self.engine.no_selected,
+                                   self.master.engine.no_selected,
                                    parent=self)
 
     def on_double_click(self, evt):
@@ -348,37 +345,44 @@ class Tkinterlite(ttk.Frame):
 
 class App(tk.Tk):
     """Tkinterlite Main Application start here"""
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         super().__init__()
-
+            
+        self.engine = Engine()
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
-        self.engine = kwargs["engine"]
-        self.set_title(kwargs["title"])
-        self.style = ttk.Style()
         self.set_option_db()
+        self.set_style()
+        self.set_title("Tkinterlite")
         self.set_icon()
-        self.set_style(kwargs["style"])
+        self.set_info()
         self.engine.title = self.title()
-
-        w = Tkinterlite(self, *args, **kwargs)
+        
+        w = Tkinterlite(self)
         w.on_open()
         w.pack(fill=tk.BOTH, expand=1)
 
     def set_option_db(self):
         file = self.engine.get_file("optionDB")
-        self.option_readfile(file)        
+        self.option_readfile(file)
+        
+    def set_style(self):
+        self.style = ttk.Style()
+        self.style.theme_use("clam")
+        self.style.configure(".", background=self.engine.get_rgb(240, 240, 237))
 
     def set_title(self, title):
         s = "{0}".format(title)
         self.title(s)
-
-    def set_style(self, style):
-        self.style.theme_use(style)
-        self.style.configure(".", background=self.engine.get_rgb(240, 240, 237))
-
+        
     def set_icon(self):
         icon = tk.PhotoImage(data=self.engine.get_icon())
         self.call("wm", "iconphoto", self._w, "-default", icon)
+
+    def set_info(self,):
+        msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\
+               \nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
+        info = msg.format(self.title(), __author__, __copyright__, __credits__, __license__, __version__, __maintainer__, __email__, __date__, __status__)
+        self.info = info        
 
     def on_exit(self, evt=None):
         if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
@@ -388,23 +392,7 @@ class App(tk.Tk):
             self.destroy()
 
 def main():
-
-    args = []
-
-    for i in sys.argv:
-        args.append(i)
-
-    kwargs = {"style":"clam", "title":"Tkinterlite", "engine":Engine(*args,)}
-
-    msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\
-           \nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
-    info = msg.format(kwargs["title"], __author__, __copyright__, __credits__, __license__,
-                      __version__, __maintainer__, __email__, __date__, __status__)
-
-    kwargs["info"] = info
-
-    app = App(*args, **kwargs)
-
+    app = App()
     app.mainloop()
 
 if __name__ == "__main__":
