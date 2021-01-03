@@ -126,7 +126,7 @@ class Tkinterlite(ttk.Frame):
 
     def init_status_bar(self):
 
-        self.status = tk.Label(self.master,
+        self.status = tk.Label(self,
                                textvariable=self.status_bar_text,
                                bd=1,
                                fg=self.master.engine.get_rgb(0, 0, 0),
