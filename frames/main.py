@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+#-----------------------------------------------------------------------------
+# project:  tkinterlite
+# authors:  1966bc
+# mailto:   [giuseppe.costanzi@gmail.com]
+# modify:   hiems MMXX
+#-----------------------------------------------------------------------------
 """ This is the main module of Tkinterlite."""
 import sys
 import threading

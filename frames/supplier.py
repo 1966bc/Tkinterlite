@@ -13,43 +13,39 @@ class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
         super().__init__(name="supplier")
 
-        self.attributes("-topmost", True)
-        self.transient(parent)
-        self.resizable(0, 0)
         self.parent = parent
         self.index = index
-
+        self.transient(parent)
+        self.resizable(0, 0)
         self.company = tk.StringVar()
         self.enable = tk.BooleanVar()
-
         self.init_ui()
-        self.master.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        f = self.master.engine.get_init_ui(self)
+        w = self.nametowidget(".").engine.get_init_ui(self)
 
         r = 0
-        ttk.Label(f, text="Company:",).grid(row=r, sticky=tk.W)
-        self.txtCompany = ttk.Entry(f, textvariable=self.company)
+        ttk.Label(w, text="Company:",).grid(row=r, sticky=tk.W)
+        self.txtCompany = ttk.Entry(w, textvariable=self.company)
         self.txtCompany.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(f, text="Enable:").grid(row=r, sticky=tk.W)
-        w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
-        w.grid(row=r, column=1, sticky=tk.W)
+        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
+        chk.grid(row=r, column=1, sticky=tk.W)
 
-        self.master.engine.get_save_cancel(self, f)
-
+        self.nametowidget(".").engine.get_save_cancel(self, w)
 
     def on_open(self, selected_item=None):
 
         if self.index is not None:
             self.selected_item = selected_item
-            msg = "Edit {0}".format(self.winfo_name().capitalize())
+            msg = "Edit {0}".format(self.winfo_name().title())
             self.set_values()
         else:
-            msg = "Add {0}".format(self.winfo_name().capitalize())
+            msg = "Add {0}".format(self.winfo_name().title())
             self.enable.set(1)
 
         self.title(msg)
@@ -67,25 +63,23 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.master.engine.on_fields_control(self) == False: return
+        if self.nametowidget(".").engine.on_fields_control(self) == False: return
 
-        if messagebox.askyesno(self.master.title(),
-                               self.master.engine.ask_to_save,
-                               parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(), self.nametowidget(".").engine.ask_to_save, parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
-                sql = self.master.engine.get_update_sql(self.parent.table, self.parent.field)
+                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.field)
 
                 args.append(self.selected_item[0])
 
             else:
 
-                sql = self.engine.get_insert_sql(self.parent.table, len(args))
+                sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
 
-            last_id = self.master.engine.write(sql, args)
+            last_id = self.nametowidget(".").engine.write(sql, args)
             self.parent.on_open()
 
             if self.index is not None:
@@ -95,9 +89,14 @@ class UI(tk.Toplevel):
                 #force focus on listbox
                 idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
                 self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)
-                         
+                self.parent.lstItems.see(idx)                
+
             self.on_cancel()
+
+        else:
+            messagebox.showinfo(self.nametowidget(".").title(),
+                                self.nametowidget(".").engine.abort,
+                                parent=self)
 
     def on_cancel(self, evt=None):
         self.destroy()
