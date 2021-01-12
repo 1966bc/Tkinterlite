@@ -1,19 +1,17 @@
 #!/usr/bin/python3
-"""
-project:  tkinterlite
-authors:  1966bc
-mailto:   [giuseppecostanzi@gmail.com]
-modify:   summer 2020
-"""
+#-----------------------------------------------------------------------------
+# project:  tkinterlite
+# authors:  1966bc
+# mailto:   [giuseppe.costanzi@gmail.com]
+# modify:   hiems MMXX
+#-----------------------------------------------------------------------------
 import sys
 import inspect
 import sqlite3 as lite
 
 class DBMS:
-    def __init__(self, *args, **kwargs):
-
-        self.args = args
-        self.kwargs = kwargs
+    def __init__(self,):
+        
         self.set_connection()
 
 

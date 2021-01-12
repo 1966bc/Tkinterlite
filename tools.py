@@ -3,7 +3,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   2020-03-01
+# modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -11,11 +11,7 @@ from tkinter import messagebox
 from tkinter import font
 
 class Tools:
-    def __init__(self, *args, **kwargs):
 
-        self.args = args
-        self.kwargs = kwargs
-        
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__,
                                              [x.__name__ for x in Tools.__mro__],)

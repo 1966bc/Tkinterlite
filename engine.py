@@ -3,7 +3,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppe.costanzi@gmail.com]
-# modify:   10/04/2017
+# modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import os
 import sys
@@ -13,9 +13,9 @@ from dbms import DBMS
 from tools import Tools
 
 class Engine(DBMS, Tools):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
+    def __init__(self,):
+        super().__init__()
+        
         self.no_selected = "Attention!\nNo record selected!"
         self.mandatory = "Attention!\nField %s is mandatory!"
         self.delete = "Delete data?"
