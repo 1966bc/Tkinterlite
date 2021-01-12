@@ -59,7 +59,8 @@ class Tkinterlite(ttk.Frame):
         self.parent = parent
         self.queue = queue.Queue()
         self.clock = None
-
+        self.table = "products"
+        self.field = "product_id"
         self.ops = ("Categories", "Suppliers")
         self.status_bar_text = tk.StringVar()
         self.filter_id = tk.IntVar()
@@ -103,17 +104,17 @@ class Tkinterlite(ttk.Frame):
         m_about.add_command(label="About", underline=0, command=self.on_about)
 
         for i in (m_main, m_file, ):
-            i.config(bg=self.master.engine.get_rgb(240, 240, 237),)
+            i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
             i.config(fg="black")
 
-        self.master.config(menu=m_main)            
+        self.nametowidget(".").config(menu=m_main)            
 
     def init_toolbar(self):
 
         toolbar = tk.Frame(self, bd=1, relief=tk.RAISED)
 
-        img_exit = tk.PhotoImage(data=self.master.engine.get_exit__icon())
-        img_info = tk.PhotoImage(data=self.master.engine.get_info_icon())
+        img_exit = tk.PhotoImage(data=self.nametowidget(".").engine.get_exit__icon())
+        img_info = tk.PhotoImage(data=self.nametowidget(".").engine.get_info_icon())
 
         exitButton = tk.Button(toolbar, width=20, image=img_exit,
                                relief=tk.FLAT, command=self.parent.on_exit)
@@ -126,7 +127,7 @@ class Tkinterlite(ttk.Frame):
         exitButton.pack(side=tk.LEFT, padx=2, pady=2)
         infoButton.pack(side=tk.LEFT, padx=2, pady=2)
 
-        toolbar.config(bg=self.master.engine.get_rgb(240, 240, 237))
+        toolbar.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237))
         toolbar.pack(side=tk.TOP, fill=tk.X)
            
 
@@ -135,8 +136,8 @@ class Tkinterlite(ttk.Frame):
         self.status = tk.Label(self,
                                textvariable=self.status_bar_text,
                                bd=1,
-                               fg=self.master.engine.get_rgb(0, 0, 0),
-                               bg=self.master.engine.get_rgb(240, 240, 237),
+                               fg=self.nametowidget(".").engine.get_rgb(0, 0, 0),
+                               bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),
                                relief=tk.SUNKEN,
                                anchor=tk.W)    
         self.status.pack(side=tk.BOTTOM, fill=tk.X)
@@ -146,14 +147,14 @@ class Tkinterlite(ttk.Frame):
         """create widgets"""
 
         self.pack(fill=tk.BOTH, expand=1)
-        w = self.master.engine.get_frame(self, 8)
+        w = self.nametowidget(".").engine.get_frame(self, 8)
 
         #products
         #-----------------------------------------------------------------------
         self.lblProdutcs = ttk.LabelFrame(w, text="Products",)
-        self.lstProducts = self.master.engine.get_tree(self.lblProdutcs, self.cols,)
+        self.lstProducts = self.nametowidget(".").engine.get_tree(self.lblProdutcs, self.cols,)
         self.lstProducts.tag_configure("is_enable", background="light gray")
-        self.lstProducts.tag_configure("is_zero", background=self.master.engine.get_rgb(255, 160, 122))
+        self.lstProducts.tag_configure("is_zero", background=self.nametowidget(".").engine.get_rgb(255, 160, 122))
         self.lstProducts.bind("<<TreeviewSelect>>", self.get_selected_product)
         self.lstProducts.bind("<Double-1>", self.on_double_click)
         self.lblProdutcs.pack(fill=tk.BOTH, expand=1)
@@ -171,7 +172,7 @@ class Tkinterlite(ttk.Frame):
 
         #buttons and radio
         #-----------------------------------------------------------------------
-        f = self.master.engine.get_frame(self, 8)
+        f = self.nametowidget(".").engine.get_frame(self, 8)
 
         bts = (("Reset", self.on_reset, "<Alt-r>"),
                ("New", self.on_add, "<Alt-n>"),
@@ -179,10 +180,10 @@ class Tkinterlite(ttk.Frame):
                ("Close", self.parent.on_exit, "<Alt-c>"))
 
         for btn in bts:
-            self.master.engine.get_button(f, btn[0]).bind("<Button-1>", btn[1])
+            self.nametowidget(".").engine.get_button(f, btn[0]).bind("<Button-1>", btn[1])
             self.parent.bind(btn[2], btn[1])
 
-        self.master.engine.get_radio_buttons(f,
+        self.nametowidget(".").engine.get_radio_buttons(f,
                                       "Combo data",
                                       self.ops,
                                       self.filter_id,
@@ -192,15 +193,15 @@ class Tkinterlite(ttk.Frame):
 
     def center_ui(self):
 
-        ws = self.master.winfo_screenwidth()
-        hs = self.master.winfo_screenheight()
+        ws = self.nametowidget(".").winfo_screenwidth()
+        hs = self.nametowidget(".").winfo_screenheight()
         # calculate position x, y
-        d = self.master.engine.get_dimensions()
+        d = self.nametowidget(".").engine.get_dimensions()
         w = int(d["w"])
         h = int(d["h"])
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
-        self.master.geometry("%dx%d+%d+%d" % (w, h, x, y))
+        self.nametowidget(".").geometry("%dx%d+%d+%d" % (w, h, x, y))
 
     def on_open(self, evt=None):
 
@@ -215,7 +216,7 @@ class Tkinterlite(ttk.Frame):
     def on_reset(self, evt=None):
 
         self.selected_product = None
-        sql = "SELECT * FROM products ORDER BY product ASC"
+        sql = "SELECT * FROM {0} ORDER BY product ASC".format(self.table)
         self.set_tree_values(sql, ())
         self.set_combo_values()
                     
@@ -237,8 +238,8 @@ class Tkinterlite(ttk.Frame):
             frames.product.UI(self, item_iid).on_open(self.selected_product,)
 
         else:
-            messagebox.showwarning(self.master.title(),
-                                   self.master.engine.no_selected,
+            messagebox.showwarning(self.nametowidget(".").title(),
+                                   self.nametowidget(".").engine.no_selected,
                                    parent=self)
 
     def on_double_click(self, evt):
@@ -250,9 +251,8 @@ class Tkinterlite(ttk.Frame):
         if self.lstProducts.focus():
             item_iid = self.lstProducts.selection()
             pk = int(item_iid[0])
-            self.selected_product = self.master.engine.get_selected("products",
-                                                             "product_id",
-                                                             pk)
+            self.selected_product = self.nametowidget(".").engine.get_selected(self.table, self.field, pk)
+            
     def get_selected_combo_item(self, evt):
 
         if self.cbCombo.current() != -1:
@@ -275,7 +275,7 @@ class Tkinterlite(ttk.Frame):
         for i in self.lstProducts.get_children():
             self.lstProducts.delete(i)
 
-        rs = self.master.engine.read(True, sql, args)
+        rs = self.nametowidget(".").engine.read(True, sql, args)
 
         if rs:
             
@@ -317,7 +317,7 @@ class Tkinterlite(ttk.Frame):
                    WHERE enable =1\
                    ORDER BY company"
 
-        rs = self.master.engine.read(True, sql, ())
+        rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
             self.dict_combo_values[index] = i[0]
@@ -328,7 +328,9 @@ class Tkinterlite(ttk.Frame):
         self.cbCombo["values"] = values
 
     def on_about(self,):
-        messagebox.showinfo(self.master.title(), self.master.info, parent=self)
+        messagebox.showinfo(self.nametowidget(".").title(),
+                            self.nametowidget(".").info,
+                            parent=self)
 
     def periodic_call(self):
 

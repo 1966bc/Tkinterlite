@@ -26,25 +26,25 @@ class UI(tk.Toplevel):
         self.price = tk.DoubleVar()
         self.enable = tk.BooleanVar()
 
-        self.vcmd = self.master.engine.get_validate_float(self)
-        self.vcmd2 = self.master.engine.get_validate_integer(self)
+        self.val_int = self.nametowidget(".").engine.get_validate_float(self)
+        self.val_float = self.nametowidget(".").engine.get_validate_integer(self)
         self.set_style()
-        self.master.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
         self.init_ui()
 
     def set_style(self):
         s = ttk.Style()
         s.configure("Product.TLabel",
-                    foreground=self.master.engine.get_rgb(0, 0, 255),
-                    background=self.master.engine.get_rgb(255, 255, 255))
+                    foreground=self.nametowidget(".").engine.get_rgb(0, 0, 255),
+                    background=self.nametowidget(".").engine.get_rgb(255, 255, 255))
 
         s.configure("Package.TLabel",
-                    foreground=self.master.engine.get_rgb(255, 0, 0),
-                    background=self.master.engine.get_rgb(255, 255, 255))
+                    foreground=self.nametowidget(".").engine.get_rgb(255, 0, 0),
+                    background=self.nametowidget(".").engine.get_rgb(255, 255, 255))
 
     def init_ui(self):
 
-        f = self.master.engine.get_init_ui(self)
+        f = self.nametowidget(".").engine.get_init_ui(self)
 
         r = 0
         ttk.Label(f, text="Product:",).grid(row=r, sticky=tk.W)
@@ -71,13 +71,13 @@ class UI(tk.Toplevel):
         r += 1
         ttk.Label(f, text="Price:").grid(row=r, sticky=tk.W)
         w = ttk.Entry(f, justify=tk.CENTER, width=8, validate="key",
-                      validatecommand=self.vcmd, textvariable=self.price)
+                      validatecommand=self.val_float, textvariable=self.price)
         w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(f, text="Stock:").grid(row=r, sticky=tk.W)
         w = ttk.Entry(f, justify=tk.CENTER, width=8, validate="key",
-                      validatecommand=self.vcmd2, textvariable=self.stock)
+                      validatecommand=self.val_int, textvariable=self.stock)
         w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
@@ -85,7 +85,7 @@ class UI(tk.Toplevel):
         w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
         w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
-        self.master.engine.get_save_cancel(self, f)
+        self.nametowidget(".").engine.get_save_cancel(self, f)
 
     def on_open(self, selected_item=None):
 
@@ -136,24 +136,23 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt):
 
-        if self.master.engine.on_fields_control(self) == False: return
-        if messagebox.askyesno(self.master.title(),
-                               self.master.engine.ask_to_save,
-                               parent=self) == True:
+        if self.nametowidget(".").engine.on_fields_control(self) == False: return
+
+        if messagebox.askyesno(self.nametowidget(".").title(), self.nametowidget(".").engine.ask_to_save, parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
+                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.field)
+
                 args.append(self.selected_item[0])
 
-                sql = self.master.engine.get_update_sql(self.table, self.field)
-
             else:
-                
-                sql = self.master.engine.get_insert_sql(self.table, len(args))
 
-            product_id = self.master.engine.write(sql, args)
+                sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
+
+            product_id = self.nametowidget(".").engine.write(sql, args)
             self.parent.on_reset()
             
             if self.index is not None:
@@ -171,7 +170,7 @@ class UI(tk.Toplevel):
         index = 0
         self.dict_categories = {}
         values = []
-        rs = self.master.engine.read(True, sql, ())
+        rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
             self.dict_categories[index] = i[0]
@@ -187,7 +186,7 @@ class UI(tk.Toplevel):
         self.dict_suppliers = {}
         values = []
 
-        rs = self.master.engine.read(True, sql, ())
+        rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
             self.dict_suppliers[index] = i[0]
