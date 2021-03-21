@@ -9,6 +9,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from tkinter import font
+from tkinter.scrolledtext import ScrolledText
 
 class Tools:
 
@@ -92,6 +93,23 @@ class Tools:
 
         w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         sb.pack(fill=tk.Y, expand=1)
+
+        return w
+
+    def get_text_box(self, container, height=None, width=None, row=None, col=None):
+
+        w = ScrolledText(container,
+                         bg='white',
+                         relief=tk.GROOVE,
+                         height=height,
+                         width=width,
+                         font='TkFixedFont',)
+
+        if row is not None:
+            #print(row,col)
+            w.grid(row=row, column=1, sticky=tk.W)
+        else:
+            w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
 
         return w
     

@@ -2,16 +2,17 @@
 #-----------------------------------------------------------------------------
 # project:  tkinterlite
 # authors:  1966bc
-# mailto:   [giuseppe.costanzi@gmail.com]
+# mailto:   [giuseppecostanzi@gmail.com]
 # modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import sys
 import inspect
+import datetime
 import sqlite3 as lite
 
 class DBMS:
     def __init__(self,):
-        
+
         self.set_connection()
 
 
@@ -28,6 +29,14 @@ class DBMS:
 
 
     def read(self, fetch, sql, args=()):
+
+        """Remember that fetchall() return a list.\
+           An empty list is returned when no rows are available.
+           Testing if the list is empty with 'if rs' or 'if not rs'
+           Otherwise fetchone() return a single sequence, or None
+           when no more data is available.
+           Testing as 'if rs is not None'.
+        """
 
         try:
             cur = self.con.cursor()
@@ -47,7 +56,6 @@ class DBMS:
                         sys.exc_info()[0],
                         sys.modules[__name__])
 
-
     def write(self, sql, args=()):
 
         try:
@@ -63,7 +71,7 @@ class DBMS:
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
-
+            
         finally:
             try:
                 cur.close()
@@ -74,7 +82,13 @@ class DBMS:
                             sys.exc_info()[0],
                             sys.modules[__name__])
 
+    def dump(self,):
 
+        dt = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
+        s = dt + ".sql"
+        with open(s, 'w') as f:
+            for line in self.con.iterdump():
+                f.write('%s\n' % line)
 
     def get_fields(self, table):
         """return fields name of the args table ordered by field number
@@ -115,7 +129,7 @@ class DBMS:
                             sys.exc_info()[1],
                             sys.exc_info()[0],
                             sys.modules[__name__])
-            
+
 
     def get_update_sql(self, table, pk):
         """recive a table name and his pk to format an update sql statement
@@ -134,7 +148,7 @@ class DBMS:
         @return: sql formatted stringstring
         @rtype: string
         """
-        
+
         return "INSERT INTO {0}({1})VALUES({2})".format(table, ",".join(self.get_fields(table)), ",".join("?"*n))
 
 
