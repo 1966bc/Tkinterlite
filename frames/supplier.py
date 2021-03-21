@@ -65,7 +65,9 @@ class UI(tk.Toplevel):
 
         if self.nametowidget(".").engine.on_fields_control(self) == False: return
 
-        if messagebox.askyesno(self.nametowidget(".").title(), self.nametowidget(".").engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(),
+                               self.nametowidget(".").engine.ask_to_save,
+                               parent=self) == True:
 
             args = self.get_values()
 
@@ -89,7 +91,7 @@ class UI(tk.Toplevel):
                 #force focus on listbox
                 idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
                 self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)                
+                self.parent.lstItems.see(idx)
 
             self.on_cancel()
 

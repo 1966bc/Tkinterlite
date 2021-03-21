@@ -6,7 +6,6 @@
 # modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
 import frames.supplier as ui
 
@@ -36,19 +35,19 @@ class UI(tk.Toplevel):
         w = self.nametowidget(".").engine.get_frame(self, 2)
         self.nametowidget(".").engine.get_add_edit_cancel(self, w)
         w.pack(fill=tk.BOTH, expand=1)
-        
+
     def on_open(self,):
 
         msg = "{0}".format(self.winfo_name().title())
         self.title(msg)
         self.set_values()
-        
+
     def set_values(self):
 
         self.lstItems.delete(0, tk.END)
         index = 0
         self.dict_items = {}
-        
+
         rs = self.nametowidget(".").engine.read(True, SQL, ())
 
         if rs:
@@ -88,7 +87,7 @@ class UI(tk.Toplevel):
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
                                    self.nametowidget(".").engine.no_selected,
-                                   parent=self)            
+                                   parent=self)
 
     def on_cancel(self, evt=None):
         if self.obj is not None:

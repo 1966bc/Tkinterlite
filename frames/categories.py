@@ -2,11 +2,10 @@
 #-----------------------------------------------------------------------------
 # project:  tkinterlite
 # authors:  1966bc
-# mailto:   [giuseppe.costanzi@gmail.com]
+# mailto:   [giuseppecostanzi@gmail.com]
 # modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
 import frames.category as ui
 
@@ -48,7 +47,7 @@ class UI(tk.Toplevel):
         self.lstItems.delete(0, tk.END)
         index = 0
         self.dict_items = {}
-        
+
         rs = self.nametowidget(".").engine.read(True, SQL, ())
 
         if rs:
@@ -88,7 +87,7 @@ class UI(tk.Toplevel):
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
                                    self.nametowidget(".").engine.no_selected,
-                                   parent=self)            
+                                   parent=self)
 
     def on_cancel(self, evt=None):
         if self.obj is not None:

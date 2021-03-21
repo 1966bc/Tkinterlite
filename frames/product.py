@@ -138,7 +138,9 @@ class UI(tk.Toplevel):
 
         if self.nametowidget(".").engine.on_fields_control(self) == False: return
 
-        if messagebox.askyesno(self.nametowidget(".").title(), self.nametowidget(".").engine.ask_to_save, parent=self) == True:
+        if messagebox.askyesno(self.nametowidget(".").title(), 
+                               self.nametowidget(".").engine.ask_to_save, 
+                               parent=self) == True:
 
             args = self.get_values()
 
@@ -154,19 +156,19 @@ class UI(tk.Toplevel):
 
             product_id = self.nametowidget(".").engine.write(sql, args)
             self.parent.on_reset()
-            
+
             if self.index is not None:
                 self.parent.lstProducts.selection_set(self.index)
                 self.parent.lstProducts.see(self.index)
             else:
                 self.parent.lstProducts.selection_set(product_id)
-                self.parent.lstProducts.see(product_id)                
+                self.parent.lstProducts.see(product_id)
 
             self.on_cancel()
 
     def set_categories(self):
 
-        sql = "SELECT category_id, category FROM categories ORDER BY category ASC"
+        sql = "SELECT category_id, category FROM categories ORDER BY category ASC;"
         index = 0
         self.dict_categories = {}
         values = []
@@ -181,7 +183,7 @@ class UI(tk.Toplevel):
 
     def set_suppliers(self,):
 
-        sql = "SELECT supplier_id, company FROM suppliers ORDER BY company ASC"
+        sql = "SELECT supplier_id, company FROM suppliers ORDER BY company ASC;"
         index = 0
         self.dict_suppliers = {}
         values = []
