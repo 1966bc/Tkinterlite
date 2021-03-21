@@ -17,6 +17,7 @@ class UI(tk.Toplevel):
         super().__init__(name="suppliers")
 
         self.parent = parent
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.attributes("-topmost", True)
         self.table = "suppliers"
         self.field = "supplier_id"
