@@ -18,6 +18,7 @@ class UI(tk.Toplevel):
 
         self.parent = parent
         self.attributes("-topmost", True)
+        self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.table = "categories"
         self.field = "category_id"
         self.obj = None
