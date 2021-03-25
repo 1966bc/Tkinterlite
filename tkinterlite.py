@@ -3,7 +3,7 @@
 #-----------------------------------------------------------------------------
 # project:  tkinterlite
 # authors:  1966bc
-# mailto:   [giuseppe.costanzi@gmail.com]
+# mailto:   [giuseppecostanzi@gmail.com]
 # modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import sys
