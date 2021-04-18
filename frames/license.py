@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #-----------------------------------------------------------------------------
-# project:  snoopy
+# project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   hiems MMXX
