@@ -34,7 +34,7 @@ class Tkinterlite(ttk.Frame):
         super().__init__()
         
         self.parent = parent
-  
+
         self.table = "products"
         self.field = "product_id"
         self.ops = ("Categories", "Suppliers")
@@ -58,38 +58,42 @@ class Tkinterlite(ttk.Frame):
         m_main = tk.Menu(self, bd=1)
 
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
-        s_menu = tk.Menu(m_file)
-        s_databases = tk.Menu(m_file)
+        m_tools = tk.Menu(m_main, tearoff=0, bd=1)
+        s_databases = tk.Menu(m_tools)
         m_about = tk.Menu(m_main, tearoff=0, bd=1)
 
-        m_main.add_cascade(label="File", underline=0, menu=m_file)
-        m_main.add_cascade(label="?", underline=0, menu=m_about)
-        m_file.add_cascade(label="Tools", menu=s_menu, underline=0)
+        items = (("File", m_file),
+                 ("Tools", m_tools),
+                 ("?", m_about),)
 
+        for i in items:
+            m_main.add_cascade(label=i[0], underline=0, menu=i[1])
+ 
         items = (("Categories", self.on_categories),
                  ("Suppliers", self.on_suppliers),)
 
         for i in items:
-            s_menu.add_command(label=i[0], underline=0, command=i[1])
+            m_tools.add_command(label=i[0], underline=0, command=i[1])
 
         m_file.add_cascade(label="Database", menu=s_databases, underline=0)
-        s_databases.add_command(label="Dump",
-                                underline=0,
-                                command=self.on_dump)
 
-        s_databases.add_command(label="Vacuum",
-                                underline=0,
-                                command=self.on_vacuum)
+        items = (("Dump", self.on_dump),
+                 ("Vacuum", self.on_vacuum),)
 
+        for i in items:
+            s_databases.add_command(label=i[0], underline=0, command=i[1])
+        
         m_file.add_separator()
 
         m_file.add_command(label="Exit", underline=0, command=self.parent.on_exit)
 
-        m_about.add_command(label="About", underline=0, command=self.on_about)
-        m_about.add_command(label="License", underline=0, command=self.on_license)
-        m_about.add_command(label="Python", underline=0, command=self.on_python_version)
-        m_about.add_command(label="Tkinter", underline=0, command=self.on_tkinter_version)
+        items = (("About", self.on_about),
+                 ("License", self.on_license),
+                 ("Python", self.on_python_version),
+                 ("Tkinter", self.on_tkinter_version),)
 
+        for i in items:
+            m_about.add_command(label=i[0], underline=0, command=i[1])
 
         for i in (m_main, m_file, ):
             i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
@@ -354,8 +358,6 @@ class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.args = args
-        self.kwargs = kwargs
         self.engine = Engine()
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
@@ -389,7 +391,7 @@ class App(tk.Tk):
         self.title(s)
 
     def set_icon(self):
-        icon = tk.PhotoImage(data=self.nametowidget(".").engine.get_icon("app"))
+        icon = tk.PhotoImage(data=self.engine.get_icon("app"))
         self.call("wm", "iconphoto", self._w, "-default", icon)
 
     def set_info(self,):
@@ -406,7 +408,7 @@ class App(tk.Tk):
             self.destroy()
 
 def main():
-    
+    #if you want pass a number of arbitrary args or kwargs...
     args = []
     
     for i in sys.argv:
@@ -418,8 +420,6 @@ def main():
 
     app.mainloop()
 
-
-    
 
 if __name__ == "__main__":
     main()
