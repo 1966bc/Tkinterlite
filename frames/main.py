@@ -69,12 +69,6 @@ class Tkinterlite(ttk.Frame):
         for i in items:
             m_main.add_cascade(label=i[0], underline=0, menu=i[1])
  
-        items = (("Categories", self.on_categories),
-                 ("Suppliers", self.on_suppliers),)
-
-        for i in items:
-            m_tools.add_command(label=i[0], underline=0, command=i[1])
-
         m_file.add_cascade(label="Database", menu=s_databases, underline=0)
 
         items = (("Dump", self.on_dump),
@@ -86,6 +80,12 @@ class Tkinterlite(ttk.Frame):
         m_file.add_separator()
 
         m_file.add_command(label="Exit", underline=0, command=self.parent.on_exit)
+
+        items = (("Categories", self.on_categories),
+                 ("Suppliers", self.on_suppliers),)
+
+        for i in items:
+            m_tools.add_command(label=i[0], underline=0, command=i[1]) 
 
         items = (("About", self.on_about),
                  ("License", self.on_license),
