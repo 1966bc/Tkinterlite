@@ -6,10 +6,7 @@
 # modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 """ This is the main module of Tkinterlite."""
-import threading
-import queue
-import datetime
-import time
+import sys
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
@@ -28,36 +25,16 @@ __license__ = "GNU GPL Version 3, 29 June 2007"
 __version__ = "42"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "hiems MMXX"
+__date__ = "hiems MMXXI"
 __status__ = "production"
-
-
-class ClockThread(threading.Thread):
-    def __init__(self, queue):
-        threading.Thread.__init__(self)
-
-        self.queue = queue
-        self.check = True
-
-    def stop(self):
-        self.check = False
-
-    def run(self):
-
-        while self.check:
-            s = "Astral date: "
-            t = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            msg = "{0} {1}".format(s, t)
-            time.sleep(1)
-            self.queue.put(msg)
 
 
 class Tkinterlite(ttk.Frame):
     def __init__(self, parent):
         super().__init__()
-
+        
         self.parent = parent
-        self.queue = queue.Queue()
+  
         self.clock = None
         self.table = "products"
         self.field = "product_id"
@@ -217,12 +194,11 @@ class Tkinterlite(ttk.Frame):
 
     def on_open(self, evt=None):
 
-        self.on_reset()
+        """The initialization and start of the clock take place in the Engine module."""
 
-        self.clock = ClockThread(self.queue,)
+        self.on_reset()
         #notice this, we use self.parent to calling on exit function that is in App class....just to remember it.
-        self.parent.clock = self.clock
-        self.clock.start()
+       
         self.periodic_call()
 
     def on_reset(self, evt=None):
@@ -366,48 +342,47 @@ class Tkinterlite(ttk.Frame):
 
     def periodic_call(self):
 
-        self.check_queue()
-        if self.clock.is_alive():
+        self.parent.clock.check_queue(self.status_bar_text)
+        
+        if self.parent.clock.is_alive():
             self.after(1, self.periodic_call)
         else:
             pass
 
-    def check_queue(self):
-
-        while self.queue.qsize():
-            try:
-                x = self.queue.get(0)
-                msg = "{0}".format(x)
-                self.status_bar_text.set(msg)
-            except queue.Empty:
-                pass
-
-
+ 
 class App(tk.Tk):
     """Tkinterlite Main Application start here"""
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         super().__init__()
 
+        self.args = args
+        self.kwargs = kwargs
         self.engine = Engine()
+
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.set_option_db()
-        self.set_style()
-        self.set_title("Tkinterlite")
+        self.set_style(kwargs["style"])
+        self.set_title(kwargs["title"])
         self.set_icon()
         self.set_info()
-        self.engine.title = self.title()
-
+        #set clock and start it.
+        self.set_clock()
+        
         w = Tkinterlite(self)
         w.on_open()
         w.pack(fill=tk.BOTH, expand=1)
 
+    def set_clock(self,):
+        self.clock = self.engine.get_clock()
+        self.clock.start()
+        
     def set_option_db(self):
         file = self.engine.get_file("optionDB")
         self.option_readfile(file)
 
-    def set_style(self):
+    def set_style(self, which):
         self.style = ttk.Style()
-        self.style.theme_use("clam")
+        self.style.theme_use(which)
         self.style.configure(".", background=self.engine.get_rgb(240, 240, 237))
 
     def set_title(self, title):
@@ -432,8 +407,20 @@ class App(tk.Tk):
             self.destroy()
 
 def main():
-    app = App()
+    
+    args = []
+    
+    for i in sys.argv:
+        args.append(i)
+
+    kwargs = {"style":"clam", "title":"Tkinterlite",}
+
+    app = App(*args, **kwargs)
+
     app.mainloop()
+
+
+    
 
 if __name__ == "__main__":
     main()
