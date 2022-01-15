@@ -35,7 +35,6 @@ class Tkinterlite(ttk.Frame):
         
         self.parent = parent
   
-        self.clock = None
         self.table = "products"
         self.field = "product_id"
         self.ops = ("Categories", "Suppliers")
