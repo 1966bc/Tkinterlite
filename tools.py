@@ -149,13 +149,13 @@ class Tools:
             for field in w.winfo_children():
                 if type(field) in(ttk.Entry, ttk.Combobox):
                     if not field.get():
-                        messagebox.showwarning(self.title, msg, parent=container)
+                        messagebox.showwarning(container.master.title(), msg, parent=container)
                         field.focus()
                         return 0
                     elif type(field) == ttk.Combobox:
                           if field.get() not in field.cget('values'):
                               msg = "You can choice only values in the list."
-                              messagebox.showwarning(self.title, msg, parent=container)
+                              messagebox.showwarning(container.master.title(), msg, parent=container)
                               field.focus()
                               return 0
 

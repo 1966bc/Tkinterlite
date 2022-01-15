@@ -3,21 +3,25 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
-#-----------------------------------------------------------------------------
+# modify:   hiems MMXXI
+#------------------------------------------------------------------------------
 import os
 import sys
 import inspect
 import datetime
+
 from dbms import DBMS
+from clock import Clock
 from tools import Tools
 
-class Engine(DBMS, Tools):
+
+class Engine(DBMS, Clock, Tools):
     def __init__(self,):
         super().__init__()
 
+
         self.no_selected = "Attention!\nNo record selected!"
-        self.delete = "Delete data?"
+        self.ask_to_delete = "Delete data?"
         self.ask_to_save = "Save data?"
         self.abort = "Operation aborted!"
 
@@ -25,6 +29,10 @@ class Engine(DBMS, Tools):
         return "class: {0}\nMRO:{1}".format(self.__class__.__name__,
                        [x.__name__ for x in Engine.__mro__])
 
+    def get_clock(self,):
+        """Instance the clock."""
+        return Clock()
+        
     def get_python_version(self,):
         return "Python version:\n{0}".format(".".join(map(str, sys.version_info[:3])))
 
