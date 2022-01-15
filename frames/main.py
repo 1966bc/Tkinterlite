@@ -197,11 +197,8 @@ class Tkinterlite(ttk.Frame):
 
     def on_open(self, evt=None):
 
-        """The initialization and start of the clock take place in the Engine module."""
-
         self.on_reset()
-        #notice this, we use self.parent to calling on exit function that is in App class....just to remember it.
-       
+        #Update clock
         self.periodic_call()
 
     def on_reset(self, evt=None):
