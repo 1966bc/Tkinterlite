@@ -6,7 +6,7 @@
 
 How create a full GUI application with Python Sqlite and Tkinter.
 
-![alt tag](https://user-images.githubusercontent.com/5463566/149618809-1d8dcfa8-aacb-4f66-ab4e-390684a734c7.png)
+![alt tag](https://user-images.githubusercontent.com/5463566/150857962-3a3f73b8-ad88-41a9-8d87-4e7524cc2808.png)
 
 Developend on Debian Release 9 (stretch) 64-bit.
 
