@@ -4,6 +4,8 @@
 [![Tkinter](https://img.shields.io/badge/Tkinter%20-green.svg)](https://docs.python.org/3/library/tk.html)
 [![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg)](https://www.sqlite.org/index.html)
 
+How create a full GUI application with Python Sqlite and Tkinter.
+
 ![alt tag](https://user-images.githubusercontent.com/5463566/149618809-1d8dcfa8-aacb-4f66-ab4e-390684a734c7.png)
 
 Developend on Debian Release 9 (stretch) 64-bit.
