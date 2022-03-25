@@ -36,7 +36,7 @@ class UI(tk.Toplevel):
         r += 1
         ttk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
         wdg = ttk.Entry(w, textvariable=self.description)
-        wdg.grid(row=1, column=1, sticky=tk.W, padx=5, pady=5)
+        wdg.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
