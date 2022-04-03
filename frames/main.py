@@ -38,9 +38,9 @@ class Tkinterlite(ttk.Frame):
         self.table = "products"
         self.field = "product_id"
         self.ops = ("Categories", "Suppliers")
+        self.option_id = tk.IntVar()
         self.status_bar_text = tk.StringVar()
-        self.filter_id = tk.IntVar()
-
+        
         self.cols = (["#0", "id", "w", False, 0, 0],
                      ["#1", "Product", "w", True, 100, 100],
                      ["#2", "Description", "w", True, 100, 100],
@@ -178,7 +178,7 @@ class Tkinterlite(ttk.Frame):
         self.nametowidget(".").engine.get_radio_buttons(f,
                                       "Combo data",
                                       self.ops,
-                                      self.filter_id,
+                                      self.option_id,
                                       self.set_combo_values).pack()
 
         f.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
@@ -248,7 +248,7 @@ class Tkinterlite(ttk.Frame):
             index = self.cbCombo.current()
             selected_id = self.dict_combo_values[index]
 
-            if self.filter_id.get() != 1:
+            if self.option_id.get() != 1:
                 sql = "SELECT * FROM products WHERE supplier_id =? ORDER BY product"
             else:
                 sql = "SELECT * FROM products WHERE category_id =? ORDER BY product"
@@ -292,7 +292,7 @@ class Tkinterlite(ttk.Frame):
         self.dict_combo_values = {}
         values = []
 
-        if self.filter_id.get() != 1:
+        if self.option_id.get() != 1:
             self.lblCombo["text"] = "Categories"
             sql = "SELECT category_id, category\
                    FROM categories\
