@@ -34,11 +34,11 @@ class UI(tk.Toplevel):
 
     def set_style(self):
         s = ttk.Style()
-        s.configure("Product.TLabel",
+        s.configure("Product.TEntry",
                     foreground=self.nametowidget(".").engine.get_rgb(0, 0, 255),
                     background=self.nametowidget(".").engine.get_rgb(255, 255, 255))
 
-        s.configure("Package.TLabel",
+        s.configure("Package.TEntry",
                     foreground=self.nametowidget(".").engine.get_rgb(255, 0, 0),
                     background=self.nametowidget(".").engine.get_rgb(255, 255, 255))
 
@@ -49,7 +49,7 @@ class UI(tk.Toplevel):
         r = 0
         ttk.Label(f, text="Product:",).grid(row=r, sticky=tk.W)
         self.txtProduct = ttk.Entry(f,
-                                    style="Product.TLabel",
+                                    style="Product.TEntry",
                                     textvariable=self.product)
         self.txtProduct.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
@@ -65,7 +65,7 @@ class UI(tk.Toplevel):
 
         r += 1
         ttk.Label(f, text="Package:").grid(row=r, sticky=tk.W)
-        w = ttk.Entry(f, style="Package.TLabel", textvariable=self.package)
+        w = ttk.Entry(f, style="Package.TEntry", textvariable=self.package)
         w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
         r += 1

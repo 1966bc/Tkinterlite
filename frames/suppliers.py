@@ -26,11 +26,11 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        w = self.nametowidget(".").engine.get_frame(self, 2)
-        self.lstItems = self.nametowidget(".").engine.get_listbox(w,)
+        self.lblFrame = self.nametowidget(".").engine.get_label_frame(self,)
+        self.lstItems = self.nametowidget(".").engine.get_listbox(self.lblFrame,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
-        w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=5, pady=5)
+        self.lblFrame.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=5, pady=5)
 
         w = self.nametowidget(".").engine.get_frame(self, 2)
         self.nametowidget(".").engine.get_add_edit_cancel(self, w)
@@ -61,6 +61,9 @@ class UI(tk.Toplevel):
                 self.dict_items[index] = i[0]
                 index += 1
 
+            msg = ("Items: {0}".format(self.lstItems.size()))
+            self.lblFrame['text'] = msg
+            
     def on_add(self, evt):
 
         self.obj = ui.UI(self)

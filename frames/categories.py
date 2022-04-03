@@ -26,22 +26,22 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        f = self.nametowidget(".").engine.get_frame(self, 2)
-        self.lstItems = self.nametowidget(".").engine.get_listbox(f,)
+        self.lblFrame = self.nametowidget(".").engine.get_label_frame(self,)
+        self.lstItems = self.nametowidget(".").engine.get_listbox(self.lblFrame,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
-        f.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=5, pady=5)
+        self.lblFrame.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=5, pady=5)
 
-        f = self.nametowidget(".").engine.get_frame(self, 2)
-        self.nametowidget(".").engine.get_add_edit_cancel(self, f)
-        f.pack(fill=tk.BOTH, expand=1)
+        w = self.nametowidget(".").engine.get_frame(self, 2)
+        self.nametowidget(".").engine.get_add_edit_cancel(self, w)
+        w.pack(fill=tk.BOTH, expand=1)
 
     def on_open(self,):
 
         msg = "{0}".format(self.winfo_name().title())
         self.title(msg)
         self.set_values()
-
+        
     def set_values(self):
 
         self.lstItems.delete(0, tk.END)
@@ -60,6 +60,10 @@ class UI(tk.Toplevel):
                     self.lstItems.itemconfig(index, {"bg":"light gray"})
                 self.dict_items[index] = i[0]
                 index += 1
+
+            msg = ("Items: {0}".format(self.lstItems.size()))
+            self.lblFrame['text'] = msg
+            
 
     def on_add(self, evt):
 
