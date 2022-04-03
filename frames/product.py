@@ -15,8 +15,6 @@ class UI(tk.Toplevel):
 
         self.parent = parent
         self.index = index
-        self.table = "products"
-        self.field = "product_id"
         self.resizable(0, 0)
         self.transient(parent)
 
