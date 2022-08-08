@@ -34,58 +34,59 @@ class UI(tk.Toplevel):
         f = self.master.engine.get_init_ui(self)
 
         r = 0
+        c = 1
         ttk.Label(f, text="Product:",).grid(row=r, sticky=tk.W)
         self.txtProduct = ttk.Entry(f,
                                     style="Product.TEntry",
                                     textvariable=self.product)
-        self.txtProduct.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        self.txtProduct.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(f, text="Suppliers:",).grid(row=r, sticky=tk.W)
         self.cbSuppliers = ttk.Combobox(f,)
-        self.cbSuppliers.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        self.cbSuppliers.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(f, text="Categories:",).grid(row=r, sticky=tk.W)
         self.cbCategories = ttk.Combobox(f,)
-        self.cbCategories.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        self.cbCategories.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(f, text="Package:").grid(row=r, sticky=tk.W)
         w = ttk.Entry(f, style="Package.TEntry", textvariable=self.package)
-        w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(f, text="Price:").grid(row=r, sticky=tk.W)
         w = ttk.Entry(f, justify=tk.CENTER, width=8, validate="key",
                       validatecommand=self.val_float, textvariable=self.price)
-        w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(f, text="Stock:").grid(row=r, sticky=tk.W)
         w = ttk.Entry(f, justify=tk.CENTER, width=8, validate="key",
                       validatecommand=self.val_int, textvariable=self.stock)
-        w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(f, text="Enable:").grid(row=r, sticky=tk.W)
         w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
-        w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r = 0
         c = 2
-        btn = ttk.Button(f, text="Save", underline=0, command=self.on_save, style='W.TButton',)
+        btn = ttk.Button(f, style='W.TButton', text="Save", underline=0, command=self.on_save,)
         self.bind("<Alt-s>", self.on_save)
         btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         if self.index is not None:
             r += 1
-            btn = ttk.Button(f, text="Delete", underline=0, command=self.on_delete, style='W.TButton',)
+            btn = ttk.Button(f, style='W.TButton', text="Delete", underline=0, command=self.on_delete,)
             self.bind("<Alt-d>", self.on_delete)
             btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        btn = ttk.Button(f, text="Cancel", underline=0, command=self.on_cancel, style='W.TButton',)
+        btn = ttk.Button(f, style='W.TButton', text="Cancel", underline=0, command=self.on_cancel,)
         self.bind("<Alt-c>", self.on_cancel)
         btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 

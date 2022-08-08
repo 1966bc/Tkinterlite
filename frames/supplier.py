@@ -27,23 +27,24 @@ class UI(tk.Toplevel):
         w = self.master.engine.get_init_ui(self)
 
         r = 0
+        c = 1
         ttk.Label(w, text="Company:",).grid(row=r, sticky=tk.W)
         self.txtCompany = ttk.Entry(w, textvariable=self.company)
-        self.txtCompany.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
+        self.txtCompany.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
         ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
         chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
-        chk.grid(row=r, column=1, sticky=tk.W)
+        chk.grid(row=r, column=c, sticky=tk.W)
 
         r = 0
         c = 2
-        btn = ttk.Button(w, text="Save", underline=0, command=self.on_save, style='W.TButton',)
+        btn = ttk.Button(w, style='W.TButton', text="Save", underline=0, command=self.on_save,)
         self.bind("<Alt-s>", self.on_save)
         btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        btn = ttk.Button(w, text="Cancel", underline=0, command=self.on_cancel, style='W.TButton',)
+        btn = ttk.Button(w, style='W.TButton', text="Cancel", underline=0, command=self.on_cancel,)
         self.bind("<Alt-c>", self.on_cancel)
         btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
