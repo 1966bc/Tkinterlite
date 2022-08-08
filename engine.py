@@ -15,10 +15,9 @@ from clock import Clock
 from tools import Tools
 
 
-class Engine(DBMS, Clock, Tools):
+class Engine(DBMS, Tools, Clock):
     def __init__(self,):
         super().__init__()
-
 
         self.no_selected = "Attention!\nNo record selected!"
         self.ask_to_delete = "Delete data?"
