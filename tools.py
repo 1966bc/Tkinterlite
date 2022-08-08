@@ -28,6 +28,14 @@ class Tools:
 
         self.style.configure(".", background=self.get_rgb(240, 240, 237))
 
+        self.style.configure("Product.TEntry",
+                    foreground=self.get_rgb(0, 0, 255),
+                    background=self.get_rgb(255, 255, 255))
+
+        self.style.configure("Package.TEntry",
+                    foreground=self.get_rgb(255, 0, 0),
+                    background=self.get_rgb(255, 255, 255))
+        
         self.style.configure('W.TFrame', background=self.get_rgb(240, 240, 237))
 
         self.style.configure('W.TButton',
