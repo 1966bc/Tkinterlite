@@ -24,8 +24,8 @@ class UI(tk.Toplevel):
         self.price = tk.DoubleVar()
         self.enable = tk.BooleanVar()
 
-        self.val_int = self.master.engine.get_validate_float(self)
-        self.val_float = self.master.engine.get_validate_integer(self)
+        self.val_int = self.master.engine.get_validate_integer(self)
+        self.val_float = self.master.engine.get_validate_float(self)
         self.master.engine.center_me(self)
         self.init_ui()
 
