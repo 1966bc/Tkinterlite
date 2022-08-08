@@ -20,11 +20,11 @@ class UI(tk.Toplevel):
         self.company = tk.StringVar()
         self.enable = tk.BooleanVar()
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.master.engine.center_me(self)
 
     def init_ui(self):
 
-        w = self.nametowidget(".").engine.get_init_ui(self)
+        w = self.master.engine.get_init_ui(self)
 
         r = 0
         ttk.Label(w, text="Company:",).grid(row=r, sticky=tk.W)
@@ -72,25 +72,25 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.nametowidget(".").engine.on_fields_control(self) == False: return
+        if self.master.engine.on_fields_control(self) == False: return
 
-        if messagebox.askyesno(self.nametowidget(".").title(),
-                               self.nametowidget(".").engine.ask_to_save,
+        if messagebox.askyesno(self.master.title(),
+                               self.master.engine.ask_to_save,
                                parent=self) == True:
 
             args = self.get_values()
 
             if self.index is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
+                sql = self.master.engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
                 args.append(self.selected_item[0])
 
             else:
 
-                sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
+                sql = self.master.engine.get_insert_sql(self.parent.table, len(args))
 
-            last_id = self.nametowidget(".").engine.write(sql, args)
+            last_id = self.master.engine.write(sql, args)
             self.parent.on_open()
 
             if self.index is not None:
@@ -105,8 +105,8 @@ class UI(tk.Toplevel):
             self.on_cancel()
 
         else:
-            messagebox.showinfo(self.nametowidget(".").title(),
-                                self.nametowidget(".").engine.abort,
+            messagebox.showinfo(self.master.title(),
+                                self.master.engine.abort,
                                 parent=self)
 
     def on_cancel(self, evt=None):

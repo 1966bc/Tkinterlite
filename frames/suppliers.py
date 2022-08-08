@@ -23,12 +23,12 @@ class UI(tk.Toplevel):
         self.primary_key = "supplier_id"
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.master.engine.center_me(self)
 
     def init_ui(self):
 
         self.lblFrame = ttk.LabelFrame(self)
-        self.lstItems = self.nametowidget(".").engine.get_listbox(self.lblFrame,)
+        self.lstItems = self.master.engine.get_listbox(self.lblFrame,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
         self.lblFrame.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=5, pady=5)
@@ -61,7 +61,7 @@ class UI(tk.Toplevel):
         index = 0
         self.dict_items = {}
 
-        rs = self.nametowidget(".").engine.read(True, SQL, ())
+        rs = self.master.engine.read(True, SQL, ())
 
         if rs:
             self.lstItems.delete(0, tk.END)
@@ -90,7 +90,7 @@ class UI(tk.Toplevel):
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
-            self.selected_item = self.nametowidget(".").engine.get_selected(self.table,
+            self.selected_item = self.master.engine.get_selected(self.table,
                                                                             self.primary_key,
                                                                             pk)
     def on_item_activated(self, evt=None):
@@ -101,8 +101,8 @@ class UI(tk.Toplevel):
             self.obj.on_open(self.selected_item,)
 
         else:
-            messagebox.showwarning(self.nametowidget(".").title(),
-                                   self.nametowidget(".").engine.no_selected,
+            messagebox.showwarning(self.master.title(),
+                                   self.master.engine.no_selected,
                                    parent=self)
 
     def on_cancel(self, evt=None):
