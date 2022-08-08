@@ -26,19 +26,8 @@ class UI(tk.Toplevel):
 
         self.val_int = self.master.engine.get_validate_float(self)
         self.val_float = self.master.engine.get_validate_integer(self)
-        self.set_style()
         self.master.engine.center_me(self)
         self.init_ui()
-
-    def set_style(self):
-        s = ttk.Style()
-        s.configure("Product.TEntry",
-                    foreground=self.master.engine.get_rgb(0, 0, 255),
-                    background=self.master.engine.get_rgb(255, 255, 255))
-
-        s.configure("Package.TEntry",
-                    foreground=self.master.engine.get_rgb(255, 0, 0),
-                    background=self.master.engine.get_rgb(255, 255, 255))
 
     def init_ui(self):
 
