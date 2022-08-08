@@ -6,6 +6,7 @@
 # modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import frames.category as ui
 
@@ -19,21 +20,33 @@ class UI(tk.Toplevel):
         self.attributes("-topmost", True)
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.table = "categories"
-        self.field = "category_id"
+        self.primary_key = "category_id"
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        self.lblFrame = self.nametowidget(".").engine.get_label_frame(self,)
+        self.lblFrame = ttk.LabelFrame(self, text="Items",)
         self.lstItems = self.nametowidget(".").engine.get_listbox(self.lblFrame,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
         self.lblFrame.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=5, pady=5)
 
-        w = self.nametowidget(".").engine.get_frame(self, 2)
-        self.nametowidget(".").engine.get_add_edit_cancel(self, w)
+        w = ttk.Frame(self, style='W.TFrame', padding=2)
+
+        bts = (("Add", 0, self.on_add, "<Alt-a>"),
+               ("Edit", 0, self.on_edit, "<Alt-e>"),
+               ("Close", 0, self.on_cancel, "<Alt-c>"))
+
+        for btn in bts:
+            ttk.Button(w,
+                       text=btn[0],
+                       underline=btn[1],
+                       command = btn[2],
+                       style='W.TButton',).pack(fill=tk.X, padx=5, pady=5)
+            self.bind(btn[3], btn[2])
+
         w.pack(fill=tk.BOTH, expand=1)
 
     def on_open(self,):
@@ -65,21 +78,21 @@ class UI(tk.Toplevel):
             self.lblFrame['text'] = msg
             
 
-    def on_add(self, evt):
+    def on_add(self, evt=None):
 
         self.obj = ui.UI(self)
         self.obj.on_open()
 
-    def on_edit(self, evt):
+    def on_edit(self, evt=None):
         self.on_item_activated()
 
-    def on_item_selected(self, evt):
+    def on_item_selected(self, evt=None):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
             self.selected_item = self.nametowidget(".").engine.get_selected(self.table,
-                                                                            self.field,
+                                                                            self.primary_key,
                                                                             pk)
     def on_item_activated(self, evt=None):
 

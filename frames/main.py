@@ -125,21 +125,19 @@ class Tkinterlite(ttk.Frame):
 
     def init_status_bar(self):
 
-        self.status = tk.Label(self,
-                               textvariable=self.status_bar_text,
-                               bd=1,
-                               fg=self.nametowidget(".").engine.get_rgb(0, 0, 0),
-                               bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),
-                               relief=tk.SUNKEN,
-                               anchor=tk.W)
+        self.status = ttk.Label(self,
+                                textvariable=self.status_bar_text,
+                                style='StatusBar.TLabel',
+                                anchor=tk.W)
         self.status.pack(side=tk.BOTTOM, fill=tk.X)
+
 
     def init_ui(self):
 
         """create widgets"""
 
         self.pack(fill=tk.BOTH, expand=1)
-        w = self.nametowidget(".").engine.get_frame(self, 8)
+        w = ttk.Frame(self, style='W.TFrame', padding=8)
 
         #products
         #-----------------------------------------------------------------------
@@ -153,7 +151,7 @@ class Tkinterlite(ttk.Frame):
 
         #categories
         #-----------------------------------------------------------------------
-        self.lblCombo = ttk.LabelFrame(w,)
+        self.lblCombo = ttk.LabelFrame(w, style="W.TLabelframe", padding=2)
         self.cbCombo = ttk.Combobox(self.lblCombo)
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
@@ -164,17 +162,21 @@ class Tkinterlite(ttk.Frame):
 
         #buttons and radio
         #-----------------------------------------------------------------------
-        f = self.nametowidget(".").engine.get_frame(self, 8)
+        f = ttk.Frame(self, style='W.TFrame', padding=8)
 
-        bts = (("Reset", self.on_reset, "<Alt-r>"),
-               ("New", self.on_add, "<Alt-n>"),
-               ("Edit", self.on_edit, "<Alt-e>"),
-               ("Close", self.parent.on_exit, "<Alt-c>"))
+        bts = (("Reset", 0, self.on_reset, "<Alt-r>"),
+               ("New", 0, self.on_add, "<Alt-n>"),
+               ("Edit", 0, self.on_edit, "<Alt-e>"),
+               ("Close", 0, self.parent.on_exit, "<Alt-c>"))
 
         for btn in bts:
-            self.nametowidget(".").engine.get_button(f, btn[0]).bind("<Button-1>", btn[1])
-            self.parent.bind(btn[2], btn[1])
-
+            ttk.Button(f,
+                       text=btn[0],
+                       underline=btn[1],
+                       command = btn[2],
+                       style='W.TButton',).pack(fill=tk.X, padx=5, pady=5)
+            self.parent.bind(btn[3], btn[2])
+            
         self.nametowidget(".").engine.get_radio_buttons(f,
                                       "Combo data",
                                       self.ops,
@@ -208,7 +210,7 @@ class Tkinterlite(ttk.Frame):
         self.set_tree_values(sql, ())
         self.set_combo_values()
 
-    def on_add(self, evt):
+    def on_add(self):
         frames.product.UI(self).on_open()
 
     def on_categories(self):
@@ -217,7 +219,7 @@ class Tkinterlite(ttk.Frame):
     def on_suppliers(self):
         frames.suppliers.UI(self).on_open()
 
-    def on_edit(self, evt):
+    def on_edit(self, evt=None):
 
         if self.lstProducts.focus():
 
@@ -230,7 +232,7 @@ class Tkinterlite(ttk.Frame):
                                    self.nametowidget(".").engine.no_selected,
                                    parent=self)
 
-    def on_double_click(self, evt):
+    def on_double_click(self, evt=None):
 
         self.on_edit(self)
 
@@ -241,7 +243,7 @@ class Tkinterlite(ttk.Frame):
             pk = int(item_iid[0])
             self.selected_product = self.nametowidget(".").engine.get_selected(self.table, self.field, pk)
 
-    def get_selected_combo_item(self, evt):
+    def get_selected_combo_item(self, evt=None):
 
         if self.cbCombo.current() != -1:
 
@@ -249,9 +251,9 @@ class Tkinterlite(ttk.Frame):
             selected_id = self.dict_combo_values[index]
 
             if self.option_id.get() != 1:
-                sql = "SELECT * FROM products WHERE supplier_id =? ORDER BY product"
+                sql = "SELECT * FROM products WHERE  category_id=? ORDER BY product;"
             else:
-                sql = "SELECT * FROM products WHERE category_id =? ORDER BY product"
+                sql = "SELECT * FROM products WHERE supplier_id =? ORDER BY product;"
 
             args = (selected_id,)
             self.set_tree_values(sql, args)

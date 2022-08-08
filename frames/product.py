@@ -83,7 +83,22 @@ class UI(tk.Toplevel):
         w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
         w.grid(row=r, column=1, sticky=tk.W, padx=5, pady=5)
 
-        self.nametowidget(".").engine.get_save_cancel(self, f)
+        r = 0
+        c = 2
+        btn = ttk.Button(f, text="Save", underline=0, command=self.on_save, style='W.TButton',)
+        self.bind("<Alt-s>", self.on_save)
+        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+
+        if self.index is not None:
+            r += 1
+            btn = ttk.Button(f, text="Delete", underline=0, command=self.on_delete, style='W.TButton',)
+            self.bind("<Alt-d>", self.on_delete)
+            btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+
+        r += 1
+        btn = ttk.Button(f, text="Cancel", underline=0, command=self.on_cancel, style='W.TButton',)
+        self.bind("<Alt-c>", self.on_cancel)
+        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
     def on_open(self, selected_item=None):
 
@@ -132,7 +147,7 @@ class UI(tk.Toplevel):
                 self.stock.get(),
                 self.enable.get()]
 
-    def on_save(self, evt):
+    def on_save(self, evt=None):
 
         if self.nametowidget(".").engine.on_fields_control(self) == False: return
 
@@ -164,6 +179,23 @@ class UI(tk.Toplevel):
 
             self.on_cancel()
 
+    def on_delete(self, evt=None):
+
+        sql = "DELETE FROM products WHERE product_id=?;"
+
+        if messagebox.askyesno(self.nametowidget(".").title(), 
+                               self.nametowidget(".").engine.ask_to_delete, 
+                               parent=self) == True:
+
+            args = (self.selected_item[0],)
+            self.nametowidget(".").engine.write(sql, args)
+            self.parent.get_selected_combo_item()
+            self.on_cancel()
+        else:
+            messagebox.showinfo(self.nametowidget(".").title(),
+                                self.nametowidget(".").engine.abort,
+                                parent=self)
+    
     def set_categories(self):
 
         sql = "SELECT category_id, category FROM categories ORDER BY category ASC;"

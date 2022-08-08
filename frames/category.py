@@ -13,7 +13,6 @@ class UI(tk.Toplevel):
     def __init__(self, parent, index=None):
         super().__init__(name="category")
 
-
         self.parent = parent
         self.index = index
         self.transient(parent)
@@ -43,7 +42,16 @@ class UI(tk.Toplevel):
         chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
         chk.grid(row=r, column=1, sticky=tk.W)
 
-        self.nametowidget(".").engine.get_save_cancel(self, w)
+        r = 0
+        c = 2
+        btn = ttk.Button(w, text="Save", underline=0, command=self.on_save, style='W.TButton',)
+        self.bind("<Alt-s>", self.on_save)
+        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+
+        r += 1
+        btn = ttk.Button(w, text="Cancel", underline=0, command=self.on_cancel, style='W.TButton',)
+        self.bind("<Alt-c>", self.on_cancel)
+        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
     def on_open(self, selected_item=None):
 
@@ -82,7 +90,7 @@ class UI(tk.Toplevel):
 
             if self.index is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.field)
+                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
                 args.append(self.selected_item[0])
 
