@@ -6,17 +6,6 @@
 # modify:   hiems MMXX
 # -----------------------------------------------------------------------------
 """ This is the main module of Tkinterlite."""
-import sys
-import tkinter as tk
-from tkinter import messagebox
-from tkinter import ttk
-
-import frames.license
-import frames.product
-import frames.categories
-import frames.suppliers
-
-from engine import Engine
 
 __author__ = "1966bc"
 __copyright__ = "Copyleft"
@@ -28,6 +17,15 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "hiems MMXXI"
 __status__ = "production"
 
+import sys
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+import frames.license
+import frames.product
+import frames.categories
+import frames.suppliers
+from engine import Engine
 
 class Tkinterlite(ttk.Frame):
     def __init__(self, parent):
@@ -121,8 +119,6 @@ class Tkinterlite(ttk.Frame):
 
         toolbar.config(bg=self.master.engine.get_rgb(240, 240, 237))
         toolbar.pack(side=tk.TOP, fill=tk.X)
-
-
 
     def init_status_bar(self):
 
@@ -299,13 +295,13 @@ class Tkinterlite(ttk.Frame):
             sql = "SELECT category_id, category\
                    FROM categories\
                    WHERE enable =1\
-                   ORDER BY category"
+                   ORDER BY category;"
         else:
             self.lblCombo["text"] = "Suppliers"
             sql = "SELECT supplier_id, company\
                    FROM suppliers\
                    WHERE enable =1\
-                   ORDER BY company"
+                   ORDER BY company;"
 
         rs = self.master.engine.read(True, sql, ())
 
@@ -358,8 +354,8 @@ class App(tk.Tk):
         self.engine = Engine()
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
-        self.set_title(kwargs["title"])
         self.engine.set_style(kwargs["theme"])
+        self.set_title(kwargs["title"])
         self.set_icon()
         self.set_info()
         # set clock and start it.
@@ -369,13 +365,9 @@ class App(tk.Tk):
         w.on_open()
         w.pack(fill=tk.BOTH, expand=1)
 
-    def set_clock(self,):
-        self.clock = self.engine.get_clock()
-        self.clock.start()
-
     def set_title(self, title):
         s = "{0}".format(title)
-        self.title(s)
+        self.title(s)        
 
     def set_icon(self):
         icon = tk.PhotoImage(data=self.engine.get_icon("app"))
@@ -386,6 +378,10 @@ class App(tk.Tk):
                \nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
         info = msg.format(self.title(), __author__, __copyright__, __credits__, __license__, __version__, __maintainer__, __email__, __date__, __status__)
         self.info = info
+
+    def set_clock(self,):
+        self.clock = self.engine.get_clock()
+        self.clock.start()        
 
     def on_exit(self, evt=None):
         if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
@@ -401,7 +397,7 @@ def main():
     for i in sys.argv:
         args.append(i)
     # ('clam', 'alt', 'default', 'classic')
-    kwargs = {"title":"Tkinterlite", "theme":"default"}
+    kwargs = {"theme":"default", "title":"Tkinterlite"}
 
     app = App(*args, **kwargs)
 
