@@ -58,7 +58,7 @@ class Tkinterlite(ttk.Frame):
 
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
         m_tools = tk.Menu(m_main, tearoff=0, bd=1)
-        s_databases = tk.Menu(m_tools)
+        s_databases = tk.Menu(m_file)
         m_about = tk.Menu(m_main, tearoff=0, bd=1)
 
         items = (("File", m_file),
@@ -94,11 +94,12 @@ class Tkinterlite(ttk.Frame):
         for i in items:
             m_about.add_command(label=i[0], underline=0, command=i[1])
 
-        for i in (m_main, m_file, ):
+        for i in (m_main, m_file, s_databases, m_tools, m_about):
             i.config(bg=self.master.engine.get_rgb(240, 240, 237),)
             i.config(fg="black")
 
         self.master.config(menu=m_main)
+
 
     def init_toolbar(self):
 
@@ -122,6 +123,7 @@ class Tkinterlite(ttk.Frame):
         toolbar.pack(side=tk.TOP, fill=tk.X)
 
 
+
     def init_status_bar(self):
 
         self.status = ttk.Label(self,
@@ -129,7 +131,6 @@ class Tkinterlite(ttk.Frame):
                                 style='StatusBar.TLabel',
                                 anchor=tk.W)
         self.status.pack(side=tk.BOTTOM, fill=tk.X)
-
 
     def init_ui(self):
 
@@ -151,7 +152,7 @@ class Tkinterlite(ttk.Frame):
         #categories
         #-----------------------------------------------------------------------
         self.lblCombo = ttk.LabelFrame(w, style="W.TLabelframe", padding=2)
-        self.cbCombo = ttk.Combobox(self.lblCombo)
+        self.cbCombo = ttk.Combobox(self.lblCombo, style="W.TCombobox")
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
 
@@ -170,10 +171,10 @@ class Tkinterlite(ttk.Frame):
 
         for btn in bts:
             ttk.Button(f,
+                       style='W.TButton',
                        text=btn[0],
                        underline=btn[1],
-                       command=btn[2],
-                       style='W.TButton',).pack(fill=tk.X, padx=5, pady=5)
+                       command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.parent.bind(btn[3], btn[2])
 
         self.master.engine.get_radio_buttons(f,
@@ -347,7 +348,7 @@ class Tkinterlite(ttk.Frame):
 
         if self.parent.clock.is_alive():
             self.after(1, self.periodic_call)
-        
+
 
 class App(tk.Tk):
     """Tkinterlite Main Application start here"""
@@ -358,6 +359,7 @@ class App(tk.Tk):
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.set_title(kwargs["title"])
+        self.engine.set_style(kwargs["theme"])
         self.set_icon()
         self.set_info()
         # set clock and start it.
@@ -398,8 +400,8 @@ def main():
 
     for i in sys.argv:
         args.append(i)
-
-    kwargs = {"title":"Tkinterlite",}
+    # ('clam', 'alt', 'default', 'classic')
+    kwargs = {"title":"Tkinterlite", "theme":"default"}
 
     app = App(*args, **kwargs)
 
