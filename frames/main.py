@@ -58,8 +58,8 @@ class Tkinterlite(ttk.Frame):
 
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
         m_tools = tk.Menu(m_main, tearoff=0, bd=1)
-        s_databases = tk.Menu(m_file)
         m_about = tk.Menu(m_main, tearoff=0, bd=1)
+        s_databases = tk.Menu(m_file)
 
         items = (("File", m_file),
                  ("Tools", m_tools),
