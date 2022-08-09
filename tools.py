@@ -14,19 +14,20 @@ from tkinter.scrolledtext import ScrolledText
 
 class Tools:
     def __init__(self,):
-        self.set_style()
         super().__init__()
 
     def __str__(self):
         return "class: {0}".format((self.__class__.__name__, ))
 
-    def set_style(self):
+    def set_style(self, theme):
 
         self.style = ttk.Style()
 
-        self.style.theme_use("clam")
+        self.style.theme_use(theme)
 
-        self.style.configure(".", background=self.get_rgb(240, 240, 237))
+        self.style.configure(".", background=self.get_rgb(240, 240, 237),
+                             font=('TkFixedFont'))
+        
 
         self.style.configure("Product.TEntry",
                     foreground=self.get_rgb(0, 0, 255),
@@ -48,6 +49,18 @@ class Tools:
         self.style.configure('W.TLabel',
                              background=self.get_rgb(240, 240, 237),
                              padding=2,
+                             font="TkFixedFont")
+
+        self.style.configure('W.TRadiobutton',
+                             background=self.get_rgb(240, 240, 237),
+                             padding=4,
+                             font="TkFixedFont")
+
+        self.style.map('W.TCheckbutton',
+        indicatoron=[('pressed', '#ececec'), ('selected', '#4a6984')])
+
+        self.style.configure('W.TCombobox',
+                             background=self.get_rgb(240, 240, 237),
                              font="TkFixedFont")
 
         self.style.configure('W.TLabelframe',
@@ -152,6 +165,7 @@ class Tools:
 
         for index, text in enumerate(ops):
             ttk.Radiobutton(w,
+                            style='W.TRadiobutton',
                             text=text,
                             variable=v,
                             command=callback,
