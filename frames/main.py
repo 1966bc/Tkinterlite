@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# project:  tkinterlite
+# project:  Main
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   hiems MMXX
 # -----------------------------------------------------------------------------
-""" This is the main module of Tkinterlite."""
+""" This is the main module of Main."""
 import sys
 import tkinter as tk
 from tkinter import messagebox
@@ -29,7 +29,7 @@ __date__ = "hiems MMXXI"
 __status__ = "production"
 
 
-class Tkinterlite(ttk.Frame):
+class Main(ttk.Frame):
     def __init__(self, parent):
         super().__init__()
 
@@ -153,7 +153,6 @@ class Tkinterlite(ttk.Frame):
         self.cbCombo = ttk.Combobox(self.lblCombo, style="W.TCombobox")
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
-
         self.lblCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, pady=5, expand=0)
 
         left_frame.pack(side=tk.LEFT, fill=tk.BOTH, anchor=tk.W, expand=1)
@@ -362,7 +361,7 @@ class Tkinterlite(ttk.Frame):
 
 
 class App(tk.Tk):
-    """Tkinterlite Main Application start here"""
+    """Main Main Application start here"""
     def __init__(self, *args, **kwargs):
         super().__init__()
 
@@ -376,7 +375,7 @@ class App(tk.Tk):
         # set clock and start it.
         self.set_clock()
 
-        w = Tkinterlite(self)
+        w = Main(self)
         w.on_open()
         w.pack(fill=tk.BOTH, expand=1)
 
@@ -412,7 +411,7 @@ def main():
     for i in sys.argv:
         args.append(i)
     # ('clam', 'alt', 'default', 'classic')
-    kwargs = {"title":"Tkinterlite", "theme":"default"}
+    kwargs = {"title":"Main", "theme":"default"}
 
     app = App(*args, **kwargs)
 
