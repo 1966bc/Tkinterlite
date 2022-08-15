@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-project:  a collection of useful things to all programs in tkinter
+project:  general purpose
 mailto:   [giuseppecostanzi@gmail.com]
 modify:   aestas MMXXI
 @author:  1966bc
@@ -27,7 +27,7 @@ class Tools:
 
         self.style.configure(".", background=self.get_rgb(240, 240, 237),
                              font=('TkFixedFont'))
-
+        
         self.style.configure("Product.TEntry",
                     foreground=self.get_rgb(0, 0, 255),
                     background=self.get_rgb(255, 255, 255))
@@ -35,7 +35,7 @@ class Tools:
         self.style.configure("Package.TEntry",
                     foreground=self.get_rgb(255, 0, 0),
                     background=self.get_rgb(255, 255, 255))
-
+        
         self.style.configure('W.TFrame', background=self.get_rgb(240, 240, 237))
 
         self.style.configure('W.TButton',
@@ -55,6 +55,9 @@ class Tools:
                              padding=4,
                              font="TkFixedFont")
 
+        self.style.map('W.TCheckbutton',
+        indicatoron=[('pressed', '#ececec'), ('selected', '#4a6984')])
+
         self.style.configure('W.TCombobox',
                              background=self.get_rgb(240, 240, 237),
                              font="TkFixedFont")
@@ -72,15 +75,9 @@ class Tools:
                              relief=tk.SUNKEN,
                              font="TkFixedFont")
 
-        self.style.map('Treeview',
-                       foreground=self.fixed_map('foreground'),
-                       background=self.fixed_map('background'))
-
-        self.style.configure("Treeview.Heading",
-                             background=self.get_rgb(240, 240, 237),
-                             font=('TkHeadingFont', 10))
-
-        self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])
+        self.style.map('Treeview', foreground=self.fixed_map('foreground'), background=self.fixed_map('background'))
+        self.style.configure("Treeview.Heading", background=self.get_rgb(240, 240, 237), font=('TkHeadingFont', 10))
+        self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})]) 
 
         self.style.configure("Mandatory.TLabel",
                              foreground=self.get_rgb(0, 0, 255),
@@ -91,165 +88,28 @@ class Tools:
         return "#%02x%02x%02x" % (r, g, b)
 
     def center_me(self, container):
+
         """center window on the screen"""
         x = (container.winfo_screenwidth() - container.winfo_reqwidth()) / 2
         y = (container.winfo_screenheight() - container.winfo_reqheight()) / 2
         container.geometry("+%d+%d" % (x, y))
 
     def cols_configure(self, w):
-        """ The columnconfigure() method configures the column index of a grid.
-            The weight determines how wide the column will occupy, which is
-            relative to other columns. """
 
-        w.columnconfigure(0, weight=1, pad=5)
-        w.columnconfigure(1, weight=4, pad=5)
-        w.columnconfigure(2, weight=1, pad=5)
-        w.rowconfigure(0, weight=1)
-        w.rowconfigure(1, weight=1)
-        w.rowconfigure(2, weight=1)
+        w.columnconfigure(0, weight=4)
+        w.columnconfigure(1, weight=1)
+        w.rowconfigure(0, weight=0)
+        w.rowconfigure(1, weight=0)
+        #w.rowconfigure(2, weight=1)
+        #w.rowconfigure(0, pad=8)
 
     def get_init_ui(self, container):
         """All insert,update modules have this same configuration on init_ui.
            A Frame, a columnconfigure and a grid method.
-           So, why rewrite every time?
-           Remeber to be dry."""
+           So, why rewrite every time?"""
         w = ttk.Frame(container, style='W.TFrame')
         self.cols_configure(w)
-        w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E)
-        return w
-
-    def get_label_frame(self, container, text=None, padding=None):
-        return ttk.LabelFrame(container, style="W.TLabelframe", text=text, padding=padding)
-
-    def get_label(self, container, text, textvariable=None, anchor=None, style=None, args=()):
-
-        w = ttk.Label(container,
-                      style='W.TLabel',
-                      text=text,
-                      textvariable=textvariable,
-                      anchor=anchor,)
-
-        if args:
-            w.grid(row=args[0], column=args[1], sticky=args[2])
-        else:
-            w.pack(fill=tk.X, padx=5, pady=5)
-
-        return w
-
-    def get_button(self, container, text, underline, row=None, col=None):
-
-        w = ttk.Button(container, style='W.TButton', text=text, underline=underline)
-
-        if row is not None:
-            w.grid(row=row, column=col, sticky=tk.W+tk.E, padx=5, pady=5)
-        else:
-            w.pack(fill=tk.X, padx=5, pady=5)
-
-        return w
-
-    def get_save_cancel_bts(self, caller, container):
-
-        btnSave = self.get_button(container, "Save", 0, 0, 2)
-        btnSave.bind("<Button-1>", caller.on_save)
-        btnSave.bind("<Return>", caller.on_save)
-        btCancel = self.get_button(container, "Close", 0, 1, 2)
-        btCancel.bind("<Button-1>", caller.on_cancel)
-        caller.bind("<Alt-s>", caller.on_save)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
-    def get_save_delete_cancel_bts(self, caller, container):
-
-        btnSave = self.get_button(container, "Save", 0, 0, 2)
-        btnSave.bind("<Button-1>", caller.on_save)
-        btnSave.bind("<Return>", caller.on_save)
-        btDelete = self.get_button(container, "Delete", 0, 1, 2)
-        btDelete.bind("<Button-1>", caller.on_delete)
-        btCancel = self.get_button(container, "Close", 0, 2, 2)
-        btCancel.bind("<Button-1>", caller.on_cancel)
-        caller.bind("<Alt-s>", caller.on_save)
-        caller.bind("<Alt-d>", caller.on_delete)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
-    def get_add_edit_cancel_bts(self, caller, container):
-
-        btnAdd = self.get_button(container, "Add", 0)
-        btnAdd.bind("<Return>", caller.on_add)
-        btnAdd.bind("<Button-1>", caller.on_add)
-        btnEdit = self.get_button(container, "Edit", 0)
-        btnEdit.bind("<Button-1>", caller.on_edit)
-        btCancel = self.get_button(container, "Close", 0)
-        btCancel.bind("<Button-1>", caller.on_cancel)
-
-        caller.bind("<Alt-a>", caller.on_add)
-        caller.bind("<Alt-e>", caller.on_edit)
-        caller.bind("<Alt-c>", caller.on_cancel)
-
-    def get_spin_box(self, container, text, frm, to, width, var=None, callback=None):
-
-        w = self.get_label_frame(container, text=text,)
-
-        tk.Spinbox(w,
-                   bg='white',
-                   from_=frm,
-                   to=to,
-                   justify=tk.CENTER,
-                   width=width,
-                   wrap=False,
-                   insertwidth=1,
-                   textvariable=var).pack(anchor=tk.CENTER)
-        return w
-
-    def get_scale(self, container, text, frm, to, width, var=None, callback=None):
-
-        w = self.get_label_frame(container, text=text,)
-
-        tk.Scale(w,
-                 from_=frm,
-                 to=to,
-                 orient=tk.HORIZONTAL,
-                 variable=var).pack(anchor=tk.N)
-        return w
-
-    def get_radio_buttons(self, container, text, ops, v, callback=None):
-
-        w = self.get_label_frame(container, text=text)
-
-        for index, text in enumerate(ops):
-            ttk.Radiobutton(w,
-                            style='W.TRadiobutton',
-                            text=text,
-                            variable=v,
-                            command=callback,
-                            value=index,).pack(anchor=tk.W)
-        return w
-
-    def set_font(self, family, size, weight=None):
-
-        if weight is not None:
-            weight = weight
-        else:
-            weight = tk.NORMAL
-
-        return font.Font(family=family, size=size, weight=weight)
-
-    def get_listbox(self, container, height=None, width=None, color=None):
-
-        sb = ttk.Scrollbar(container, orient=tk.VERTICAL)
-
-        w = tk.Listbox(container,
-                       relief=tk.GROOVE,
-                       selectmode=tk.BROWSE,
-                       exportselection=0,
-                       height=height,
-                       width=width,
-                       background=color,
-                       font='TkFixedFont',
-                       yscrollcommand=sb.set,)
-
-        sb.config(command=w.yview)
-
-        w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=2, pady=2)
-        sb.pack(fill=tk.Y, expand=1, padx=2, pady=2)
+        w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E, padx=3, pady=6)
 
         return w
 
@@ -268,6 +128,29 @@ class Tools:
             w.grid(row=row, column=1, sticky=tk.W)
         else:
             w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
+        return w
+
+    def get_listbox(self, container, height=None, width=None, color=None):
+
+        sb = ttk.Scrollbar(container, orient=tk.VERTICAL)
+
+        w = tk.Listbox(container,
+                       relief=tk.GROOVE,
+                       selectmode=tk.BROWSE,
+                       exportselection=0,
+                       height=height,
+                       width=width,
+                       background=color,
+                       font='TkFixedFont',
+                       #bg="white",
+                       #fg="black",
+                       yscrollcommand=sb.set,)
+
+        sb.config(command=w.yview)
+
+        w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        sb.pack(fill=tk.Y, expand=1)
 
         return w
 
@@ -358,8 +241,9 @@ class Tools:
         return (caller.register(self.validate_float),
                 '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
+
     def limit_chars(self, c, v, *args):
-        # print(x,args)
+        #print(x,args)
         if len(v.get()) > c:
             v.set(v.get()[:-1])
 
@@ -424,7 +308,7 @@ class Tools:
         for widg in all_widgets:
             print(widg)
             print('\nWidget Name: {}'.format(widg.winfo_class()))
-            # keys = widg.keys()
+            #keys = widg.keys()
 
 
 def main():
@@ -432,7 +316,6 @@ def main():
     foo = Tools()
     print(foo)
     input('end')
-
 
 if __name__ == "__main__":
     main()
