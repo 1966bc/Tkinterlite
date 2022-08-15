@@ -8,6 +8,7 @@
 import os
 import sys
 import inspect
+import subprocess
 import datetime
 
 from dbms import DBMS
@@ -39,6 +40,14 @@ class Engine(DBMS, Tools, Clock):
         """# return full path of the directory where program resides."""
 
         return os.path.join(os.path.dirname(__file__), file)
+
+    def open_file(self, path):
+        """open file on linux and windows"""
+        if os.path.exists(path):
+            if os.name == 'posix':
+                subprocess.call(["xdg-open", path])
+            else:
+                os.startfile(path)
 
     def on_log(self, container, function, exc_value, exc_type, module):
 
@@ -95,6 +104,26 @@ class Engine(DBMS, Tools, Clock):
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
+
+    def get_log_file(self):
+
+        try:
+            path = self.get_file("log.txt")
+            self.open_file(path)
+        except FileNotFoundError:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])            
+
+    def busy(self, caller):
+        caller.config(cursor="watch")
+        caller.update()
+
+    def not_busy(self, caller):
+        caller.config(cursor="")
+        caller.update()            
 
 
 def main():
