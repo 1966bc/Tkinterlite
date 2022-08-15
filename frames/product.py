@@ -74,11 +74,24 @@ class UI(tk.Toplevel):
         w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
         w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
-        if self.index is not None:
-            self.nametowidget(".").engine.get_save_delete_cancel_bts(self, f)
-        else:
-            self.nametowidget(".").engine.get_save_cancel_bts(self, f)
+        r = 0
+        c = 2
+        btn = ttk.Button(f, style='W.TButton', text="Save", underline=0, command=self.on_save,)
+        self.bind("<Alt-s>", self.on_save)
+        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
+        if self.index is not None:
+            r += 1
+            btn = ttk.Button(f, style='W.TButton', text="Delete", underline=0, command=self.on_delete,)
+            self.bind("<Alt-c>", self.on_delete)
+            btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+
+        r += 1
+        btn = ttk.Button(f, style='W.TButton', text="Cancel", underline=0, command=self.on_cancel,)
+        self.bind("<Alt-c>", self.on_cancel)
+        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+
+       
     def on_open(self, selected_item=None):
 
         self.set_categories()

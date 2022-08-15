@@ -34,8 +34,19 @@ class UI(tk.Toplevel):
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
         self.lblFrame.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=5, pady=5)
 
-        w = ttk.Frame(self, style='W.TFrame', padding=4)
-        self.nametowidget(".").engine.get_add_edit_cancel_bts(self, w)
+        w = ttk.Frame(self, style="W.TFrame", padding=8)
+
+        bts = (("Add", 0, self.on_add, "<Alt-a>"),
+               ("Close", 0, self.on_cancel, "<Alt-c>"))
+
+        for btn in bts:
+            ttk.Button(w,
+                       style="W.TButton",
+                       text=btn[0],
+                       underline=btn[1],
+                       command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
+            self.parent.bind(btn[3], btn[2])
+            
         w.pack(fill=tk.BOTH, expand=1)
 
     def on_open(self,):
