@@ -37,6 +37,7 @@ class UI(tk.Toplevel):
         w = ttk.Frame(self, style="W.TFrame", padding=8)
 
         bts = (("Add", 0, self.on_add, "<Alt-a>"),
+               ("Edit", 0, self.on_edit, "<Alt-e>"),
                ("Close", 0, self.on_cancel, "<Alt-c>"))
 
         for btn in bts:
@@ -45,8 +46,8 @@ class UI(tk.Toplevel):
                        text=btn[0],
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
-            self.parent.bind(btn[3], btn[2])
-            
+            self.bind(btn[3], btn[2])
+
         w.pack(fill=tk.BOTH, expand=1)
 
     def on_open(self,):
@@ -91,8 +92,8 @@ class UI(tk.Toplevel):
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
             self.selected_item = self.nametowidget(".").engine.get_selected(self.table,
-                                                                 self.primary_key,
-                                                                 pk)
+                                                                            self.primary_key,
+                                                                            pk)
 
     def on_item_activated(self, evt=None):
 

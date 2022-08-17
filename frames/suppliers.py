@@ -37,6 +37,7 @@ class UI(tk.Toplevel):
         w = ttk.Frame(self, style="W.TFrame", padding=8)
 
         bts = (("Add", 0, self.on_add, "<Alt-a>"),
+               ("Edit", 0, self.on_edit, "<Alt-e>"),
                ("Close", 0, self.on_cancel, "<Alt-c>"))
 
         for btn in bts:
@@ -45,7 +46,7 @@ class UI(tk.Toplevel):
                        text=btn[0],
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
-            self.parent.bind(btn[3], btn[2])
+            self.bind(btn[3], btn[2])
             
         w.pack(fill=tk.BOTH, expand=1)
 
