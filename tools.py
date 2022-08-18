@@ -36,7 +36,15 @@ class Tools:
                     foreground=self.get_rgb(255, 0, 0),
                     background=self.get_rgb(255, 255, 255))
         
-        self.style.configure('W.TFrame', background=self.get_rgb(240, 240, 237))
+        self.style.configure('W.TFrame',
+                             background=self.get_rgb(240, 240, 237) ,
+                             papdding=8)
+
+        self.style.configure('Buttons.TFrame',
+                             relief=tk.GROOVE,
+                             borderwidth = 2,
+                             background=self.get_rgb(240, 240, 237) ,
+                             padding=5)
 
         self.style.configure('W.TButton',
                              background=self.get_rgb(240, 240, 237),
@@ -48,7 +56,8 @@ class Tools:
         self.style.configure('W.TLabel',
                              background=self.get_rgb(240, 240, 237),
                              padding=2,
-                             font="TkFixedFont")
+                             font=("Times", "12", "bold italic"),
+                             anchor=tk.W)
 
         self.style.configure('W.TRadiobutton',
                              background=self.get_rgb(240, 240, 237),
@@ -65,7 +74,7 @@ class Tools:
         self.style.configure('W.TLabelframe',
                              background=self.get_rgb(240, 240, 237),
                              relief=tk.GROOVE,
-                             padding=2,
+                             padding=4,
                              font="TkFixedFont")
 
         self.style.configure('StatusBar.TLabel',
