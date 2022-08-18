@@ -22,33 +22,42 @@ class UI(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.table = "suppliers"
         self.primary_key = "supplier_id"
+        self.counts = tk.IntVar()
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        self.lblFrame = ttk.LabelFrame(self)
-        self.lstItems = self.nametowidget(".").engine.get_listbox(self.lblFrame,)
+        f0 = ttk.Frame(self, style="W.TFrame",)
+
+        f1 = ttk.Frame(f0, style="W.TFrame",)
+
+        ttk.Label(f1, style='W.TLabel', textvariable=self.counts,).pack(fill=tk.X, expand=0)
+
+        self.lstItems = self.nametowidget(".").engine.get_listbox(f1,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
-        self.lblFrame.pack(side=tk.LEFT, fill=tk.BOTH, expand=1, padx=5, pady=5)
+        
 
-        w = ttk.Frame(self, style="W.TFrame", padding=8)
+        f2 = ttk.Frame(f0, style="W.Buttons.TFrame")
 
         bts = (("Add", 0, self.on_add, "<Alt-a>"),
                ("Edit", 0, self.on_edit, "<Alt-e>"),
                ("Close", 0, self.on_cancel, "<Alt-c>"))
 
         for btn in bts:
-            ttk.Button(w,
+            ttk.Button(f2,
                        style="W.TButton",
                        text=btn[0],
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.bind(btn[3], btn[2])
-            
-        w.pack(fill=tk.BOTH, expand=1)
+
+        
+        f2.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
+        f1.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        f0.pack(fill=tk.BOTH, expand=1)
 
     def on_open(self,):
 
@@ -76,7 +85,7 @@ class UI(tk.Toplevel):
                 index += 1
 
             msg = ("Items: {0}".format(self.lstItems.size()))
-            self.lblFrame['text'] = msg
+            self.counts.set(msg)
             
     def on_add(self, evt=None):
 

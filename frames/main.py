@@ -159,7 +159,7 @@ class Main(ttk.Frame):
 
         #buttons and radio
         #-----------------------------------------------------------------------
-        right_frame = ttk.Frame(self, style="W.TFrame", padding=8)
+        right_frame = ttk.Frame(self, style="Buttons.TFrame")
 
         bts = (("Reset", 0, self.on_reset, "<Alt-r>"),
                ("New", 0, self.on_add, "<Alt-n>"),

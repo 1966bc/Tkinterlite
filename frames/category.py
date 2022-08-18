@@ -30,17 +30,17 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(w, text="Category:",).grid(row=r, sticky=tk.W)
+        ttk.Label(w, style='W.TLabel', text="Category:",).grid(row=r, sticky=tk.W)
         self.txtCategory = ttk.Entry(w, textvariable=self.category)
         self.txtCategory.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Description:").grid(row=r, sticky=tk.W)
+        ttk.Label(w, style='W.TLabel', text="Description:").grid(row=r, sticky=tk.W)
         wdg = ttk.Entry(w, textvariable=self.description)
         wdg.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, text="Enable:").grid(row=r, sticky=tk.W)
+        ttk.Label(w, style='W.TLabel', text="Enable:").grid(row=r, sticky=tk.W)
         chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
         chk.grid(row=r, column=c, sticky=tk.W)
 
