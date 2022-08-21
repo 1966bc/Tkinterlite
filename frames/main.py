@@ -38,6 +38,8 @@ class Main(ttk.Frame):
         self.primary_key = "product_id"
         self.combo_ops = ("Categories", "Suppliers")
         self.option_id = tk.IntVar()
+        self.selected_product = None
+        self.dict_combo_values = {}
         self.status_bar_text = tk.StringVar()
 
         self.cols = (["#0", "id", "w", False, 0, 0],
@@ -134,12 +136,15 @@ class Main(ttk.Frame):
     def init_ui(self):
 
         """create widgets"""
-
-        left_frame = ttk.Frame(self, style="W.TFrame", padding=8)
-
+        f0 = ttk.Frame(self, style="App.TFrame")
+        f1 = ttk.Frame(f0,
+                       style="App.TFrame",
+                       relief=tk.GROOVE,
+                       borderwidth=1,
+                       padding=8)
         #products
         #-----------------------------------------------------------------------
-        self.lblProdutcs = ttk.LabelFrame(left_frame, text="Products",)
+        self.lblProdutcs = ttk.LabelFrame(f1, text="Products",)
         self.lstProducts = self.nametowidget(".").engine.get_tree(self.lblProdutcs, self.cols,)
         self.lstProducts.tag_configure("is_enable", background="light gray")
         self.lstProducts.tag_configure("is_zero", background=self.nametowidget(".").engine.get_rgb(255, 160, 122))
@@ -149,17 +154,19 @@ class Main(ttk.Frame):
 
         #categories
         #-----------------------------------------------------------------------
-        self.lblCombo = ttk.LabelFrame(left_frame, style="W.TLabelframe", padding=2)
+        self.lblCombo = ttk.LabelFrame(f1, style="W.TLabelframe", padding=2)
         self.cbCombo = ttk.Combobox(self.lblCombo, style="W.TCombobox")
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
         self.lblCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, pady=5, expand=0)
 
-        left_frame.pack(side=tk.LEFT, fill=tk.BOTH, anchor=tk.W, expand=1)
-
         #buttons and radio
         #-----------------------------------------------------------------------
-        right_frame = ttk.Frame(self, style="Buttons.TFrame")
+        f2 = ttk.Frame(f0,
+                       style="App.TFrame",
+                       relief=tk.GROOVE,
+                       borderwidth=1,
+                       padding=8)
 
         bts = (("Reset", 0, self.on_reset, "<Alt-r>"),
                ("New", 0, self.on_add, "<Alt-n>"),
@@ -167,26 +174,27 @@ class Main(ttk.Frame):
                ("Close", 0, self.parent.on_exit, "<Alt-c>"))
 
         for btn in bts:
-            ttk.Button(right_frame,
+            ttk.Button(f2,
                        style="W.TButton",
                        text=btn[0],
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.parent.bind(btn[3], btn[2])
 
-        option_label_frame = ttk.LabelFrame(right_frame, style="W.TLabelframe", text="Combo data", padding=2)
+        f4 = ttk.LabelFrame(f2, style="W.TLabelframe", text="Combo data", padding=2)
 
         for index, text in enumerate(self.combo_ops):
-            ttk.Radiobutton(option_label_frame,
+            ttk.Radiobutton(f4,
                             style="W.TRadiobutton",
                             text=text,
                             variable=self.option_id,
                             command=self.set_combo_values,
                             value=index,).pack(anchor=tk.W)
 
-        option_label_frame.pack()
-
-        right_frame.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
+        f0.pack(fill=tk.BOTH, expand=1)
+        f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
+        f2.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5, expand=0)
+        f4.pack()
 
     def center_ui(self):
 
@@ -294,7 +302,6 @@ class Main(ttk.Frame):
         self.cbCombo.set("")
 
         index = 0
-        self.dict_combo_values = {}
         values = []
 
         if self.option_id.get() != 1:

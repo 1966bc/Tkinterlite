@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
+from tkinter.scrolledtext import ScrolledText
 
 
 class UI(tk.Toplevel):
@@ -15,19 +16,32 @@ class UI(tk.Toplevel):
 
         self.parent = parent
         self.init_ui()
-        self.master.engine.center_me(self)
+        self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        w = ttk.Frame(self, padding=4)
-        self.txLicense = self.master.engine.get_text_box(w,)
-        w.pack(fill=tk.BOTH, expand=1)
+        f0 = ttk.Frame(self, style="App.TFrame")
+        f1 = ttk.Frame(f0,
+                       style="App.TFrame",
+                       relief=tk.GROOVE,
+                       borderwidth=1,
+                       padding=8)
 
+        self.txLicense = ScrolledText(f1,
+                         wrap=tk.WORD,
+                         bg="light yellow",
+                         relief=tk.GROOVE,
+                         font='TkFixedFont',)
+        self.txLicense.pack(fill=tk.BOTH, expand=1)
+        
+        f0.pack(fill=tk.BOTH, expand=1)
+        f1.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
+        
     def on_open(self):
 
-        msg = self.master.engine.get_license()
+        msg = self.nametowidget(".").engine.get_license()
+        
         if msg:
             self.txLicense.insert("1.0", msg)
 
-        self.title(self.master.title())
-
+        self.title(self.nametowidget(".").title())

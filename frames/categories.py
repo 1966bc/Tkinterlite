@@ -29,18 +29,28 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        f0 = ttk.Frame(self, style="W.TFrame",)
+        f0 = ttk.Frame(self, style="App.TFrame",)
+        f1 = ttk.Frame(f0,
+                       style="App.TFrame",
+                       relief=tk.GROOVE,
+                       borderwidth=1,
+                       padding=8)
 
-        f1 = ttk.Frame(f0, style="W.TFrame",)
+        ttk.Label(f1, style='App.TLabel', textvariable=self.counts,).pack(fill=tk.X, expand=0)
 
-        ttk.Label(f1, style='W.TLabel', textvariable=self.counts,).pack(fill=tk.X, expand=0)
-
-        self.lstItems = self.nametowidget(".").engine.get_listbox(f1,)
+        sb = ttk.Scrollbar(f1, orient=tk.VERTICAL)
+        self.lstItems = tk.Listbox(f1, yscrollcommand=sb.set,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
-        
+        sb.config(command=self.lstItems.yview)
+        self.lstItems.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        sb.pack(fill=tk.Y, expand=1)
 
-        f2 = ttk.Frame(f0, style="Buttons.TFrame")
+        f2 = ttk.Frame(f0,
+                       style="App.TFrame",
+                       relief=tk.GROOVE,
+                       borderwidth=1,
+                       padding=8)
 
         bts = (("Add", 0, self.on_add, "<Alt-a>"),
                ("Edit", 0, self.on_edit, "<Alt-e>"),
@@ -54,10 +64,10 @@ class UI(tk.Toplevel):
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.bind(btn[3], btn[2])
 
-        
-        f2.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
-        f1.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+
         f0.pack(fill=tk.BOTH, expand=1)
+        f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
+        f2.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5, expand=0)
 
     def on_open(self,):
 
@@ -86,7 +96,7 @@ class UI(tk.Toplevel):
 
             msg = ("Items: {0}".format(self.lstItems.size()))
             self.counts.set(msg)
-            
+
     def on_add(self, evt=None):
 
         self.obj = ui.UI(self)
