@@ -24,7 +24,7 @@ class Tools:
         self.style.theme_use(theme)
 
         self.style.configure(".", background=self.get_rgb(240, 240, 237),
-                             font=('TkFixedFont'))
+                             font=("TkFixedFont"))
 
         self.style.configure("Product.TEntry",
                     foreground=self.get_rgb(0, 0, 255),
@@ -34,41 +34,47 @@ class Tools:
                     foreground=self.get_rgb(255, 0, 0),
                     background=self.get_rgb(255, 255, 255))
 
-        self.style.configure('App.TFrame',
+        self.style.configure("App.TFrame",
                              background=self.get_rgb(240, 240, 237) ,)
 
-        self.style.configure('App.TButton',
+        self.style.configure("App.TLabelframe",
+                             background=self.get_rgb(240, 240, 237),
+                             relief=tk.GROOVE,
+                             padding=2,
+                             font="TkFixedFont")
+
+        self.style.configure("App.TButton",
                              background=self.get_rgb(240, 240, 237),
                              padding=5,
                              border=1,
                              relief=tk.RAISED,
                              font="TkFixedFont")
 
-        self.style.configure('App.TLabel',
+        self.style.configure("App.TLabel",
                              background=self.get_rgb(240, 240, 237),
                              padding=2,
                              font=("Times", "12", "bold italic"),
                              anchor=tk.W)
 
-        self.style.configure('App.TRadiobutton',
+        self.style.configure("App.TRadiobutton",
                              background=self.get_rgb(240, 240, 237),
                              padding=4,
                              font="TkFixedFont")
 
-        self.style.configure('App.TCombobox',
+        self.style.configure("App.TCombobox",
                              background=self.get_rgb(240, 240, 237),
                              font="TkFixedFont")
 
-        self.style.configure('StatusBar.TLabel',
+        self.style.configure("StatusBar.TLabel",
                              background=self.get_rgb(240, 240, 237),
                              padding=2,
                              border=1,
                              relief=tk.SUNKEN,
                              font="TkFixedFont")
 
-        self.style.map('Treeview', foreground=self.fixed_map('foreground'), background=self.fixed_map('background'))
-        self.style.configure("Treeview.Heading", background=self.get_rgb(240, 240, 237), font=('TkHeadingFont', 10))
-        self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])
+        self.style.map("Treeview", foreground=self.fixed_map("foreground"), background=self.fixed_map("background"))
+        self.style.configure("Treeview.Heading", background=self.get_rgb(240, 240, 237), font=("TkHeadingFont", 10))
+        self.style.layout("Treeview", [("Treeview.treearea", {"sticky": "nswe"})])
 
         self.style.configure("Mandatory.TLabel",
                              foreground=self.get_rgb(0, 0, 255),
@@ -98,7 +104,7 @@ class Tools:
         """All insert,update modules have this same configuration on init_ui.
            A Frame, a columnconfigure and a grid method.
            So, why rewrite every time?"""
-        w = ttk.Frame(container, style='App.TFrame')
+        w = ttk.Frame(container, style="App.TFrame", relief=tk.RIDGE, borderwidth=2, padding=4)
         self.cols_configure(w)
         w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E, padx=3, pady=6)
 
@@ -116,7 +122,7 @@ class Tools:
                         field.focus()
                         return 0
                     elif type(field) == ttk.Combobox:
-                        if field.get() not in field.cget('values'):
+                        if field.get() not in field.cget("values"):
                             msg = "You can choice only a value of the list."
                             messagebox.showwarning(container.master.title(), msg, parent=container)
                             field.focus()
@@ -132,7 +138,7 @@ class Tools:
             self.style.configure("Treeview",
                                  highlightthickness=0,
                                  bd=0,
-                                 font=('TkHeadingFont', size)) # Modify the font of the body
+                                 font=("TkHeadingFont", size)) # Modify the font of the body
         else:
             pass
 
@@ -148,9 +154,8 @@ class Tools:
         else:
             w = ttk.Treeview(container,)
 
-        w['columns'] = headers
-        w.tag_configure('is_enable', background='light gray')
-
+        w["columns"] = headers
+        
         for col in cols:
             w.heading(col[0], text=col[1], anchor=col[2],)
             w.column(col[0], anchor=col[2], stretch=col[3], minwidth=col[4], width=col[5])
@@ -175,21 +180,21 @@ class Tools:
 
         # style.map() returns an empty list for missing options, so this
         # should be future-safe.
-        return [elm for elm in style.map('Treeview', query_opt=option) if
-                elm[:2] != ('!disabled', '!selected')]
+        return [elm for elm in style.map("Treeview", query_opt=option) if
+                elm[:2] != ("!disabled", "!selected")]
 
     def get_validate_text(self, caller,):
 
         return (caller.register(self.validate_text),
-                '%i', '%P', )
+                "%i", "%P", )
 
     def get_validate_integer(self, caller):
         return (caller.register(self.validate_integer),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+                "%d", "%i", "%P", "%s", "%S", "%v", "%V", "%W")
 
     def get_validate_float(self, caller):
         return (caller.register(self.validate_float),
-                '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
+                "%d", "%i", "%P", "%s", "%S", "%v", "%V", "%W")
 
 
     def limit_chars(self, c, v, *args):
@@ -209,8 +214,8 @@ class Tools:
                          prior_value, text, validation_type,
                          trigger_type, widget_name):
         # action=1 -> insert
-        if action == '1':
-            if text in '0123456789':
+        if action == "1":
+            if text in "0123456789":
                 try:
                     int(value_if_allowed)
                     return True
@@ -226,7 +231,7 @@ class Tools:
                        trigger_type, widget_name):
         # action=1 -> insert
         if action == "1":
-            if text in '0123456789.-+':
+            if text in "0123456789.-+":
                 try:
                     float(value_if_allowed)
                     return True
@@ -240,19 +245,19 @@ class Tools:
     def get_widget_attributes(self, container):
         all_widgets = container.winfo_children()
         for widg in all_widgets:
-            print('\nWidget Name: {}'.format(widg.winfo_class()))
+            print("\nWidget Name: {}".format(widg.winfo_class()))
             keys = widg.keys()
             for key in keys:
-                print("Attribute: {:<20}".format(key), end=' ')
+                print("Attribute: {:<20}".format(key), end=" ")
                 value = widg[key]
                 vtype = type(value)
-                print('Value: {:<30} Type: {}'.format(value, str(vtype)))
+                print("Value: {:<30} Type: {}".format(value, str(vtype)))
 
     def get_widgets(self, container):
         all_widgets = container.winfo_children()
         for widg in all_widgets:
             print(widg)
-            print('\nWidget Name: {}'.format(widg.winfo_class()))
+            print("\nWidget Name: {}".format(widg.winfo_class()))
             #keys = widg.keys()
 
 
@@ -260,7 +265,7 @@ def main():
 
     foo = Tools()
     print(foo)
-    input('end')
+    input("end")
 
 if __name__ == "__main__":
     main()
