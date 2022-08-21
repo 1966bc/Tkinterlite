@@ -7,9 +7,7 @@ modify:   aestas MMXXI
 """
 import tkinter as tk
 from tkinter import messagebox
-from tkinter import font
 from tkinter import ttk
-from tkinter.scrolledtext import ScrolledText
 
 
 class Tools:
@@ -27,7 +25,7 @@ class Tools:
 
         self.style.configure(".", background=self.get_rgb(240, 240, 237),
                              font=('TkFixedFont'))
-        
+
         self.style.configure("Product.TEntry",
                     foreground=self.get_rgb(0, 0, 255),
                     background=self.get_rgb(255, 255, 255))
@@ -35,46 +33,30 @@ class Tools:
         self.style.configure("Package.TEntry",
                     foreground=self.get_rgb(255, 0, 0),
                     background=self.get_rgb(255, 255, 255))
-        
-        self.style.configure('W.TFrame',
-                             background=self.get_rgb(240, 240, 237) ,
-                             papdding=8)
 
-        self.style.configure('Buttons.TFrame',
-                             relief=tk.GROOVE,
-                             borderwidth = 2,
-                             background=self.get_rgb(240, 240, 237) ,
-                             padding=5)
+        self.style.configure('App.TFrame',
+                             background=self.get_rgb(240, 240, 237) ,)
 
-        self.style.configure('W.TButton',
+        self.style.configure('App.TButton',
                              background=self.get_rgb(240, 240, 237),
                              padding=5,
                              border=1,
                              relief=tk.RAISED,
                              font="TkFixedFont")
 
-        self.style.configure('W.TLabel',
+        self.style.configure('App.TLabel',
                              background=self.get_rgb(240, 240, 237),
                              padding=2,
                              font=("Times", "12", "bold italic"),
                              anchor=tk.W)
 
-        self.style.configure('W.TRadiobutton',
+        self.style.configure('App.TRadiobutton',
                              background=self.get_rgb(240, 240, 237),
                              padding=4,
                              font="TkFixedFont")
 
-        self.style.map('W.TCheckbutton',
-        indicatoron=[('pressed', '#ececec'), ('selected', '#4a6984')])
-
-        self.style.configure('W.TCombobox',
+        self.style.configure('App.TCombobox',
                              background=self.get_rgb(240, 240, 237),
-                             font="TkFixedFont")
-
-        self.style.configure('W.TLabelframe',
-                             background=self.get_rgb(240, 240, 237),
-                             relief=tk.GROOVE,
-                             padding=4,
                              font="TkFixedFont")
 
         self.style.configure('StatusBar.TLabel',
@@ -86,7 +68,7 @@ class Tools:
 
         self.style.map('Treeview', foreground=self.fixed_map('foreground'), background=self.fixed_map('background'))
         self.style.configure("Treeview.Heading", background=self.get_rgb(240, 240, 237), font=('TkHeadingFont', 10))
-        self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})]) 
+        self.style.layout("Treeview", [('Treeview.treearea', {'sticky': 'nswe'})])
 
         self.style.configure("Mandatory.TLabel",
                              foreground=self.get_rgb(0, 0, 255),
@@ -116,50 +98,9 @@ class Tools:
         """All insert,update modules have this same configuration on init_ui.
            A Frame, a columnconfigure and a grid method.
            So, why rewrite every time?"""
-        w = ttk.Frame(container, style='W.TFrame')
+        w = ttk.Frame(container, style='App.TFrame')
         self.cols_configure(w)
         w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E, padx=3, pady=6)
-
-        return w
-
-    def get_text_box(self, container, height=None, width=None, row=None, col=None):
-
-        w = ScrolledText(container,
-                         wrap=tk.WORD,
-                         bg='light yellow',
-                         relief=tk.GROOVE,
-                         height=height,
-                         width=width,
-                         font='TkFixedFont',)
-
-        if row is not None:
-            #print(row,col)
-            w.grid(row=row, column=1, sticky=tk.W)
-        else:
-            w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-
-        return w
-
-    def get_listbox(self, container, height=None, width=None, color=None):
-
-        sb = ttk.Scrollbar(container, orient=tk.VERTICAL)
-
-        w = tk.Listbox(container,
-                       relief=tk.GROOVE,
-                       selectmode=tk.BROWSE,
-                       exportselection=0,
-                       height=height,
-                       width=width,
-                       background=color,
-                       font='TkFixedFont',
-                       #bg="white",
-                       #fg="black",
-                       yscrollcommand=sb.set,)
-
-        sb.config(command=w.yview)
-
-        w.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        sb.pack(fill=tk.Y, expand=1)
 
         return w
 
@@ -295,11 +236,6 @@ class Tools:
                 return False
         else:
             return True
-
-    def on_to_assign(self, caller, evt=None):
-
-        msg = "To do!"
-        messagebox.showwarning(self.title, msg, )
 
     def get_widget_attributes(self, container):
         all_widgets = container.winfo_children()
