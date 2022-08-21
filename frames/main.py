@@ -137,14 +137,10 @@ class Main(ttk.Frame):
 
         """create widgets"""
         f0 = ttk.Frame(self, style="App.TFrame")
-        f1 = ttk.Frame(f0,
-                       style="App.TFrame",
-                       relief=tk.GROOVE,
-                       borderwidth=1,
-                       padding=8)
+        f1 = ttk.Frame(f0, style="App.TFrame", padding=8)
         #products
         #-----------------------------------------------------------------------
-        self.lblProdutcs = ttk.LabelFrame(f1, text="Products",)
+        self.lblProdutcs = ttk.LabelFrame(f1, style="App.TLabelframe", text="Products",)
         self.lstProducts = self.nametowidget(".").engine.get_tree(self.lblProdutcs, self.cols,)
         self.lstProducts.tag_configure("is_enable", background="light gray")
         self.lstProducts.tag_configure("is_zero", background=self.nametowidget(".").engine.get_rgb(255, 160, 122))
@@ -164,9 +160,9 @@ class Main(ttk.Frame):
         #-----------------------------------------------------------------------
         f2 = ttk.Frame(f0,
                        style="App.TFrame",
-                       relief=tk.GROOVE,
-                       borderwidth=1,
-                       padding=8)
+                       relief=tk.RIDGE,
+                       borderwidth=2,
+                       padding=4)
 
         bts = (("Reset", 0, self.on_reset, "<Alt-r>"),
                ("New", 0, self.on_add, "<Alt-n>"),
@@ -175,7 +171,7 @@ class Main(ttk.Frame):
 
         for btn in bts:
             ttk.Button(f2,
-                       style="W.TButton",
+                       style="App.TButton",
                        text=btn[0],
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
@@ -221,7 +217,7 @@ class Main(ttk.Frame):
         self.set_tree_values(sql, ())
         self.set_combo_values()
 
-    def on_add(self):
+    def on_add(self, evt=None):
         frames.product.UI(self).on_open()
 
     def on_categories(self):

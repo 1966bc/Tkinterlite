@@ -29,12 +29,13 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        f0 = ttk.Frame(self, style="App.TFrame",)
-        f1 = ttk.Frame(f0,
+        f0 = ttk.Frame(self,
                        style="App.TFrame",
-                       relief=tk.GROOVE,
-                       borderwidth=1,
-                       padding=8)
+                       relief=tk.RIDGE,
+                       borderwidth=2,
+                       padding=4)
+        
+        f1 = ttk.Frame(f0, style="App.TFrame", )
 
         ttk.Label(f1, style='App.TLabel', textvariable=self.counts,).pack(fill=tk.X, expand=0)
 
@@ -48,27 +49,26 @@ class UI(tk.Toplevel):
 
         f2 = ttk.Frame(f0,
                        style="App.TFrame",
-                       relief=tk.GROOVE,
-                       borderwidth=1,
-                       padding=8)
-
+                       relief=tk.RIDGE,
+                       borderwidth=2,
+                       padding=4)
+       
         bts = (("Add", 0, self.on_add, "<Alt-a>"),
                ("Edit", 0, self.on_edit, "<Alt-e>"),
                ("Close", 0, self.on_cancel, "<Alt-c>"))
 
         for btn in bts:
             ttk.Button(f2,
-                       style="W.TButton",
+                       style="App.TButton",
                        text=btn[0],
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.bind(btn[3], btn[2])
-
-
-        f0.pack(fill=tk.BOTH, expand=1)
+        
+        f0.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
         f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
         f2.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5, expand=0)
-
+       
     def on_open(self,):
 
         msg = "{0}".format(self.winfo_name().title())
