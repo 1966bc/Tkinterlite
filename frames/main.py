@@ -372,7 +372,8 @@ class App(tk.Tk):
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.set_title(kwargs["title"])
-        self.engine.set_style(kwargs["theme"])
+        theme = self.engine.get_theme()
+        self.engine.set_style(theme)
         self.set_icon()
         self.set_info()
         # set clock and start it.
@@ -413,8 +414,8 @@ def main():
 
     for i in sys.argv:
         args.append(i)
-    # ('clam', 'alt', 'default', 'classic')
-    kwargs = {"title":"Tkinterlite", "theme":"default"}
+    
+    kwargs = {"title":"Tkinterlite",}
 
     app = App(*args, **kwargs)
 

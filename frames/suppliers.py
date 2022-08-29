@@ -84,8 +84,6 @@ class UI(tk.Toplevel):
         rs = self.nametowidget(".").engine.read(True, SQL, ())
 
         if rs:
-            self.lstItems.delete(0, tk.END)
-
             for i in rs:
                 s = "{:}".format(i[1])
                 self.lstItems.insert(tk.END, s)
