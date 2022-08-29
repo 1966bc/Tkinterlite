@@ -11,9 +11,7 @@ from tkinter import ttk
 
 
 class Tools:
-    def __init__(self,):
-        super().__init__()
-
+    
     def __str__(self):
         return "class: {0}".format((self.__class__.__name__, ))
 

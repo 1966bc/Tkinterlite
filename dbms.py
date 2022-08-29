@@ -13,7 +13,7 @@ import sqlite3 as lite
 class DBMS:
     def __init__(self,):
         self.set_connection()
-        super().__init__()
+        #super().__init__()
 
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__,

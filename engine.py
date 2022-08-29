@@ -12,8 +12,9 @@ import subprocess
 import datetime
 
 from dbms import DBMS
-from clock import Clock
 from tools import Tools
+from clock import Clock
+
 
 
 class Engine(DBMS, Tools, Clock):
@@ -115,7 +116,22 @@ class Engine(DBMS, Tools, Clock):
                         inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
-                        sys.modules[__name__])            
+                        sys.modules[__name__])
+
+    def get_theme(self):
+
+        try:
+            path = self.get_file("theme")
+            f = open(path, "r")
+            theme = f.readline()
+            f.close()
+            return theme
+        except FileNotFoundError:
+            self.on_log(self,
+                        inspect.stack()[0][3],
+                        sys.exc_info()[1],
+                        sys.exc_info()[0],
+                        sys.modules[__name__])              
 
     def busy(self, caller):
         caller.config(cursor="watch")
