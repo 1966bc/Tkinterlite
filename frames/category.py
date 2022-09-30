@@ -30,7 +30,7 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(w, style='App.TLabel', text="Category:",).grid(row=r, sticky=tk.W)
+        ttk.Label(w, style="App.TLabel", text="Category:",).grid(row=r, sticky=tk.W)
         self.txtCategory = ttk.Entry(w, textvariable=self.category)
         self.txtCategory.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
