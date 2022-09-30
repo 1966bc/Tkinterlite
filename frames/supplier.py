@@ -28,23 +28,23 @@ class UI(tk.Toplevel):
 
         r = 0
         c = 1
-        ttk.Label(w, style='App.TLabel', text="Company:",).grid(row=r, sticky=tk.W)
+        ttk.Label(w, style="App.TLabel", text="Company:",).grid(row=r, sticky=tk.W)
         self.txtCompany = ttk.Entry(w, textvariable=self.company)
         self.txtCompany.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        ttk.Label(w, style='App.TLabel', text="Enable:").grid(row=r, sticky=tk.W)
+        ttk.Label(w, style="App.TLabel", text="Enable:").grid(row=r, sticky=tk.W)
         chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
         chk.grid(row=r, column=c, sticky=tk.W)
 
         r = 0
         c = 2
-        btn = ttk.Button(w, style='App.TButton', text="Save", underline=0, command=self.on_save,)
+        btn = ttk.Button(w, style="App.TButton", text="Save", underline=0, command=self.on_save,)
         self.bind("<Alt-s>", self.on_save)
         btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 
         r += 1
-        btn = ttk.Button(w, style='App.TButton', text="Cancel", underline=0, command=self.on_cancel,)
+        btn = ttk.Button(w, style="App.TButton", text="Cancel", underline=0, command=self.on_cancel,)
         self.bind("<Alt-c>", self.on_cancel)
         btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
 

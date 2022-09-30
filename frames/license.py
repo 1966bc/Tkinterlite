@@ -20,22 +20,21 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        f0 = ttk.Frame(self, style="App.TFrame")
-        f1 = ttk.Frame(f0,
+        
+        f0 = ttk.Frame(self,
                        style="App.TFrame",
                        relief=tk.GROOVE,
                        borderwidth=1,
                        padding=8)
 
-        self.txLicense = ScrolledText(f1,
+        self.txLicense = ScrolledText(f0,
                          wrap=tk.WORD,
                          bg="light yellow",
                          relief=tk.GROOVE,
                          font='TkFixedFont',)
         self.txLicense.pack(fill=tk.BOTH, expand=1)
         
-        f0.pack(fill=tk.BOTH, expand=1)
-        f1.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
+        f0.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
         
     def on_open(self):
 

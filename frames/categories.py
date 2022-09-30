@@ -35,9 +35,9 @@ class UI(tk.Toplevel):
                        borderwidth=2,
                        padding=4)
         
-        f1 = ttk.Frame(f0, style="App.TFrame", )
+        f1 = ttk.Frame(f0, style="App.TFrame", padding=4)
 
-        ttk.Label(f1, style='App.TLabel', textvariable=self.counts,).pack(fill=tk.X, expand=0)
+        ttk.Label(f1, style="App.TLabel", textvariable=self.counts,).pack(fill=tk.X, expand=0)
 
         sb = ttk.Scrollbar(f1, orient=tk.VERTICAL)
         self.lstItems = tk.Listbox(f1, yscrollcommand=sb.set,)
@@ -50,7 +50,7 @@ class UI(tk.Toplevel):
         f2 = ttk.Frame(f0,
                        style="App.TFrame",
                        relief=tk.RIDGE,
-                       borderwidth=2,
+                       borderwidth=0,
                        padding=4)
        
         bts = (("Add", 0, self.on_add, "<Alt-a>"),

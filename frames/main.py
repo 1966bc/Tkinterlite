@@ -150,8 +150,8 @@ class Main(ttk.Frame):
 
         #categories
         #-----------------------------------------------------------------------
-        self.lblCombo = ttk.LabelFrame(f1, style="W.TLabelframe", padding=2)
-        self.cbCombo = ttk.Combobox(self.lblCombo, style="W.TCombobox")
+        self.lblCombo = ttk.LabelFrame(f1, style="App.TLabelframe", padding=2)
+        self.cbCombo = ttk.Combobox(self.lblCombo, style="App.TCombobox")
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
         self.lblCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, pady=5, expand=0)
@@ -177,20 +177,21 @@ class Main(ttk.Frame):
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.parent.bind(btn[3], btn[2])
 
-        f4 = ttk.LabelFrame(f2, style="W.TLabelframe", text="Combo data", padding=2)
+        f3 = ttk.LabelFrame(f2, style="App.TLabelframe", text="Combo data", padding=2)
 
         for index, text in enumerate(self.combo_ops):
-            ttk.Radiobutton(f4,
-                            style="W.TRadiobutton",
+            ttk.Radiobutton(f3,
+                            style="App.TRadiobutton",
                             text=text,
                             variable=self.option_id,
                             command=self.set_combo_values,
                             value=index,).pack(anchor=tk.W)
 
-        f0.pack(fill=tk.BOTH, expand=1)
-        f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
+        
+        f3.pack()
         f2.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5, expand=0)
-        f4.pack()
+        f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
+        f0.pack(fill=tk.BOTH, expand=1)
 
     def center_ui(self):
 
@@ -364,7 +365,7 @@ class Main(ttk.Frame):
 
 
 class App(tk.Tk):
-    """Main Main Application start here"""
+    """Application start here"""
     def __init__(self, *args, **kwargs):
         super().__init__()
 
