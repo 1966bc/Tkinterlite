@@ -24,11 +24,6 @@ bc@hal9000:~/Tkinterlite-master$ python3 tkinterlite.py
 
 enjoy yourself
 
-![alt tag](https://user-images.githubusercontent.com/5463566/185409959-c1a55248-8f0f-4c59-97e8-c9b48204e889.png)
-
-![alt tag](https://user-images.githubusercontent.com/5463566/185409813-b1dc0c56-edb1-4f83-9bdd-b31b06a9b972.png)
-
-![alt tag](https://user-images.githubusercontent.com/5463566/185411086-58f730c8-b6c6-4f45-9c9b-06bf458d7c24.png)
 
 
 
