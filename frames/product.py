@@ -64,8 +64,8 @@ class UI(tk.Toplevel):
 
         r += 1
         ttk.Label(frm_left, style="App.TLabel", text="Package:").grid(row=r, sticky=tk.W)
-        w = ttk.Entry(frm_left, style="Package.TEntry", textvariable=self.package)
-        w.grid(row=r, column=c, sticky=tk.EW, **paddings)
+        ent_package = ttk.Entry(frm_left, style="Package.TEntry", textvariable=self.package)
+        ent_package.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
         ttk.Label(frm_left, style="App.TLabel", text="Price:").grid(row=r, sticky=tk.W)
