@@ -3,7 +3,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
+# modify:   hiems MMXXI
 #-------------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -30,10 +30,10 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         
-        self.frm_main = ttk.Frame(self, style="App.TFrame")
+        self.frm_main = ttk.Frame(self)
         self.frm_main.grid(row=0, column=0)
 
-        frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_left = ttk.Frame(self.frm_main)
         frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
 
         r = 0
@@ -47,7 +47,7 @@ class UI(tk.Toplevel):
         chk_enable = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.enable,)
         chk_enable.grid(row=r, column=c, sticky=tk.W)
 
-        frm_right = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_right = ttk.Frame(self.frm_main)
         frm_right.grid(row=0, column=1, sticky=tk.NS, **paddings)
 
         r = 0

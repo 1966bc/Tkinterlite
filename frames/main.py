@@ -128,8 +128,8 @@ class Main(ttk.Frame):
     def init_ui(self):
 
         """create widgets"""
-        frm_main = ttk.Frame(self, style="App.TFrame")
-        frm_left = ttk.Frame(frm_main, style="App.TFrame", padding=8)
+        frm_main = ttk.Frame(self)
+        frm_left = ttk.Frame(frm_main, padding=8)
         #products
         #-----------------------------------------------------------------------
         cols = (["#0", "id", "w", False, 0, 0],
@@ -156,7 +156,7 @@ class Main(ttk.Frame):
 
         #buttons and radio
         #-----------------------------------------------------------------------
-        frm_right = ttk.Frame(frm_main, style="App.TFrame", padding=4)
+        frm_right = ttk.Frame(frm_main, padding=4)
 
         bts = (("Reset", 0, self.on_reset, "<Alt-r>"),
                ("New", 0, self.on_add, "<Alt-n>"),

@@ -38,10 +38,10 @@ class UI(tk.Toplevel):
         self.columnconfigure(1, weight=2)
         self.columnconfigure(2, weight=1)
         
-        self.frm_main = ttk.Frame(self, style="App.TFrame")
+        self.frm_main = ttk.Frame(self)
         self.frm_main.grid(row=0, column=0)
 
-        frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_left = ttk.Frame(self.frm_main)
         frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
 
         r = 0
@@ -70,13 +70,13 @@ class UI(tk.Toplevel):
         r += 1
         ttk.Label(frm_left, style="App.TLabel", text="Price:").grid(row=r, sticky=tk.W)
         ent_price = ttk.Entry(frm_left, justify=tk.CENTER, width=8, validate="key",
-                      validatecommand=self.val_float, textvariable=self.price)
+                              validatecommand=self.val_float, textvariable=self.price)
         ent_price.grid(row=r, column=c, sticky=tk.W, **paddings)
 
         r += 1
         ttk.Label(frm_left, style="App.TLabel", text="Stock:").grid(row=r, sticky=tk.W)
         ent_stock = ttk.Entry(frm_left, justify=tk.CENTER, width=8, validate="key",
-                      validatecommand=self.val_int, textvariable=self.stock)
+                              validatecommand=self.val_int, textvariable=self.stock)
         ent_stock.grid(row=r, column=c, sticky=tk.W, **paddings)
 
         r += 1
@@ -84,7 +84,7 @@ class UI(tk.Toplevel):
         chk_enable = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.enable,)
         chk_enable.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-        frm_right = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_right = ttk.Frame(self.frm_main)
         frm_right.grid(row=0, column=1, sticky=tk.NS, **paddings)
 
         r = 0

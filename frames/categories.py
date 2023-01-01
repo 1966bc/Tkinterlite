@@ -29,9 +29,9 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        frm_main = ttk.Frame(self, style="App.TFrame")
+        frm_main = ttk.Frame(self)
         
-        frm_left = ttk.Frame(frm_main, style="App.TFrame", padding=8)
+        frm_left = ttk.Frame(frm_main, padding=8)
 
         ttk.Label(frm_left, style="App.TLabel", textvariable=self.items,).pack(fill=tk.X, expand=0)
 
