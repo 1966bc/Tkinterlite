@@ -21,8 +21,7 @@ class Tools:
 
         self.style.theme_use(theme)
 
-        self.style.configure(".", background=self.get_rgb(240, 240, 237),
-                             font=("TkFixedFont"))
+        self.style.configure(".", background=self.get_rgb(240, 240, 237), font=("TkFixedFont"))
 
         self.style.configure("Product.TEntry",
                     foreground=self.get_rgb(0, 0, 255),
@@ -32,43 +31,19 @@ class Tools:
                     foreground=self.get_rgb(255, 0, 0),
                     background=self.get_rgb(255, 255, 255))
 
-        self.style.configure("App.TFrame",
-                             background=self.get_rgb(240, 240, 237) ,)
+        self.style.configure("App.TFrame",)
 
-        self.style.configure("App.TLabelframe",
-                             background=self.get_rgb(240, 240, 237),
-                             relief=tk.GROOVE,
-                             padding=2,
-                             font="TkFixedFont")
+        self.style.configure("App.TLabelframe", relief=tk.GROOVE, padding=2, font="TkFixedFont")
 
-        self.style.configure("App.TButton",
-                             background=self.get_rgb(240, 240, 237),
-                             padding=5,
-                             border=1,
-                             relief=tk.RAISED,
-                             font="TkFixedFont")
+        self.style.configure("App.TButton", padding=5, border=1, relief=tk.RAISED)
 
-        self.style.configure("App.TLabel",
-                             background=self.get_rgb(240, 240, 237),
-                             padding=2,
-                             font=("Times", "12", "bold italic"),
-                             anchor=tk.W)
+        self.style.configure("App.TLabel", padding=2, font=("Times", "12", "bold italic"), anchor=tk.W)
 
-        self.style.configure("App.TRadiobutton",
-                             background=self.get_rgb(240, 240, 237),
-                             padding=4,
-                             font="TkFixedFont")
+        self.style.configure("App.TRadiobutton", padding=4, font="TkFixedFont")
 
-        self.style.configure("App.TCombobox",
-                             background=self.get_rgb(240, 240, 237),
-                             font="TkFixedFont")
+        self.style.configure("App.TCombobox")
 
-        self.style.configure("StatusBar.TLabel",
-                             background=self.get_rgb(240, 240, 237),
-                             padding=2,
-                             border=1,
-                             relief=tk.SUNKEN,
-                             font="TkFixedFont")
+        self.style.configure("StatusBar.TLabel", padding=2, border=1, relief=tk.SUNKEN, font="TkFixedFont")
 
         self.style.map("Treeview", foreground=self.fixed_map("foreground"), background=self.fixed_map("background"))
         self.style.configure("Treeview.Heading", background=self.get_rgb(240, 240, 237), font=("TkHeadingFont", 10))
@@ -108,7 +83,7 @@ class Tools:
 
         return w
 
-    def on_fields_control(self, container):
+    def on_fields_control(self, container, title):
 
         msg = "Please fill all fields."
 
@@ -116,7 +91,7 @@ class Tools:
             for field in w.winfo_children():
                 if type(field) in(ttk.Entry, tk.Entry, ttk.Combobox):
                     if not field.get():
-                        messagebox.showwarning(container.master.title(), msg, parent=container)
+                        messagebox.showwarning(title, msg, parent=container)
                         field.focus()
                         return 0
                     elif type(field) == ttk.Combobox:
