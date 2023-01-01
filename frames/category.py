@@ -3,7 +3,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
+# modify:   hiems MMXXI
 # -----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -26,39 +26,52 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        w = self.nametowidget(".").engine.get_init_ui(self)
+        paddings = {"padx": 5, "pady": 5}
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=2)
+        self.columnconfigure(2, weight=1)
+        
+        self.frm_main = ttk.Frame(self, style="App.TFrame")
+        self.frm_main.grid(row=0, column=0)
+
+        frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
 
         r = 0
         c = 1
-        ttk.Label(w, style="App.TLabel", text="Category:",).grid(row=r, sticky=tk.W)
-        self.txtCategory = ttk.Entry(w, textvariable=self.category)
-        self.txtCategory.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(frm_left, style="App.TLabel", text="Category:",).grid(row=r, sticky=tk.W)
+        self.txtCategory = ttk.Entry(frm_left, textvariable=self.category)
+        self.txtCategory.grid(row=r, column=c, sticky=tk.EW, **paddings)
+
 
         r += 1
-        ttk.Label(w, style="App.TLabel", text="Description:").grid(row=r, sticky=tk.W)
-        wdg = ttk.Entry(w, textvariable=self.description)
-        wdg.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(frm_left, style="App.TLabel", text="Description:").grid(row=r, sticky=tk.W)
+        ent_description = ttk.Entry(frm_left, textvariable=self.description)
+        ent_description.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
-        ttk.Label(w, style="App.TLabel", text="Enable:").grid(row=r, sticky=tk.W)
-        chk = ttk.Checkbutton(w, onvalue=1, offvalue=0, variable=self.enable,)
-        chk.grid(row=r, column=c, sticky=tk.W)
+        ttk.Label(frm_left, style="App.TLabel", text="Enable:").grid(row=r, sticky=tk.W)
+        chk_enable = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.enable,)
+        chk_enable.grid(row=r, column=c, sticky=tk.W)
+
+        frm_right = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_right.grid(row=0, column=1, sticky=tk.NS, **paddings)
 
         r = 0
-        c = 2
-        btn = ttk.Button(w, style="App.TButton", text="Save", underline=0, command=self.on_save,)
+        c = 0
+        btn_save = ttk.Button(frm_right, style="App.TButton", text="Save", underline=0, command=self.on_save,)
         self.bind("<Alt-s>", self.on_save)
-        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        btn_save.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
-        btn = ttk.Button(w, style="App.TButton", text="Cancel", underline=0, command=self.on_cancel,)
+        btn_cancel = ttk.Button(frm_right, style="App.TButton", text="Cancel", underline=0, command=self.on_cancel)
         self.bind("<Alt-c>", self.on_cancel)
-        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-    def on_open(self, selected_item=None):
+    def on_open(self):
 
         if self.index is not None:
-            self.selected_item = selected_item
             msg = "Edit {0}".format(self.winfo_name().title())
             self.set_values()
         else:
@@ -70,9 +83,9 @@ class UI(tk.Toplevel):
 
     def set_values(self,):
 
-        self.category.set(self.selected_item[1])
-        self.description.set(self.selected_item[2])
-        self.enable.set(self.selected_item[3])
+        self.category.set(self.parent.selected_item[1])
+        self.description.set(self.parent.selected_item[2])
+        self.enable.set(self.parent.selected_item[3])
 
     def get_values(self,):
 
@@ -82,7 +95,7 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.nametowidget(".").engine.on_fields_control(self) == False: return
+        if self.nametowidget(".").engine.on_fields_control(self.frm_main, self.nametowidget(".").title()) == False: return
 
         if messagebox.askyesno(self.nametowidget(".").title(),
                                self.nametowidget(".").engine.ask_to_save,
@@ -94,7 +107,7 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.selected_item[0])
+                args.append(self.parent.selected_item[0])
 
             else:
 

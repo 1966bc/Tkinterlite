@@ -32,73 +32,84 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        f = self.nametowidget(".").engine.get_init_ui(self)
+        paddings = {"padx": 5, "pady": 5}
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=2)
+        self.columnconfigure(2, weight=1)
+        
+        self.frm_main = ttk.Frame(self, style="App.TFrame")
+        self.frm_main.grid(row=0, column=0)
+
+        frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
 
         r = 0
         c = 1
-        ttk.Label(f, style="App.TLabel", text="Product:",).grid(row=r, sticky=tk.W)
-        self.txtProduct = ttk.Entry(f,
+        ttk.Label(frm_left, style="App.TLabel", text="Product:",).grid(row=r, sticky=tk.W)
+        self.txtProduct = ttk.Entry(frm_left,
                                     style="Product.TEntry",
                                     textvariable=self.product)
-        self.txtProduct.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        self.txtProduct.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
-        ttk.Label(f, style="App.TLabel", text="Suppliers:",).grid(row=r, sticky=tk.W)
-        self.cbSuppliers = ttk.Combobox(f,)
-        self.cbSuppliers.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(frm_left, style="App.TLabel", text="Suppliers:",).grid(row=r, sticky=tk.W)
+        self.cbSuppliers = ttk.Combobox(frm_left,)
+        self.cbSuppliers.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
-        ttk.Label(f, style="App.TLabel", text="Categories:",).grid(row=r, sticky=tk.W)
-        self.cbCategories = ttk.Combobox(f,)
-        self.cbCategories.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(frm_left, style="App.TLabel", text="Categories:",).grid(row=r, sticky=tk.W)
+        self.cbCategories = ttk.Combobox(frm_left,)
+        self.cbCategories.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
-        ttk.Label(f, style="App.TLabel", text="Package:").grid(row=r, sticky=tk.W)
-        w = ttk.Entry(f, style="Package.TEntry", textvariable=self.package)
-        w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(frm_left, style="App.TLabel", text="Package:").grid(row=r, sticky=tk.W)
+        w = ttk.Entry(frm_left, style="Package.TEntry", textvariable=self.package)
+        w.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
-        ttk.Label(f, style="App.TLabel", text="Price:").grid(row=r, sticky=tk.W)
-        w = ttk.Entry(f, justify=tk.CENTER, width=8, validate="key",
+        ttk.Label(frm_left, style="App.TLabel", text="Price:").grid(row=r, sticky=tk.W)
+        ent_price = ttk.Entry(frm_left, justify=tk.CENTER, width=8, validate="key",
                       validatecommand=self.val_float, textvariable=self.price)
-        w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        ent_price.grid(row=r, column=c, sticky=tk.W, **paddings)
 
         r += 1
-        ttk.Label(f, style="App.TLabel", text="Stock:").grid(row=r, sticky=tk.W)
-        w = ttk.Entry(f, justify=tk.CENTER, width=8, validate="key",
+        ttk.Label(frm_left, style="App.TLabel", text="Stock:").grid(row=r, sticky=tk.W)
+        ent_stock = ttk.Entry(frm_left, justify=tk.CENTER, width=8, validate="key",
                       validatecommand=self.val_int, textvariable=self.stock)
-        w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        ent_stock.grid(row=r, column=c, sticky=tk.W, **paddings)
 
         r += 1
-        ttk.Label(f, style="App.TLabel", text="Enable:").grid(row=r, sticky=tk.W)
-        w = ttk.Checkbutton(f, onvalue=1, offvalue=0, variable=self.enable,)
-        w.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        ttk.Label(frm_left, style="App.TLabel", text="Enable:").grid(row=r, sticky=tk.W)
+        chk_enable = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.enable,)
+        chk_enable.grid(row=r, column=c, sticky=tk.EW, **paddings)
+
+        frm_right = ttk.Frame(self.frm_main, style="App.TFrame")
+        frm_right.grid(row=0, column=1, sticky=tk.NS, **paddings)
 
         r = 0
-        c = 2
-        btn = ttk.Button(f, style="App.TButton", text="Save", underline=0, command=self.on_save,)
+        c = 0
+        btn_save = ttk.Button(frm_right, style="App.TButton", text="Save", underline=0, command=self.on_save,)
         self.bind("<Alt-s>", self.on_save)
-        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        btn_save.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         if self.index is not None:
             r += 1
-            btn = ttk.Button(f, style="App.TButton", text="Delete", underline=0, command=self.on_delete,)
+            btn = ttk.Button(frm_right, style="App.TButton", text="Delete", underline=0, command=self.on_delete,)
             self.bind("<Alt-c>", self.on_delete)
-            btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+            btn.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
-        btn = ttk.Button(f, style="App.TButton", text="Cancel", underline=0, command=self.on_cancel,)
+        btn_cancel = ttk.Button(frm_right, style="App.TButton", text="Cancel", underline=0, command=self.on_cancel)
         self.bind("<Alt-c>", self.on_cancel)
-        btn.grid(row=r, column=c, sticky=tk.W, padx=5, pady=5)
+        btn_cancel.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-
-    def on_open(self, selected_item=None):
+    def on_open(self):
 
         self.set_categories()
         self.set_suppliers()
 
         if self.index is not None:
-            self.selected_item = selected_item
             msg = "Update {0}".format(self.winfo_name().capitalize())
             self.set_values()
         else:
@@ -110,24 +121,24 @@ class UI(tk.Toplevel):
 
     def set_values(self,):
 
-        self.product.set(self.selected_item[1])
+        self.product.set(self.parent.selected_item[1])
 
         key = next(key
                    for key, value
                    in self.dict_suppliers.items()
-                   if value == self.selected_item[2])
+                   if value == self.parent.selected_item[2])
         self.cbSuppliers.current(key)
 
         key = next(key
                    for key, value
                    in self.dict_categories.items()
-                   if value == self.selected_item[3])
+                   if value == self.parent.selected_item[3])
         self.cbCategories.current(key)
 
-        self.package.set(self.selected_item[4])
-        self.price.set(self.selected_item[5])
-        self.stock.set(self.selected_item[6])
-        self.enable.set(self.selected_item[7])
+        self.package.set(self.parent.selected_item[4])
+        self.price.set(self.parent.selected_item[5])
+        self.stock.set(self.parent.selected_item[6])
+        self.enable.set(self.parent.selected_item[7])
 
     def get_values(self,):
 
@@ -141,7 +152,8 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.nametowidget(".").engine.on_fields_control(self) == False: return
+        if self.nametowidget(".").engine.on_fields_control(self.frm_main,
+                                                           self.nametowidget(".").title()) == False: return
 
         if messagebox.askyesno(self.nametowidget(".").title(),
                                self.nametowidget(".").engine.ask_to_save,
@@ -153,7 +165,7 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.selected_item[0])
+                args.append(self.parent.selected_item[0])
 
             else:
 
@@ -179,7 +191,7 @@ class UI(tk.Toplevel):
                                self.nametowidget(".").engine.ask_to_delete,
                                parent=self) == True:
 
-            args = (self.selected_item[0],)
+            args = (self.parent.selected_item[0],)
             self.nametowidget(".").engine.write(sql, args)
             self.parent.get_selected_combo_item()
             self.on_cancel()

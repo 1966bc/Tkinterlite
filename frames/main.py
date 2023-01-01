@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# project:  Main
+# project:  Tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
+# modify:   hiems MMXXI
 # -----------------------------------------------------------------------------
-""" This is the main module of Main."""
+""" This is the main module of Tkinterlite."""
 import sys
 import tkinter as tk
 from tkinter import messagebox
@@ -38,16 +38,9 @@ class Main(ttk.Frame):
         self.primary_key = "product_id"
         self.combo_ops = ("Categories", "Suppliers")
         self.option_id = tk.IntVar()
-        self.selected_product = None
+        self.selected_item = None
         self.dict_combo_values = {}
         self.status_bar_text = tk.StringVar()
-
-        self.cols = (["#0", "id", "w", False, 0, 0],
-                     ["#1", "Product", "w", True, 100, 100],
-                     ["#2", "Description", "w", True, 100, 100],
-                     ["#3", "Stock", "center", True, 20, 20],
-                     ["#4", "Price", "center", True, 20, 20],)
-
         self.init_menu()
         self.init_toolbar()
         self.init_status_bar()
@@ -103,7 +96,6 @@ class Main(ttk.Frame):
 
         self.nametowidget(".").config(menu=m_main)
 
-
     def init_toolbar(self):
 
         toolbar = tk.Frame(self, bd=1, relief=tk.RAISED)
@@ -136,21 +128,27 @@ class Main(ttk.Frame):
     def init_ui(self):
 
         """create widgets"""
-        f0 = ttk.Frame(self, style="App.TFrame")
-        f1 = ttk.Frame(f0, style="App.TFrame", padding=8)
+        frm_main = ttk.Frame(self, style="App.TFrame")
+        frm_left = ttk.Frame(frm_main, style="App.TFrame", padding=8)
         #products
         #-----------------------------------------------------------------------
-        self.lblProdutcs = ttk.LabelFrame(f1, style="App.TLabelframe", text="Products",)
-        self.lstProducts = self.nametowidget(".").engine.get_tree(self.lblProdutcs, self.cols,)
+        cols = (["#0", "id", "w", False, 0, 0],
+                ["#1", "Product", "w", True, 100, 100],
+                ["#2", "Description", "w", True, 100, 100],
+                ["#3", "Stock", "center", True, 20, 20],
+                ["#4", "Price", "center", True, 20, 20],)
+        
+        self.lblProdutcs = ttk.LabelFrame(frm_left, style="App.TLabelframe", text="Products",)
+        self.lstProducts = self.nametowidget(".").engine.get_tree(self.lblProdutcs, cols,)
         self.lstProducts.tag_configure("is_enable", background="light gray")
         self.lstProducts.tag_configure("is_zero", background=self.nametowidget(".").engine.get_rgb(255, 160, 122))
-        self.lstProducts.bind("<<TreeviewSelect>>", self.get_selected_product)
-        self.lstProducts.bind("<Double-1>", self.on_double_click)
+        self.lstProducts.bind("<<TreeviewSelect>>", self.on_prduct_selected)
+        self.lstProducts.bind("<Double-1>", self.on_prduct_activated)
         self.lblProdutcs.pack(fill=tk.BOTH, expand=1)
 
         #categories
         #-----------------------------------------------------------------------
-        self.lblCombo = ttk.LabelFrame(f1, style="App.TLabelframe", padding=2)
+        self.lblCombo = ttk.LabelFrame(frm_left, style="App.TLabelframe", padding=2)
         self.cbCombo = ttk.Combobox(self.lblCombo, style="App.TCombobox")
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
@@ -158,40 +156,36 @@ class Main(ttk.Frame):
 
         #buttons and radio
         #-----------------------------------------------------------------------
-        f2 = ttk.Frame(f0,
-                       style="App.TFrame",
-                       relief=tk.RIDGE,
-                       borderwidth=2,
-                       padding=4)
+        frm_right = ttk.Frame(frm_main, style="App.TFrame", padding=4)
 
         bts = (("Reset", 0, self.on_reset, "<Alt-r>"),
                ("New", 0, self.on_add, "<Alt-n>"),
-               ("Edit", 0, self.on_edit, "<Alt-e>"),
+               ("Edit", 0, self.on_prduct_activated, "<Alt-e>"),
                ("Close", 0, self.parent.on_exit, "<Alt-c>"))
 
         for btn in bts:
-            ttk.Button(f2,
+            ttk.Button(frm_right,
                        style="App.TButton",
                        text=btn[0],
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.parent.bind(btn[3], btn[2])
 
-        f3 = ttk.LabelFrame(f2, style="App.TLabelframe", text="Combo data", padding=2)
+        w = ttk.LabelFrame(frm_right, style="App.TLabelframe", text="Combo data", padding=2)
 
         for index, text in enumerate(self.combo_ops):
-            ttk.Radiobutton(f3,
+            ttk.Radiobutton(w,
                             style="App.TRadiobutton",
                             text=text,
                             variable=self.option_id,
                             command=self.set_combo_values,
                             value=index,).pack(anchor=tk.W)
 
+        w.pack()
         
-        f3.pack()
-        f2.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5, expand=0)
-        f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
-        f0.pack(fill=tk.BOTH, expand=1)
+        frm_right.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
+        frm_left.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        frm_main.pack(fill=tk.BOTH, expand=1)
 
     def center_ui(self):
 
@@ -213,7 +207,7 @@ class Main(ttk.Frame):
 
     def on_reset(self, evt=None):
 
-        self.selected_product = None
+        self.selected_item = None
         sql = "SELECT * FROM {0} ORDER BY product ASC;".format(self.table)
         self.set_tree_values(sql, ())
         self.set_combo_values()
@@ -227,30 +221,27 @@ class Main(ttk.Frame):
     def on_suppliers(self):
         frames.suppliers.UI(self).on_open()
 
-    def on_edit(self, evt=None):
+    def on_prduct_selected(self, evt):
+
+        if self.lstProducts.focus():
+            item_iid = self.lstProducts.selection()
+            pk = int(item_iid[0])
+            self.selected_item = self.nametowidget(".").engine.get_selected(self.table, self.primary_key, pk)        
+
+    def on_prduct_activated(self, evt=None):
 
         if self.lstProducts.focus():
 
             item_iid = self.lstProducts.selection()
 
-            frames.product.UI(self, item_iid).on_open(self.selected_product,)
+            frames.product.UI(self, item_iid).on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
                                    self.nametowidget(".").engine.no_selected,
                                    parent=self)
 
-    def on_double_click(self, evt=None):
-
-        self.on_edit(self)
-
-    def get_selected_product(self, evt):
-
-        if self.lstProducts.focus():
-            item_iid = self.lstProducts.selection()
-            pk = int(item_iid[0])
-            self.selected_product = self.nametowidget(".").engine.get_selected(self.table, self.primary_key, pk)
-
+    
     def get_selected_combo_item(self, evt=None):
 
         if self.cbCombo.current() != -1:

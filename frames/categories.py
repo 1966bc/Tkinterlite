@@ -3,7 +3,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
+# modify:   hiems MMXXI
 # -----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -22,52 +22,44 @@ class UI(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.table = "categories"
         self.primary_key = "category_id"
-        self.counts = tk.IntVar()
+        self.items = tk.IntVar()
         self.obj = None
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
-        f0 = ttk.Frame(self,
-                       style="App.TFrame",
-                       relief=tk.RIDGE,
-                       borderwidth=2,
-                       padding=4)
+        frm_main = ttk.Frame(self, style="App.TFrame")
         
-        f1 = ttk.Frame(f0, style="App.TFrame", padding=4)
+        frm_left = ttk.Frame(frm_main, style="App.TFrame", padding=8)
 
-        ttk.Label(f1, style="App.TLabel", textvariable=self.counts,).pack(fill=tk.X, expand=0)
+        ttk.Label(frm_left, style="App.TLabel", textvariable=self.items,).pack(fill=tk.X, expand=0)
 
-        sb = ttk.Scrollbar(f1, orient=tk.VERTICAL)
-        self.lstItems = tk.Listbox(f1, yscrollcommand=sb.set,)
+        sb = ttk.Scrollbar(frm_left, orient=tk.VERTICAL)
+        self.lstItems = tk.Listbox(frm_left, yscrollcommand=sb.set,)
         self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
         sb.config(command=self.lstItems.yview)
         self.lstItems.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         sb.pack(fill=tk.Y, expand=1)
 
-        f2 = ttk.Frame(f0,
-                       style="App.TFrame",
-                       relief=tk.RIDGE,
-                       borderwidth=0,
-                       padding=4)
+        frm_right = ttk.Frame(frm_main, padding=8)
        
         bts = (("Add", 0, self.on_add, "<Alt-a>"),
-               ("Edit", 0, self.on_edit, "<Alt-e>"),
+               ("Edit", 0, self.on_item_activated, "<Alt-e>"),
                ("Close", 0, self.on_cancel, "<Alt-c>"))
 
         for btn in bts:
-            ttk.Button(f2,
+            ttk.Button(frm_right,
                        style="App.TButton",
                        text=btn[0],
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.bind(btn[3], btn[2])
         
-        f0.pack(fill=tk.BOTH, padx=5, pady=5, expand=1)
-        f1.pack(side=tk.LEFT, fill=tk.BOTH, padx=5, pady=5, expand=1)
-        f2.pack(side=tk.RIGHT, fill=tk.Y, padx=5, pady=5, expand=0)
+        frm_main.pack(fill=tk.BOTH, expand=1)
+        frm_left.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        frm_right.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
        
     def on_open(self,):
 
@@ -93,15 +85,12 @@ class UI(tk.Toplevel):
                 index += 1
 
             msg = ("Items: {0}".format(self.lstItems.size()))
-            self.counts.set(msg)
+            self.items.set(msg)
 
     def on_add(self, evt=None):
 
         self.obj = ui.UI(self)
         self.obj.on_open()
-
-    def on_edit(self, evt=None):
-        self.on_item_activated()
 
     def on_item_selected(self, evt=None):
 
@@ -117,7 +106,7 @@ class UI(tk.Toplevel):
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             self.obj = ui.UI(self, index)
-            self.obj.on_open(self.selected_item,)
+            self.obj.on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
