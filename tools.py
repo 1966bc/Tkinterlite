@@ -31,8 +31,6 @@ class Tools:
                     foreground=self.get_rgb(255, 0, 0),
                     background=self.get_rgb(255, 255, 255))
 
-        self.style.configure("App.TFrame",)
-
         self.style.configure("App.TLabelframe", relief=tk.GROOVE, padding=2, font="TkFixedFont")
 
         self.style.configure("App.TButton", padding=5, border=1, relief=tk.RAISED)
@@ -64,24 +62,6 @@ class Tools:
         y = (container.winfo_screenheight() - container.winfo_reqheight()) / 2
         container.geometry("+%d+%d" % (x, y))
 
-    def cols_configure(self, w):
-
-        w.columnconfigure(0, weight=4)
-        w.columnconfigure(1, weight=1)
-        w.rowconfigure(0, weight=0)
-        w.rowconfigure(1, weight=0)
-        #w.rowconfigure(2, weight=1)
-        #w.rowconfigure(0, pad=8)
-
-    def get_init_ui(self, container):
-        """All insert,update modules have this same configuration on init_ui.
-           A Frame, a columnconfigure and a grid method.
-           So, why rewrite every time?"""
-        w = ttk.Frame(container, style="App.TFrame", relief=tk.RIDGE, borderwidth=2, padding=4)
-        self.cols_configure(w)
-        w.grid(row=0, column=0, sticky=tk.N+tk.W+tk.S+tk.E, padx=3, pady=6)
-
-        return w
 
     def on_fields_control(self, container, title):
 
