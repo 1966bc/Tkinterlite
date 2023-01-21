@@ -29,9 +29,9 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        frm_main = ttk.Frame(self)
-        
-        frm_left = ttk.Frame(frm_main, padding=8)
+        frm_main = ttk.Frame(self, style="App.TFrame")
+
+        frm_left = ttk.Frame(frm_main, style="App.TFrame", padding=8)
 
         ttk.Label(frm_left, style="App.TLabel", textvariable=self.items,).pack(fill=tk.X, expand=0)
 
@@ -43,8 +43,8 @@ class UI(tk.Toplevel):
         self.lstItems.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         sb.pack(fill=tk.Y, expand=1)
 
-        frm_right = ttk.Frame(frm_main, padding=8)
-       
+        frm_right = ttk.Frame(frm_main, style="App.TFrame", padding=4)
+
         bts = (("Add", 0, self.on_add, "<Alt-a>"),
                ("Edit", 0, self.on_item_activated, "<Alt-e>"),
                ("Close", 0, self.on_cancel, "<Alt-c>"))
@@ -56,11 +56,11 @@ class UI(tk.Toplevel):
                        underline=btn[1],
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.bind(btn[3], btn[2])
-        
+
         frm_main.pack(fill=tk.BOTH, expand=1)
         frm_left.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         frm_right.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
-       
+
     def on_open(self,):
 
         msg = "{0}".format(self.winfo_name().title())

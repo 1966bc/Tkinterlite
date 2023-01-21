@@ -3,7 +3,7 @@
 # project:  tkinterlite
 # authors:  1966bc
 # mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
+# modify:   hiems MMXXI
 # -----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
@@ -18,6 +18,9 @@ class UI(tk.Toplevel):
         self.index = index
         self.resizable(0, 0)
         self.transient(parent)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=2)
+        self.columnconfigure(2, weight=1)
 
         self.product = tk.StringVar()
         self.stock = tk.IntVar()
@@ -33,15 +36,11 @@ class UI(tk.Toplevel):
     def init_ui(self):
 
         paddings = {"padx": 5, "pady": 5}
-
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=2)
-        self.columnconfigure(2, weight=1)
         
-        self.frm_main = ttk.Frame(self)
+        self.frm_main = ttk.Frame(self, style="App.TFrame")
         self.frm_main.grid(row=0, column=0)
 
-        frm_left = ttk.Frame(self.frm_main)
+        frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
 
         r = 0
@@ -84,7 +83,7 @@ class UI(tk.Toplevel):
         chk_enable = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.enable,)
         chk_enable.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-        frm_right = ttk.Frame(self.frm_main)
+        frm_right = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_right.grid(row=0, column=1, sticky=tk.NS, **paddings)
 
         r = 0
@@ -122,13 +121,13 @@ class UI(tk.Toplevel):
     def set_values(self,):
 
         self.product.set(self.parent.selected_item[1])
-
+        #set value on cbSuppliers
         key = next(key
                    for key, value
                    in self.dict_suppliers.items()
                    if value == self.parent.selected_item[2])
         self.cbSuppliers.current(key)
-
+        #set value on cbCategories
         key = next(key
                    for key, value
                    in self.dict_categories.items()

@@ -18,24 +18,25 @@ class UI(tk.Toplevel):
         self.index = index
         self.transient(parent)
         self.resizable(0, 0)
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=2)
+        self.columnconfigure(2, weight=1)
+        
         self.category = tk.StringVar()
         self.description = tk.StringVar()
         self.enable = tk.BooleanVar()
+
         self.init_ui()
         self.nametowidget(".").engine.center_me(self)
 
     def init_ui(self):
 
         paddings = {"padx": 5, "pady": 5}
-
-        self.columnconfigure(0, weight=1)
-        self.columnconfigure(1, weight=2)
-        self.columnconfigure(2, weight=1)
         
-        self.frm_main = ttk.Frame(self)
+        self.frm_main = ttk.Frame(self, style="App.TFrame")
         self.frm_main.grid(row=0, column=0)
 
-        frm_left = ttk.Frame(self.frm_main)
+        frm_left = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_left.grid(row=0, column=0, sticky=tk.NS, **paddings)
 
         r = 0
@@ -43,7 +44,6 @@ class UI(tk.Toplevel):
         ttk.Label(frm_left, style="App.TLabel", text="Category:",).grid(row=r, sticky=tk.W)
         self.txtCategory = ttk.Entry(frm_left, textvariable=self.category)
         self.txtCategory.grid(row=r, column=c, sticky=tk.EW, **paddings)
-
 
         r += 1
         ttk.Label(frm_left, style="App.TLabel", text="Description:").grid(row=r, sticky=tk.W)
@@ -55,7 +55,7 @@ class UI(tk.Toplevel):
         chk_enable = ttk.Checkbutton(frm_left, onvalue=1, offvalue=0, variable=self.enable,)
         chk_enable.grid(row=r, column=c, sticky=tk.W)
 
-        frm_right = ttk.Frame(self.frm_main)
+        frm_right = ttk.Frame(self.frm_main, style="App.TFrame")
         frm_right.grid(row=0, column=1, sticky=tk.NS, **paddings)
 
         r = 0

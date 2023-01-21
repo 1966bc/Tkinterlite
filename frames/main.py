@@ -36,7 +36,6 @@ class Main(ttk.Frame):
         self.parent = parent
         self.table = "products"
         self.primary_key = "product_id"
-        self.combo_ops = ("Categories", "Suppliers")
         self.option_id = tk.IntVar()
         self.selected_item = None
         self.dict_combo_values = {}
@@ -128,8 +127,8 @@ class Main(ttk.Frame):
     def init_ui(self):
 
         """create widgets"""
-        frm_main = ttk.Frame(self)
-        frm_left = ttk.Frame(frm_main, padding=8)
+        frm_main = ttk.Frame(self, style="App.TFrame")
+        frm_left = ttk.Frame(frm_main, style="App.TFrame", padding=8)
         #products
         #-----------------------------------------------------------------------
         cols = (["#0", "id", "w", False, 0, 0],
@@ -156,7 +155,7 @@ class Main(ttk.Frame):
 
         #buttons and radio
         #-----------------------------------------------------------------------
-        frm_right = ttk.Frame(frm_main, padding=4)
+        frm_right = ttk.Frame(frm_main, style="App.TFrame", padding=4)
 
         bts = (("Reset", 0, self.on_reset, "<Alt-r>"),
                ("New", 0, self.on_add, "<Alt-n>"),
@@ -171,9 +170,9 @@ class Main(ttk.Frame):
                        command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
             self.parent.bind(btn[3], btn[2])
 
-        w = ttk.LabelFrame(frm_right, style="App.TLabelframe", text="Combo data", padding=2)
-
-        for index, text in enumerate(self.combo_ops):
+        w = ttk.LabelFrame(frm_right, style="App.TLabelframe", text="Combo data")
+        voices = ("Categories", "Suppliers")
+        for index, text in enumerate(voices):
             ttk.Radiobutton(w,
                             style="App.TRadiobutton",
                             text=text,
@@ -250,10 +249,11 @@ class Main(ttk.Frame):
             selected_id = self.dict_combo_values[index]
 
             if self.option_id.get() != 1:
-                sql = "SELECT * FROM products WHERE  category_id=? ORDER BY product;"
+                field = "category_id"
             else:
-                sql = "SELECT * FROM products WHERE supplier_id =? ORDER BY product;"
+                field = "supplier_id"
 
+            sql = "SELECT * FROM products WHERE  {0}=? ORDER BY product;".format(field)
             args = (selected_id,)
             self.set_tree_values(sql, args)
         else:
@@ -364,8 +364,7 @@ class App(tk.Tk):
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.set_title(kwargs["title"])
-        theme = self.engine.get_theme()
-        self.engine.set_style(theme)
+        self.engine.set_style(kwargs["theme"])
         self.set_icon()
         self.set_info()
         # set clock and start it.
@@ -406,12 +405,17 @@ def main():
 
     for i in sys.argv:
         args.append(i)
-    
-    kwargs = {"title":"Tkinterlite",}
+
+    foo = Engine()        
+
+    theme = foo.get_theme()
+
+    kwargs = {"title":"Tkinterlite", "theme":theme}
 
     app = App(*args, **kwargs)
 
     app.mainloop()
+
 
 if __name__ == "__main__":
     main()

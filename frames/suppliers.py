@@ -29,9 +29,9 @@ class UI(tk.Toplevel):
 
     def init_ui(self):
 
-        frm_main = ttk.Frame(self)
+        frm_main = ttk.Frame(self, style="App.TFrame")
         
-        frm_left = ttk.Frame(frm_main, padding=8)
+        frm_left = ttk.Frame(frm_main, style="App.TFrame", padding=8)
 
         ttk.Label(frm_left, style="App.TLabel", textvariable=self.items,).pack(fill=tk.X, expand=0)
 
@@ -43,7 +43,7 @@ class UI(tk.Toplevel):
         self.lstItems.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         sb.pack(fill=tk.Y, expand=1)
 
-        frm_right = ttk.Frame(frm_main, padding=8)
+        frm_right = ttk.Frame(frm_main, style="App.TFrame", padding=4)
        
         bts = (("Add", 0, self.on_add, "<Alt-a>"),
                ("Edit", 0, self.on_item_activated, "<Alt-e>"),
