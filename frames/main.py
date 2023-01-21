@@ -37,7 +37,7 @@ class Main(ttk.Frame):
         self.table = "products"
         self.primary_key = "product_id"
         self.option_id = tk.IntVar()
-        self.selected_item = None
+        #self.selected_item = None
         self.dict_combo_values = {}
         self.status_bar_text = tk.StringVar()
         self.init_menu()
