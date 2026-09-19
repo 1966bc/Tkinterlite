@@ -7,15 +7,15 @@
 # -----------------------------------------------------------------------------
 """Start Tkinterlite.
 
-    python3 tkinterlite.py        start the application
-    python3 tkinterlite.py x      any argument: run it under the profiler, and
-                                  print the ten calls that took longest
+    python3 tkinterlite.py
+
+To see where the time goes, the standard library's profiler runs it as it is,
+without a line of code here:
+
+    python3 -m cProfile -s cumulative tkinterlite.py
 """
 
 import os
-import profile
-import pstats
-import sys
 from tkinter import messagebox
 
 from log import Log
@@ -43,8 +43,4 @@ def main():
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        profile.run("main()", "profile_results")
-        pstats.Stats("profile_results").sort_stats("cumulative").print_stats(10)
-    else:
-        main()
+    main()
