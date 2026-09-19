@@ -4,22 +4,23 @@
 # authors:  Giuseppe Costanzi (1966bc)
 # licence:  GPL-3.0-or-later, see LICENSE
 # -----------------------------------------------------------------------------
-""" This is the main module of Tkinterlite."""
+"""The main window - the products, filtered by category or supplier - and the
+application that holds it."""
+
 import os
-import sys
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
 import ui.about
+import ui.categories
 import ui.license
 import ui.product
-import ui.categories
 import ui.suppliers
 
+from clock import Clock
 from engine import Engine
 from log import Log
-from clock import Clock
 
 #: The project directory, one level above ui/: the log lives there.
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -34,23 +35,47 @@ __email__ = "giuseppecostanzi@gmail.com"
 __date__ = "autumnus MMXXVI"
 __status__ = "production"
 
+#: One product with the names of its supplier and category, for the status bar.
+SELECTED = ("SELECT p.product, s.company, c.category"
+            "  FROM products AS p"
+            "  LEFT JOIN suppliers AS s ON s.supplier_id = p.supplier_id"
+            "  LEFT JOIN categories AS c ON c.category_id = p.category_id"
+            " WHERE p.product_id = ?;")
+
+#: The columns of the product list, as Tools.get_tree wants them:
+#: (identifier, heading, anchor, stretch, minwidth, width).
+COLUMNS = (("#0", "id", tk.W, False, 0, 0),
+           ("#1", "Product", tk.W, True, 100, 100),
+           ("#2", "Package", tk.W, True, 100, 100),
+           ("#3", "Stock", tk.CENTER, True, 20, 20),
+           ("#4", "Price", tk.CENTER, True, 20, 20))
+
 
 class Main(ttk.Frame):
+    """The products, a combo to filter them by category or supplier, and the menus."""
+
+    TABLE = "products"
+
+    #: A product with nothing in stock is drawn on this colour.
+    OUT_OF_STOCK = (255, 160, 122)
+
     def __init__(self, parent):
-        super().__init__()
+        super().__init__(parent)
 
         self.parent = parent
         self.engine = parent.engine
-        self.table = "products"
-        self.primary_key = "product_id"
+        #: 0 filters by category, 1 by supplier.
         self.option_id = tk.IntVar()
+        #: Position in the combo -> category_id or supplier_id, filled by set_combo_values.
         self.dict_combo_values = {}
-        self.status_bar_text = tk.StringVar()
+        #: The status bar: the selected product on the left, the clock on the right.
+        self.selected_text = tk.StringVar()
+        self.clock_text = tk.StringVar()
         self.init_menu()
         self.init_toolbar()
         self.init_status_bar()
         self.init_ui()
-        self.center_ui()
+        self.set_size()
         # The Observer at work: this window is told when a product is saved,
         # and when a category or a supplier is, because its combo shows them.
         # Whoever saves does not know this window exists.
@@ -60,166 +85,226 @@ class Main(ttk.Frame):
         self.check_clock()
 
     def init_menu(self):
-
+        """The menu bar. Its colours come from Tools.set_classic, like every menu."""
         m_main = tk.Menu(self, bd=1)
-
         m_file = tk.Menu(m_main, tearoff=0, bd=1)
+        m_database = tk.Menu(m_file, tearoff=0, bd=1)
         m_tools = tk.Menu(m_main, tearoff=0, bd=1)
-        s_databases = tk.Menu(m_file)
         m_about = tk.Menu(m_main, tearoff=0, bd=1)
 
-        items = (("File", m_file),
-                 ("Tools", m_tools),
-                 ("?", m_about),)
+        for label, menu in (("File", m_file), ("Tools", m_tools), ("?", m_about)):
+            m_main.add_cascade(label=label, underline=0, menu=menu)
 
-        for i in items:
-            m_main.add_cascade(label=i[0], underline=0, menu=i[1])
-
-        m_file.add_cascade(label="Database", menu=s_databases, underline=0)
-
-        items = (("Dump", self.on_dump),
-                 ("Vacuum", self.on_vacuum),)
-
-        for i in items:
-            s_databases.add_command(label=i[0], underline=0, command=i[1])
-
-        m_file.add_command(label="Log", underline=1, command=self.on_log)
+        m_file.add_cascade(label="Database", underline=0, menu=m_database)
+        for label, command in (("Dump", self.on_dump), ("Vacuum", self.on_vacuum)):
+            m_database.add_command(label=label, underline=0, command=command)
+        m_file.add_command(label="Log", underline=0, command=self.on_log)
         m_file.add_separator()
-
         m_file.add_command(label="Exit", underline=0, command=self.parent.on_exit)
 
-        items = (("Categories", self.on_categories),
-                 ("Suppliers", self.on_suppliers),)
+        for label, command in (("Categories", self.on_categories),
+                               ("Suppliers", self.on_suppliers)):
+            m_tools.add_command(label=label, underline=0, command=command)
 
-        for i in items:
-            m_tools.add_command(label=i[0], underline=0, command=i[1])
+        for label, command in (("About", self.on_about),
+                               ("License", self.on_license),
+                               ("Python", self.on_python_version),
+                               ("Tkinter", self.on_tkinter_version)):
+            m_about.add_command(label=label, underline=0, command=command)
 
-        items = (("About", self.on_about),
-                 ("License", self.on_license),
-                 ("Python", self.on_python_version),
-                 ("Tkinter", self.on_tkinter_version),)
-
-        for i in items:
-            m_about.add_command(label=i[0], underline=0, command=i[1])
-
-        for i in (m_main, m_file, s_databases, m_tools, m_about):
-            i.config(bg=self.engine.tools.get_rgb(240, 240, 237),)
-            i.config(fg="black")
-
-        self.nametowidget(".").config(menu=m_main)
+        self.parent.config(menu=m_main)
 
     def init_toolbar(self):
 
-        toolbar = tk.Frame(self, bd=1, relief=tk.RAISED)
+        background = self.engine.tools.get_rgb(*self.engine.tools.BACKGROUND)
+        toolbar = tk.Frame(self, bd=1, relief=tk.RAISED, bg=background)
 
-        img_exit = tk.PhotoImage(data=self.engine.get_icon("exit"))
-        img_info = tk.PhotoImage(data=self.engine.get_icon("info"))
+        # Kept on self: a PhotoImage that only a local variable points to is
+        # collected, and the button goes blank.
+        self.img_exit = tk.PhotoImage(data=self.engine.get_icon("exit"))
+        self.img_info = tk.PhotoImage(data=self.engine.get_icon("info"))
 
-        exitButton = tk.Button(toolbar, width=20, image=img_exit,
-                               relief=tk.FLAT, command=self.parent.on_exit)
-        infoButton = tk.Button(toolbar, width=20, image=img_info,
-                               relief=tk.FLAT, command=self.on_about)
+        for image, command in ((self.img_exit, self.parent.on_exit),
+                               (self.img_info, self.on_about)):
+            tk.Button(toolbar, width=20, image=image, relief=tk.FLAT, bg=background,
+                      command=command).pack(side=tk.LEFT, padx=2, pady=2)
 
-        exitButton.image = img_exit
-        infoButton.image = img_info
-
-        exitButton.pack(side=tk.LEFT, padx=2, pady=2)
-        infoButton.pack(side=tk.LEFT, padx=2, pady=2)
-
-        toolbar.config(bg=self.engine.tools.get_rgb(240, 240, 237))
         toolbar.pack(side=tk.TOP, fill=tk.X)
 
     def init_status_bar(self):
+        """What changes on the left, the time on the right.
 
-        self.status = ttk.Label(self,
-                                textvariable=self.status_bar_text,
-                                style='StatusBar.TLabel',
-                                anchor=tk.W)
-        self.status.pack(side=tk.BOTTOM, fill=tk.X)
+        The frame carries the sunken edge, as Tools.set_style asks: the style
+        holds the colours, and what a strip looks like is written where it is
+        built.
+        """
+        frm_status = ttk.Frame(self, style="StatusBar.TFrame", borderwidth=1, relief=tk.SUNKEN)
+        ttk.Label(frm_status,
+                  textvariable=self.selected_text,
+                  style="StatusBar.TLabel",
+                  anchor=tk.W).pack(side=tk.LEFT, fill=tk.X, expand=1)
+        ttk.Label(frm_status,
+                  textvariable=self.clock_text,
+                  style="StatusBar.TLabel",
+                  anchor=tk.E).pack(side=tk.RIGHT)
+        frm_status.pack(side=tk.BOTTOM, fill=tk.X)
 
     def init_ui(self):
 
-        """create widgets"""
         frm_main = ttk.Frame(self, style="App.TFrame")
         frm_left = ttk.Frame(frm_main, style="App.TFrame", padding=8)
-        #products
-        #-----------------------------------------------------------------------
-        cols = (["#0", "id", "w", False, 0, 0],
-                ["#1", "Product", "w", True, 100, 100],
-                ["#2", "Description", "w", True, 100, 100],
-                ["#3", "Stock", "center", True, 20, 20],
-                ["#4", "Price", "center", True, 20, 20],)
-        
-        self.lblProdutcs = ttk.LabelFrame(frm_left, style="App.TLabelframe", text="Products",)
-        self.lstProducts = self.engine.tools.get_tree(self.lblProdutcs, cols,)
-        self.lstProducts.tag_configure("is_enable", background="light gray")
-        self.lstProducts.tag_configure("is_zero", background=self.engine.tools.get_rgb(255, 160, 122))
-        self.lstProducts.bind("<Double-1>", self.on_prduct_activated)
 
-        #categories
-        #-----------------------------------------------------------------------
-        self.lblCombo = ttk.LabelFrame(frm_left, style="App.TLabelframe", padding=2)
-        self.cbCombo = self.engine.tools.get_combo(self.lblCombo)
-        self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
-        self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
+        self.lbl_products = ttk.LabelFrame(frm_left, style="App.TLabelframe", text="Products")
+        self.lst_products = self.engine.tools.get_tree(self.lbl_products, COLUMNS)
+        self.lst_products.tag_configure("out_of_stock",
+                                        background=self.engine.tools.get_rgb(*self.OUT_OF_STOCK))
+        self.lst_products.bind("<<TreeviewSelect>>", self.on_select)
+        self.lst_products.bind("<Double-1>", self.on_edit)
+
+        self.lbl_combo = ttk.LabelFrame(frm_left, style="App.TLabelframe", padding=2)
+        self.cb_filter = self.engine.tools.get_combo(self.lbl_combo)
+        self.cb_filter.bind("<<ComboboxSelected>>", self.on_filter)
+        self.cb_filter.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
         # Packed before the products, so a short window shortens the list
         # (which scrolls) instead of squeezing the combo out.
-        self.lblCombo.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X, pady=5, expand=0)
-        self.lblProdutcs.pack(fill=tk.BOTH, expand=1)
+        self.lbl_combo.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X, pady=5, expand=0)
+        self.lbl_products.pack(fill=tk.BOTH, expand=1)
 
-        #buttons and radio
-        #-----------------------------------------------------------------------
         frm_right = ttk.Frame(frm_main, style="App.TFrame", padding=4)
 
         # Add, as in the lists: windows that do the same thing say it the same way.
         buttons = self.engine.tools.get_button_column(frm_right,
                                                       (("Reset", self.on_reset),
                                                        ("Add", self.on_add),
-                                                       ("Edit", self.on_prduct_activated),
+                                                       ("Edit", self.on_edit),
                                                        ("Close", self.parent.on_exit)),
                                                       window=self.parent)
         buttons.pack(fill=tk.X)
 
-        w = ttk.LabelFrame(frm_right, style="App.TLabelframe", text="Combo data")
-        voices = ("Categories", "Suppliers")
-        for index, text in enumerate(voices):
-            ttk.Radiobutton(w,
+        frm_filter = ttk.LabelFrame(frm_right, style="App.TLabelframe", text="Filter by")
+        for value, text in enumerate(("Categories", "Suppliers")):
+            ttk.Radiobutton(frm_filter,
                             style="App.TRadiobutton",
                             text=text,
                             variable=self.option_id,
                             command=self.set_combo_values,
-                            value=index,).pack(anchor=tk.W)
+                            value=value).pack(anchor=tk.W)
+        frm_filter.pack()
 
-        w.pack()
-        
         frm_right.pack(side=tk.RIGHT, fill=tk.Y, expand=0)
         frm_left.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
         frm_main.pack(fill=tk.BOTH, expand=1)
 
-    def center_ui(self):
-
-        ws = self.nametowidget(".").winfo_screenwidth()
-        hs = self.nametowidget(".").winfo_screenheight()
-        # calculate position x, y
+    def set_size(self):
+        """The size written in tkinterlite.ini, centred on the screen."""
         config = self.engine.config
-        w = config.get_int("window", "width")
-        h = config.get_int("window", "height")
-        x = (ws/2) - (w/2)
-        y = (hs/2) - (h/2)
-        self.nametowidget(".").geometry("%dx%d+%d+%d" % (w, h, x, y))
+        self.engine.tools.set_geometry(self.parent,
+                                       config.get_int("window", "width"),
+                                       config.get_int("window", "height"))
 
     def on_open(self, evt=None):
 
         self.on_reset()
 
     def on_reset(self, evt=None):
+        """Every product, and the combo emptied."""
+        self.set_products("SELECT * FROM products ORDER BY product ASC;", ())
+        self.set_combo_values()
 
-        sql = "SELECT * FROM {0} ORDER BY product ASC;".format(self.table)
-        self.set_tree_values(sql, ())
+    def on_filter(self, evt=None):
+        """The products of the category or supplier chosen in the combo."""
+        row_id = self.engine.tools.get_combo_id(self.cb_filter, self.dict_combo_values)
+
+        if row_id is not None:
+            if self.option_id.get() == 0:
+                field = "category_id"
+            else:
+                field = "supplier_id"
+            sql = "SELECT * FROM products WHERE {0} = ? ORDER BY product ASC;".format(field)
+            self.set_products(sql, (row_id,))
+        else:
+            self.on_reset()
+
+    def set_products(self, sql, args):
+        """Fill the list: disabled products in grey, those out of stock in salmon."""
+        tools = self.engine.tools
+
+        for item in self.lst_products.get_children():
+            self.lst_products.delete(item)
+
+        for row in self.engine.db.read(True, sql, args):
+            tags = tools.get_enable_tags(row["enable"])
+            if row["enable"] and row["stock"] < 1:
+                tags = ("out_of_stock",)
+            self.lst_products.insert("", tk.END,
+                                     iid=row["product_id"], text=row["product_id"],
+                                     values=(row["product"], row["package"],
+                                             row["stock"], row["price"]),
+                                     tags=tags)
+
+        self.lbl_products["text"] = "Products {0}".format(len(self.lst_products.get_children()))
+        self.on_select()
+
+    def on_select(self, evt=None):
+        """One click on a product: its supplier and category, in the status bar.
+
+        Also called when the list is read again, and when the Observer lands on
+        a row: selecting from code fires <<TreeviewSelect>> too. With nothing
+        selected the status bar is left empty.
+        """
+        text = ""
+        selection = self.lst_products.selection()
+
+        if selection:
+            row = self.engine.db.read(False, SELECTED, (int(selection[0]),))
+            text = "{0}: {1}, {2}".format(row["product"], row["company"], row["category"])
+
+        self.selected_text.set(text)
+
+    def set_combo_values(self):
+        """Fill the combo with the enabled categories, or suppliers."""
+        if self.option_id.get() == 0:
+            self.lbl_combo["text"] = "Categories"
+            sql = ("SELECT category_id AS id, category AS caption"
+                   "  FROM categories"
+                   " WHERE enable = 1"
+                   " ORDER BY category;")
+        else:
+            self.lbl_combo["text"] = "Suppliers"
+            sql = ("SELECT supplier_id AS id, company AS caption"
+                   "  FROM suppliers"
+                   " WHERE enable = 1"
+                   " ORDER BY company;")
+
+        self.dict_combo_values.clear()
+        captions = []
+        for index, row in enumerate(self.engine.db.read(True, sql, ())):
+            self.dict_combo_values[index] = row["id"]
+            captions.append(row["caption"])
+
+        self.cb_filter.set("")
+        self.engine.tools.set_combo(self.cb_filter, captions)
+
+    def on_products_changed(self, product_id):
+        """A product was saved or deleted: read the list again and land on it."""
+        self.on_reset()
+        self.engine.tools.set_selected(self.lst_products, product_id)
+
+    def on_combo_changed(self, row_id):
+        """A category or a supplier was saved: the combo shows them."""
         self.set_combo_values()
 
     def on_add(self, evt=None):
         ui.product.UI(self).on_open()
+
+    def on_edit(self, evt=None):
+
+        selection = self.lst_products.selection()
+
+        if selection:
+            ui.product.UI(self, int(selection[0])).on_open()
+        else:
+            messagebox.showwarning(self.parent.title(), self.engine.no_selected, parent=self)
 
     def on_categories(self):
         ui.categories.UI(self).on_open()
@@ -227,138 +312,37 @@ class Main(ttk.Frame):
     def on_suppliers(self):
         ui.suppliers.UI(self).on_open()
 
-    def on_products_changed(self, product_id):
-        """A product was saved or deleted: read the list again and land on it."""
-        self.on_reset()
-        self.engine.tools.set_selected(self.lstProducts, product_id)
-
-    def on_combo_changed(self, row_id):
-        """A category or a supplier was saved: the combo shows them."""
-        self.set_combo_values()
-
-    def on_prduct_activated(self, evt=None):
-
-        selection = self.lstProducts.selection()
-
-        if selection:
-            ui.product.UI(self, int(selection[0])).on_open()
-        else:
-            messagebox.showwarning(self.nametowidget(".").title(),
-                                   self.engine.no_selected,
-                                   parent=self)
-
-    
-    def get_selected_combo_item(self, evt=None):
-
-        if self.cbCombo.current() != -1:
-
-            index = self.cbCombo.current()
-            selected_id = self.dict_combo_values[index]
-
-            if self.option_id.get() != 1:
-                field = "category_id"
-            else:
-                field = "supplier_id"
-
-            sql = "SELECT * FROM products WHERE  {0}=? ORDER BY product;".format(field)
-            args = (selected_id,)
-            self.set_tree_values(sql, args)
-        else:
-            self.on_open()
-
-    def set_tree_values(self, sql, args):
-
-        for i in self.lstProducts.get_children():
-            self.lstProducts.delete(i)
-
-        rs = self.engine.db.read(True, sql, args)
-
-        if rs:
-
-            for i in rs:
-
-                if i["enable"] == 0:
-                    tag_config = ("is_enable")
-                elif i["stock"] < 1:
-                    tag_config = ("is_zero")
-                else:
-                    tag_config = ("")
-
-                self.lstProducts.insert("", tk.END,
-                                        iid=i["product_id"], text=i["product_id"],
-                                        values=(i["product"], i["package"],
-                                                i["stock"], i["price"]),
-                                        tags=tag_config)
-
-        s = "{0} {1}".format("Products", len(self.lstProducts.get_children()))
-
-        self.lblProdutcs["text"] = s
-
-    def set_combo_values(self):
-
-        self.cbCombo.set("")
-
-        index = 0
-        values = []
-
-        if self.option_id.get() != 1:
-            self.lblCombo["text"] = "Categories"
-            sql = "SELECT category_id AS id, category AS caption\
-                   FROM categories\
-                   WHERE enable =1\
-                   ORDER BY category;"
-        else:
-            self.lblCombo["text"] = "Suppliers"
-            sql = "SELECT supplier_id AS id, company AS caption\
-                   FROM suppliers\
-                   WHERE enable =1\
-                   ORDER BY company;"
-
-        rs = self.engine.db.read(True, sql, ())
-
-        for i in rs:
-            self.dict_combo_values[index] = i["id"]
-            index += 1
-            values.append(i["caption"])
-
-        self.cbCombo.set("")
-        self.cbCombo["values"] = values
-
     def on_license(self):
         ui.license.UI(self).on_open()
 
+    def on_about(self):
+        ui.about.UI(self, self.parent.info).on_open()
+
     def on_python_version(self):
-        s = self.engine.get_python_version()
-        messagebox.showinfo(self.nametowidget(".").title(), s, parent=self)
+        messagebox.showinfo(self.parent.title(), self.engine.get_python_version(), parent=self)
 
     def on_tkinter_version(self):
-        s = "Tkinter patchlevel\n{0}".format(self.nametowidget(".").tk.call("info", "patchlevel"))
-        messagebox.showinfo(self.nametowidget(".").title(), s, parent=self)
-
-    def on_about(self,):
-        ui.about.UI(self, self.parent.info).on_open()
+        text = "Tkinter patchlevel\n{0}".format(self.tk.call("info", "patchlevel"))
+        messagebox.showinfo(self.parent.title(), text, parent=self)
 
     def on_dump(self):
         self.engine.tools.busy(self)
         # Into dumps/, beside the program, not into whatever folder it was started from.
         path = self.engine.db.dump(self.engine.get_file("dumps"))
         self.engine.tools.not_busy(self)
-        messagebox.showinfo(self.nametowidget(".").title(),
-                            "Dump written to\n{0}".format(path),
-                            parent=self)
+        messagebox.showinfo(self.parent.title(), "Dump written to\n{0}".format(path), parent=self)
 
     def on_vacuum(self):
-        sql = "VACUUM;"
         self.engine.tools.busy(self)
-        self.engine.db.write(sql)
+        self.engine.db.write("VACUUM;")
         self.engine.tools.not_busy(self)
-        messagebox.showinfo(self.nametowidget(".").title(), "Vacuum executed.", parent=self)
+        messagebox.showinfo(self.parent.title(), "Vacuum executed.", parent=self)
 
-    def on_log(self,):
+    def on_log(self):
         # The log is born with the first error: until then there is nothing to open, and saying
         # so is better than a menu item that does nothing.
         if self.engine.log.is_empty():
-            messagebox.showinfo(self.nametowidget(".").title(),
+            messagebox.showinfo(self.parent.title(),
                                 "The log is empty: nothing has gone wrong so far.",
                                 parent=self)
         else:
@@ -373,19 +357,20 @@ class Main(ttk.Frame):
         version asked every millisecond.
         """
         for message in self.parent.clock.drain():
-            self.status_bar_text.set(message)
+            self.clock_text.set(message)
         self.after(200, self.check_clock)
 
 
 class App(tk.Tk):
-    """Application start here"""
-    def __init__(self, *args, **kwargs):
+    """The application: the root window, the engine, the clock."""
+
+    def __init__(self, title, log):
         super().__init__()
 
-        self.engine = Engine(kwargs["log"])
+        self.engine = Engine(log)
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
-        self.set_title(kwargs["title"])
+        self.title(title)
         self.engine.tools.set_style(self.engine.config.get("window", "theme"))
         self.set_icon()
         self.set_info()
@@ -393,13 +378,9 @@ class App(tk.Tk):
         self.clock = Clock()
         self.clock.start()
 
-        w = Main(self)
-        w.on_open()
-        w.pack(fill=tk.BOTH, expand=1)
-
-    def set_title(self, title):
-        s = "{0}".format(title)
-        self.title(s)
+        main = Main(self)
+        main.on_open()
+        main.pack(fill=tk.BOTH, expand=1)
 
     def set_icon(self):
         # The icon in 16, 32 and 48 pixels: the window manager picks the
@@ -407,7 +388,7 @@ class App(tk.Tk):
         icons = [tk.PhotoImage(data=data) for data in self.engine.get_icons("app")]
         self.iconphoto(True, *icons)
 
-    def set_info(self,):
+    def set_info(self):
         """The facts the About window shows, from the metadata at the top of this module."""
         self.info = {"name": self.title(),
                      "version": __version__,
@@ -435,12 +416,8 @@ class App(tk.Tk):
             self.clock.stop()
             self.destroy()
 
-def main():
-    #if you want pass a number of arbitrary args or kwargs...
-    args = []
 
-    for i in sys.argv:
-        args.append(i)
+def main():
 
     # The log comes first, so that even a failure to start is written down.
     log = Log(os.path.join(PROJECT_DIR, "tkinterlite.log"))
@@ -448,8 +425,7 @@ def main():
     # Before the main loop there is no report_callback_exception yet:
     # a failure here is written to the log, shown, and raised again.
     try:
-        kwargs = {"title": "Tkinterlite", "log": log}
-        app = App(*args, **kwargs)
+        app = App("Tkinterlite", log)
     except Exception as exc:
         log.exception("start failed: {0}".format(exc))
         messagebox.showerror("Tkinterlite", "{0}\n\nDetails in {1}".format(exc, log.path))

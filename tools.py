@@ -371,6 +371,16 @@ class Tools:
         # On a window that was never hidden this does nothing.
         container.deiconify()
 
+    def set_geometry(self, window, width, height):
+        """Give a window this size, centred on the screen and kept whole on it.
+
+        The twin of center_me, for a window whose size is decided rather
+        than asked for by its content: the main window, sized from the .ini.
+        """
+        x = max(0, (window.winfo_screenwidth() - width) // 2)
+        y = max(0, (window.winfo_screenheight() - height) // 2)
+        window.geometry("{0:d}x{1:d}+{2:d}+{3:d}".format(width, height, x, y))
+
     # --- widget factories ---------------------------------------------------
 
     def get_tree(self, container, columns, show=None):

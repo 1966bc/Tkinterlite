@@ -6,3 +6,6 @@ __pycache__/
 
 # Database dumps written by File > Database > Dump.
 dumps/
+
+# Written by python3 tkinterlite.py x (the profiler).
+profile_results
