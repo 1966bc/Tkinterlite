@@ -1,0 +1,8 @@
+# The application log and its rotated copies: they change at every error.
+tkinterlite.log*
+
+# Python's compiled files.
+__pycache__/
+
+# Database dumps written by File > Database > Dump.
+dumps/

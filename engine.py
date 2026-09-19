@@ -1,25 +1,41 @@
-#!/usr/bin/python3
-#-----------------------------------------------------------------------------
-# project:  tkinterlite
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXXI
-#------------------------------------------------------------------------------
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# project:  Tkinterlite
+# authors:  Giuseppe Costanzi (1966bc)
+# licence:  GPL-3.0-or-later, see LICENSE
+# -----------------------------------------------------------------------------
 import os
 import sys
-import inspect
 import subprocess
-import datetime
 
 from dbms import DBMS
 from tools import Tools
-from clock import Clock
+from config import Config
+from events import Events
+from windows import Windows
 
 
+class Engine:
+    """The one object every window reaches: it owns the parts, it is none of them.
 
-class Engine(DBMS, Tools, Clock):
-    def __init__(self,):
-        super().__init__()
+    Composition, not inheritance: Engine is not a database, it has one. Each
+    part is an attribute, so a call says who does the work -
+    engine.db.read(...), engine.tools.center_me(...) - and each part can be
+    built and tested on its own.
+    """
+
+    def __init__(self, log):
+        self.log = log
+        # The settings, read by the Config class from tkinterlite.ini.
+        self.config = Config(self.get_file("tkinterlite.ini"))
+        # The database beside the program, wherever it is started from.
+        self.db = DBMS(self.get_file("northwind.sl3"), log)
+        # Styles and widget helpers.
+        self.tools = Tools()
+        # Who changed what, told to the windows that show it: the Observer.
+        self.events = Events(log)
+        # The open windows, one per name: the Singleton pattern, by name.
+        self.windows = Windows(log)
 
         self.no_selected = "Attention!\nNo record selected!"
         self.ask_to_delete = "Delete data?"
@@ -27,13 +43,9 @@ class Engine(DBMS, Tools, Clock):
         self.abort = "Operation aborted!"
 
     def __str__(self):
-        return "class: {0}\nMRO:{1}".format(self.__class__.__name__,
-                       [x.__name__ for x in Engine.__mro__])
+        return "class: {0}\nparts: log, config, db, tools, events, windows".format(
+            self.__class__.__name__)
 
-    def get_clock(self,):
-        """Instance the clock."""
-        return Clock()
-        
     def get_python_version(self,):
         return "Python version:\n{0}".format(".".join(map(str, sys.version_info[:3])))
 
@@ -43,111 +55,41 @@ class Engine(DBMS, Tools, Clock):
         return os.path.join(os.path.dirname(__file__), file)
 
     def open_file(self, path):
-        """open file on linux and windows"""
-        if os.path.exists(path):
-            if os.name == 'posix':
-                subprocess.call(["xdg-open", path])
-            else:
-                os.startfile(path)
+        """Open a file with the program the system uses for it, on Linux and Windows.
 
-    def on_log(self, container, function, exc_value, exc_type, module):
+        Popen and not call: call would wait for that program to be closed,
+        and the whole application would stand still meanwhile. A file that
+        is not there raises, rather than nothing happening at all.
+        """
+        if not os.path.exists(path):
+            raise FileNotFoundError("no such file: {0}".format(path))
 
-        now = datetime.datetime.now()
-        log_text = "{0}\n{1}\n{2}\n{3}\n{4}\n\n".format(now, function, exc_value, exc_type, module)
-        log_file = open("log.txt", "a")
-        log_file.write(log_text)
-        log_file.close()
-
-    def get_dimensions(self):
-
-        try:
-            d = {}
-            with open("dimensions", "r") as filestream:
-                for line in filestream:
-                    currentline = line.split(",")
-                    d[currentline[0]] = currentline[1]
-
-            return d
-
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+        if os.name == "posix":
+            subprocess.Popen(["xdg-open", path])
+        else:
+            os.startfile(path)
 
     def get_license(self):
         """get license"""
-        try:
-            path = self.get_file("LICENSE")
-            f = open(path, "r")
+        with open(self.get_file("LICENSE"), "r") as f:
             v = f.read()
-            f.close()
-            return v
-        except FileNotFoundError:
-            self.on_log(inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+
+        return v
 
     def get_icon(self, which):
-
-        try:
-            path = self.get_file(which)
-            f = open(path, "r")
+        """An icon: its file holds one base64 PNG."""
+        with open(self.get_file(which), "r") as f:
             v = f.readline()
-            f.close()
-            return v
 
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+        return v
 
-    def get_log_file(self):
+    def get_icons(self, which):
+        """Every size of an icon: its file holds one base64 PNG per line."""
+        with open(self.get_file(which), "r") as f:
+            icons = f.read().split()
 
-        try:
-            path = self.get_file("log.txt")
-            self.open_file(path)
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+        return icons
 
-    def get_theme(self):
-
-        try:
-            path = self.get_file("theme")
-            f = open(path, "r")
-            theme = f.readline()
-            f.close()
-            return theme
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])              
-
-    def busy(self, caller):
-        caller.config(cursor="watch")
-        caller.update()
-
-    def not_busy(self, caller):
-        caller.config(cursor="")
-        caller.update()            
-
-
-def main():
-    #testing some stuff
-    foo = Engine()
-    print(foo)
-    print(foo.set_connection())
-    input('end')
-
-if __name__ == "__main__":
-    main()
+    def open_log(self):
+        """Open the log file with the program the system uses for text."""
+        self.open_file(self.log.path)
