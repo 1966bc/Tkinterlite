@@ -7,9 +7,7 @@
 #------------------------------------------------------------------------------
 import os
 import sys
-import inspect
 import subprocess
-import datetime
 
 from dbms import DBMS
 from tools import Tools
@@ -18,9 +16,9 @@ from clock import Clock
 
 
 class Engine(DBMS, Tools, Clock):
-    def __init__(self,):
+    def __init__(self, log):
         # The database beside the program, wherever it is started from.
-        super().__init__(self.get_file("northwind.sl3"))
+        super().__init__(self.get_file("northwind.sl3"), log)
 
         self.no_selected = "Attention!\nNo record selected!"
         self.ask_to_delete = "Delete data?"
@@ -51,92 +49,44 @@ class Engine(DBMS, Tools, Clock):
             else:
                 os.startfile(path)
 
-    def on_log(self, container, function, exc_value, exc_type, module):
-
-        now = datetime.datetime.now()
-        log_text = "{0}\n{1}\n{2}\n{3}\n{4}\n\n".format(now, function, exc_value, exc_type, module)
-        log_file = open("log.txt", "a")
-        log_file.write(log_text)
-        log_file.close()
-
     def get_dimensions(self):
+        """The main window size, from the dimensions file: {"w": ..., "h": ...}."""
+        d = {}
+        with open(self.get_file("dimensions"), "r") as filestream:
+            for line in filestream:
+                currentline = line.split(",")
+                d[currentline[0]] = currentline[1]
 
-        try:
-            d = {}
-            with open("dimensions", "r") as filestream:
-                for line in filestream:
-                    currentline = line.split(",")
-                    d[currentline[0]] = currentline[1]
-
-            return d
-
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+        return d
 
     def get_license(self):
         """get license"""
-        try:
-            path = self.get_file("LICENSE")
-            f = open(path, "r")
+        with open(self.get_file("LICENSE"), "r") as f:
             v = f.read()
-            f.close()
-            return v
-        except FileNotFoundError:
-            self.on_log(inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+
+        return v
 
     def get_icon(self, which):
-
-        try:
-            path = self.get_file(which)
-            f = open(path, "r")
+        """An icon: its file holds one base64 PNG."""
+        with open(self.get_file(which), "r") as f:
             v = f.readline()
-            f.close()
-            return v
 
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+        return v
 
     def get_icons(self, which):
         """Every size of an icon: its file holds one base64 PNG per line."""
-        path = self.get_file(which)
-        with open(path, "r") as f:
+        with open(self.get_file(which), "r") as f:
             icons = f.read().split()
+
         return icons
 
-    def get_log_file(self):
-
-        try:
-            path = self.get_file("log.txt")
-            self.open_file(path)
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+    def open_log(self):
+        """Open the log file with the program the system uses for text."""
+        self.open_file(self.log.path)
 
     def get_theme(self):
+        """The ttk theme name, from the theme file."""
+        with open(self.get_file("theme"), "r") as f:
+            theme = f.readline().strip()
 
-        try:
-            path = self.get_file("theme")
-            f = open(path, "r")
-            theme = f.readline()
-            f.close()
-            return theme
-        except FileNotFoundError:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+        return theme

@@ -5,16 +5,16 @@
 # mailto:   [giuseppecostanzi@gmail.com]
 # modify:   hiems MMXX
 #-----------------------------------------------------------------------------
-import sys
-import inspect
 import datetime
 import sqlite3 as lite
 
 class DBMS:
-    def __init__(self, database):
-        # The path is given by whoever creates the object: the application
-        # passes the file beside the program, a test passes ":memory:".
+    def __init__(self, database, log):
+        # Both are given by whoever creates the object: the application
+        # passes the file beside the program and its Log, a test passes
+        # ":memory:" and a log of its own.
         self.database = database
+        self.log = log
         self.set_connection()
 
     def __str__(self):
@@ -41,51 +41,46 @@ class DBMS:
            Otherwise fetchone() return a single sequence, or None
            when no more data is available.
            Testing as 'if rs is not None'.
+
+           A failed query is written to the log, with the statement, and
+           raised again: it never turns into an empty result.
         """
 
+        cur = self.con.cursor()
         try:
-            cur = self.con.cursor()
             cur.execute(sql, args)
-
             if fetch == True:
                 rs = cur.fetchall()
             else:
                 rs = cur.fetchone()
+        except lite.Error:
+            self.log.error("read failed: {0}".format(sql))
+            raise
+        finally:
             cur.close()
-            return rs
 
-        except:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
+        return rs
 
     def write(self, sql, args=()):
+        """Run one statement and commit it; return the id of the new row.
 
+        A failed statement is rolled back, written to the log with the
+        statement, and raised again.
+        """
+
+        cur = self.con.cursor()
         try:
-            cur = self.con.cursor()
             cur.execute(sql, args)
             self.con.commit()
-            return cur.lastrowid
-
-        except:
+            row_id = cur.lastrowid
+        except lite.Error:
             self.con.rollback()
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
-            
+            self.log.error("write failed, rolled back: {0}".format(sql))
+            raise
         finally:
-            try:
-                cur.close()
-            except:
-                self.on_log(self,
-                            inspect.stack()[0][3],
-                            sys.exc_info()[1],
-                            sys.exc_info()[0],
-                            sys.modules[__name__])
+            cur.close()
+
+        return row_id
 
     def dump(self,):
 

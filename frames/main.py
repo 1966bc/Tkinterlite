@@ -6,6 +6,7 @@
 # modify:   hiems MMXXI
 # -----------------------------------------------------------------------------
 """ This is the main module of Tkinterlite."""
+import os
 import sys
 import tkinter as tk
 from tkinter import messagebox
@@ -17,6 +18,10 @@ import frames.categories
 import frames.suppliers
 
 from engine import Engine
+from log import Log
+
+#: The project directory, one level above frames/: the log lives there.
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 __author__ = "1966bc"
 __copyright__ = "Copyleft"
@@ -349,7 +354,7 @@ class Main(ttk.Frame):
         messagebox.showinfo(self.nametowidget(".").title(), "Vacuum executed.", parent=self)
 
     def on_log(self,):
-        self.nametowidget(".").engine.get_log_file()
+        self.nametowidget(".").engine.open_log()
 
     def periodic_call(self):
 
@@ -364,7 +369,7 @@ class App(tk.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-        self.engine = Engine()
+        self.engine = Engine(kwargs["log"])
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.set_title(kwargs["title"])
@@ -398,6 +403,20 @@ class App(tk.Tk):
         info = msg.format(self.title(), __author__, __copyright__, __credits__, __license__, __version__, __maintainer__, __email__, __date__, __status__)
         self.info = info
 
+    def report_callback_exception(self, exc, val, tb):
+        """Tkinter calls this for an exception raised in a callback.
+
+        A button, a menu, an after(): every error coming out of the interface
+        ends up here, the one place where it is handled. It is written to
+        the log with its traceback and shown, so the application goes on and
+        nothing fails in silence. Tkinter calls this from inside its own
+        except block, which is what log.exception() needs.
+        """
+        self.engine.log.exception("{0}: {1}".format(exc.__name__, val))
+        messagebox.showerror(self.title(),
+                             "{0}\n\nDetails in {1}".format(val, self.engine.log.path),
+                             parent=self)
+
     def on_exit(self, evt=None):
         if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
             self.engine.con.close()
@@ -412,13 +431,20 @@ def main():
     for i in sys.argv:
         args.append(i)
 
-    foo = Engine()        
+    # The log comes first, so that even a failure to start is written down.
+    log = Log(os.path.join(PROJECT_DIR, "tkinterlite.log"))
 
-    theme = foo.get_theme()
-
-    kwargs = {"title":"Tkinterlite", "theme":theme}
-
-    app = App(*args, **kwargs)
+    # Before the main loop there is no report_callback_exception yet:
+    # a failure here is written to the log, shown, and raised again.
+    try:
+        foo = Engine(log)
+        theme = foo.get_theme()
+        kwargs = {"title": "Tkinterlite", "theme": theme, "log": log}
+        app = App(*args, **kwargs)
+    except Exception as exc:
+        log.exception("start failed: {0}".format(exc))
+        messagebox.showerror("Tkinterlite", "{0}\n\nDetails in {1}".format(exc, log.path))
+        raise
 
     app.mainloop()
 

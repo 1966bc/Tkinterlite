@@ -11,6 +11,7 @@ Run them from the project directory:
     python3 -m unittest discover -s tests -v
 """
 
+import sqlite3
 import unittest
 
 from dbms import DBMS
@@ -31,20 +32,26 @@ INSERT INTO suppliers VALUES (2, 'Tokyo Traders', 0);
 """
 
 
-class Store(DBMS):
-    """DBMS as Engine uses it, with on_log keeping what it is told.
+class MemoryLog:
+    """A stand-in for Log that keeps its entries in a list instead of a file.
 
-    In the application on_log comes from Engine and writes log.txt; here it
-    only remembers, so a test can ask whether an error was logged.
+    DBMS only calls log.error(), so this is all a test needs: the entries can
+    be read back without opening a file.
     """
 
     def __init__(self):
-        self.logged = []
-        super().__init__(":memory:")
-        self.con.executescript(SCHEMA)
+        self.entries = []
 
-    def on_log(self, *args):
-        self.logged.append(args)
+    def error(self, message):
+        self.entries.append(message)
+
+
+class Store(DBMS):
+    """DBMS on a database in memory, with the test schema and a MemoryLog."""
+
+    def __init__(self):
+        super().__init__(":memory:", MemoryLog())
+        self.con.executescript(SCHEMA)
 
 
 class TestSchema(unittest.TestCase):
@@ -142,12 +149,20 @@ class TestReadWrite(unittest.TestCase):
         row = self.store.get_selected("suppliers", "supplier_id", 2)
         self.assertEqual(row["enable"], 1)
 
-    def test_failed_read_is_logged_and_returns_none(self):
-        # Today's behaviour, written down so that changing it is a decision:
-        # step 7 of the plan makes a failed read raise instead.
-        row = self.store.read(False, "SELECT * FROM customers")
-        self.assertIsNone(row)
-        self.assertEqual(len(self.store.logged), 1)
+    def test_failed_read_raises_and_is_logged(self):
+        # It used to be logged and returned as None, and the error surfaced
+        # later, somewhere else. Now it raises where it happens.
+        with self.assertRaises(sqlite3.Error):
+            self.store.read(False, "SELECT * FROM customers")
+        self.assertEqual(self.store.log.entries,
+                         ["read failed: SELECT * FROM customers"])
+
+    def test_failed_write_raises_is_logged_and_rolled_back(self):
+        with self.assertRaises(sqlite3.Error):
+            self.store.write("INSERT INTO suppliers (city) VALUES (?)", ("Rome",))
+        self.assertEqual(len(self.store.log.entries), 1)
+        rows = self.store.read(True, "SELECT * FROM suppliers")
+        self.assertEqual(len(rows), 2)
 
 
 if __name__ == "__main__":
