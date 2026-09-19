@@ -212,6 +212,26 @@ Either way the window is registered with a binding on `<Destroy>`, which Tk fire
 window is closed - a button, the X in the title bar, the end of the program - and `Windows.forget`
 takes it out of the dictionary. After Close, Tools > Categories builds a new list.
 
+**An example.** The list of categories and its dialog, step by step, with what `dict_instances`
+holds after each one. This is the output of a real run, not a sketch:
+
+| action | what `Windows` does | `dict_instances` | told about `"categories"` |
+|---|---|---|---|
+| Tools > Categories | `show`: nothing open, builds the list | `categories` | main, list |
+| Tools > Categories again | `show`: it is open, `lift()` | `categories` | main, list |
+| Add | `replace`: no dialog, builds one | `categories`, `category` (new) | main, list |
+| type half a name, Add again | `replace`: `on_cancel` on the half-typed one, builds a new one | `categories`, `category` (new) | main, list |
+| select Beverages, Edit | `replace`: closes the empty one, opens Beverages | `categories`, `category` (Beverages) | main, list |
+| Save | the dialog closes, `<Destroy>` → `forget`; the list lands on Beverages | `categories` | main, list |
+| Edit | `replace`: builds the dialog again | `categories`, `category` (Beverages) | main, list |
+| Close the list | `ListWindow.on_cancel` unsubscribes and closes its dialog; both `<Destroy>` → `forget` | *(empty)* | main |
+| Tools > Categories | `show`: nothing open, builds a new list | `categories` | main, list |
+
+Two things to read in it. The last column never grows past two: whatever is done, no window is
+told anything after it is gone. And the list and its dialog sit side by side in the same
+dictionary, under different names - they follow different rules, but one register keeps them
+both. The product dialog of the main window lives there too, under `"product"`.
+
 ## 5. Something goes wrong
 
 Say a query names a column that is not there, `SELECT stok FROM products`. In `DBMS.read`:
