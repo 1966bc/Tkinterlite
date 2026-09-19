@@ -12,16 +12,16 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
-import frames.license
-import frames.product
-import frames.categories
-import frames.suppliers
+import ui.license
+import ui.product
+import ui.categories
+import ui.suppliers
 
 from engine import Engine
 from log import Log
 from clock import Clock
 
-#: The project directory, one level above frames/: the log lives there.
+#: The project directory, one level above ui/: the log lives there.
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 __author__ = "1966bc"
@@ -221,13 +221,13 @@ class Main(ttk.Frame):
         self.set_combo_values()
 
     def on_add(self, evt=None):
-        frames.product.UI(self).on_open()
+        ui.product.UI(self).on_open()
 
     def on_categories(self):
-        frames.categories.UI(self).on_open()
+        ui.categories.UI(self).on_open()
 
     def on_suppliers(self):
-        frames.suppliers.UI(self).on_open()
+        ui.suppliers.UI(self).on_open()
 
     def on_prduct_selected(self, evt):
 
@@ -242,7 +242,7 @@ class Main(ttk.Frame):
 
             item_iid = self.lstProducts.selection()
 
-            frames.product.UI(self, item_iid).on_open()
+            ui.product.UI(self, item_iid).on_open()
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
@@ -327,7 +327,7 @@ class Main(ttk.Frame):
         self.cbCombo["values"] = values
 
     def on_license(self):
-        frames.license.UI(self).on_open()
+        ui.license.UI(self).on_open()
 
     def on_python_version(self):
         s = self.engine.get_python_version()

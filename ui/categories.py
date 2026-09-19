@@ -8,7 +8,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import frames.category as ui
+import ui.category
 
 SQL = "SELECT * FROM categories ORDER BY category ASC;"
 
@@ -90,7 +90,7 @@ class UI(tk.Toplevel):
 
     def on_add(self, evt=None):
 
-        self.obj = ui.UI(self)
+        self.obj = ui.category.UI(self)
         self.obj.on_open()
 
     def on_item_selected(self, evt=None):
@@ -106,7 +106,7 @@ class UI(tk.Toplevel):
 
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
-            self.obj = ui.UI(self, index)
+            self.obj = ui.category.UI(self, index)
             self.obj.on_open()
 
         else:

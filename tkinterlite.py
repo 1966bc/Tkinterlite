@@ -9,7 +9,7 @@
 import sys
 import profile
 import pstats
-import frames.main as main
+import ui.main as main
 
 if len(sys.argv) > 1:
     profile.run('main.main()', 'profile_results')
