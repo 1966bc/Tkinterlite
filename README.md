@@ -4,6 +4,8 @@
 [![Tkinter](https://img.shields.io/badge/Tkinter%20-green.svg)](https://docs.python.org/3/library/tk.html)
 [![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg)](https://www.sqlite.org/index.html)
 
+**How create a full GUI application with Python Sqlite and Tkinter, batteries included.**
+
 A complete desktop application - lists, forms, a database - written with Python, Tkinter and
 SQLite, and nothing else: the standard library only, no dependency to install.
 
