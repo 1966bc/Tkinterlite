@@ -29,6 +29,7 @@ by method, read [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 | `dbms.py`    | `DBMS`   | SQLite: read, write, statements built from the schema          |
 | `tools.py`   | `Tools`  | widgets: styles, builders (tree, list, combo, entry, text)     |
 | `events.py`  | `Events` | the Observer: who changed what, told to whoever shows it       |
+| `windows.py` | `Windows` | one open window per name: the Singleton pattern, by name      |
 | `log.py`     | `Log`    | the log file, rotated                                          |
 | `config.py`  | `Config` | `tkinterlite.ini`                                              |
 | `clock.py`   | `Clock`  | a thread that feeds the status bar through a queue             |
@@ -37,9 +38,9 @@ by method, read [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 | `ui/main.py` | `Main`   | the main window: the products                                  |
 | `ui/*.py`    | `UI`     | one window each, saying only what is its own                   |
 
-`Log`, `Config` and `Events` are written by hand on purpose. The standard library has `logging`
-and `configparser`, and their docstrings say so. This is a project for learning, and a
-forty-line class shows what those modules do underneath.
+`Log`, `Config`, `Events` and `Windows` are written by hand on purpose. The standard library
+has `logging` and `configparser`, and their docstrings say so. This is a project for learning,
+and a forty-line class shows what those modules do underneath.
 
 ## From a mixin to composition
 
@@ -85,6 +86,7 @@ class Engine:
         self.db = DBMS(self.get_file("northwind.sl3"), log)
         self.tools = Tools()
         self.events = Events()
+        self.windows = Windows()
 ```
 
 ```python
@@ -157,6 +159,31 @@ self.engine.events.unsubscribe("categories", self.on_changed)  # on_cancel
 
 A dialog receives the **id** of its row, never a copy, and reads the row itself when it opens:
 what it shows is what is in the database.
+
+## One window per name: `windows.py`
+
+Tk gives each window a path from its name, `.categories`. Building a second window with the same
+name used to replace the first behind its back: the first never ran its `on_cancel`, so it stayed
+subscribed to the Observer, and a half-filled dialog was thrown away without a word.
+
+`Windows` is a register of the open windows, one per name - a dictionary of instances,
+`dict_instances`, name → window: the Singleton pattern applied to a name rather than to a class.
+Every window is opened through it, with one of two rules:
+
+```python
+self.engine.windows.show("categories", lambda: ui.categories.UI(self))       # lists, About
+self.engine.windows.replace("product", lambda: ui.product.UI(self, product_id))  # dialogs
+```
+
+`show` brings an open window to the front and builds one only when there is none. `replace`
+closes the open dialog through its own `on_cancel`, which tidies up after itself, and builds a new
+one: a dialog is about one row. The window is passed as a function that builds it, so that nothing
+is built when the answer is "it is already open". The register forgets a window on its
+`<Destroy>`, however it was closed.
+
+Python allows a Singleton written in `__new__`, which runs before `__init__` and can return the
+instance already made. It works, but Python then calls `__init__` again on the old window, and
+every subclass must remember to skip it. The register does the same in plain sight.
 
 ## Data: by name, from the schema
 

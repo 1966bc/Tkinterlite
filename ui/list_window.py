@@ -96,17 +96,16 @@ class ListWindow(tk.Toplevel):
         self.lst_items.focus_set()
 
     def on_add(self, evt=None):
-
-        self.dialog = self.DIALOG(self)
-        self.dialog.on_open()
+        # A dialog replaces the one open, closed properly first (windows.py).
+        self.dialog = self.engine.windows.replace(self.DIALOG.NAME, lambda: self.DIALOG(self))
 
     def on_edit(self, evt=None):
 
         row_id = self.engine.tools.get_list_id(self.lst_items, self.dict_items)
 
         if row_id is not None:
-            self.dialog = self.DIALOG(self, row_id)
-            self.dialog.on_open()
+            self.dialog = self.engine.windows.replace(self.DIALOG.NAME,
+                                                      lambda: self.DIALOG(self, row_id))
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
                                    self.engine.no_selected,

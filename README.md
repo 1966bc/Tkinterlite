@@ -53,7 +53,8 @@ sqlite3 northwind.sl3 < tkinterlite.sql
   a save, an error, a tick of the clock, the exit - method by method.
 - [CONVENTIONS.md](CONVENTIONS.md): the rules the code is written by.
 
-A few things are written by hand on purpose - the log, the configuration reader, the Observer -
+A few things are written by hand on purpose - the log, the configuration reader, the Observer,
+the register of open windows -
 where the standard library has a module that would do it: this is a project for learning, and a
 short class shows what those modules do underneath.
 

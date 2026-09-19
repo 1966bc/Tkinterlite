@@ -50,6 +50,7 @@ self.config = Config(self.get_file("tkinterlite.ini"))   # reads the .ini, line 
 self.db = DBMS(self.get_file("northwind.sl3"), log)       # opens the database
 self.tools = Tools()                                      # styles and widget builders
 self.events = Events()                                    # the Observer's register
+self.windows = Windows()                                  # the open windows, one per name
 ```
 
 - `Config.read` (`config.py`) goes through `tkinterlite.ini` and stops at the first line that is
@@ -106,11 +107,16 @@ by itself when it is set.
 ## 3. Edit a product and save it
 
 **Open.** A double click calls `Main.on_edit`, which opens the product dialog with the **id** of the
-row - never a copy of it:
+row - never a copy of it - through the register of open windows:
 
 ```python
-ui.product.UI(self, int(selection[0])).on_open()
+product_id = int(selection[0])
+self.engine.windows.replace("product", lambda: ui.product.UI(self, product_id))
 ```
+
+`Windows.replace` (`windows.py`) closes the product dialog already open, if there is one, through
+its own `on_cancel`; then it calls the `lambda`, which builds the new dialog, and calls its
+`on_open`.
 
 `ui/product.py` is a `Dialog` (`ui/dialog.py`). Its constructor builds the form: the subclass adds
 its fields in `init_fields` (`Tools.get_entry` for text and numbers, `Tools.get_combo` for supplier

@@ -280,28 +280,32 @@ class Main(ttk.Frame):
         self.set_combo_values()
 
     def on_add(self, evt=None):
-        ui.product.UI(self).on_open()
+        self.engine.windows.replace("product", lambda: ui.product.UI(self))
 
     def on_edit(self, evt=None):
 
         selection = self.lst_products.selection()
 
         if selection:
-            ui.product.UI(self, int(selection[0])).on_open()
+            product_id = int(selection[0])
+            self.engine.windows.replace("product", lambda: ui.product.UI(self, product_id))
         else:
             messagebox.showwarning(self.parent.title(), self.engine.no_selected, parent=self)
 
+    # Lists and information windows are shown, not built twice; a product
+    # dialog replaces the one open (windows.py).
+
     def on_categories(self):
-        ui.categories.UI(self).on_open()
+        self.engine.windows.show("categories", lambda: ui.categories.UI(self))
 
     def on_suppliers(self):
-        ui.suppliers.UI(self).on_open()
+        self.engine.windows.show("suppliers", lambda: ui.suppliers.UI(self))
 
     def on_license(self):
-        ui.license.UI(self).on_open()
+        self.engine.windows.show("license", lambda: ui.license.UI(self))
 
     def on_about(self):
-        ui.about.UI(self, self.parent.info).on_open()
+        self.engine.windows.show("about", lambda: ui.about.UI(self, self.parent.info))
 
     def on_python_version(self):
         messagebox.showinfo(self.parent.title(), self.engine.get_python_version(), parent=self)
