@@ -170,18 +170,14 @@ class Main(ttk.Frame):
         #-----------------------------------------------------------------------
         frm_right = ttk.Frame(frm_main, style="App.TFrame", padding=4)
 
-        bts = (("Reset", 0, self.on_reset, "<Alt-r>"),
-               ("New", 0, self.on_add, "<Alt-n>"),
-               ("Edit", 0, self.on_prduct_activated, "<Alt-e>"),
-               ("Close", 0, self.parent.on_exit, "<Alt-c>"))
-
-        for btn in bts:
-            ttk.Button(frm_right,
-                       style="App.TButton",
-                       text=btn[0],
-                       underline=btn[1],
-                       command=btn[2],).pack(fill=tk.X, padx=5, pady=5)
-            self.parent.bind(btn[3], btn[2])
+        # Add, as in the lists: windows that do the same thing say it the same way.
+        buttons = self.engine.tools.get_button_column(frm_right,
+                                                      (("Reset", self.on_reset),
+                                                       ("Add", self.on_add),
+                                                       ("Edit", self.on_prduct_activated),
+                                                       ("Close", self.parent.on_exit)),
+                                                      window=self.parent)
+        buttons.pack(fill=tk.X)
 
         w = ttk.LabelFrame(frm_right, style="App.TLabelframe", text="Combo data")
         voices = ("Categories", "Suppliers")

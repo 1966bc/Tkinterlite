@@ -420,6 +420,28 @@ class Tools:
 
         return listbox
 
+    def get_entry(self, container, variable, kind="text"):
+        """Build an Entry for text, or for a number checked at every keystroke.
+
+        kind is "text", "integer" or "float". A number field refuses the key
+        that would not leave a number behind, so nothing else can be typed;
+        it is narrower, and centred.
+        """
+        entry = ttk.Entry(container, textvariable=variable)
+
+        if kind == "text":
+            entry.configure(width=self.FIELD_NAME)
+        elif kind == "integer":
+            entry.configure(width=self.FIELD_CODE, justify=tk.CENTER, validate="key",
+                            validatecommand=self.get_validate_integer(entry))
+        elif kind == "float":
+            entry.configure(width=self.FIELD_CODE, justify=tk.CENTER, validate="key",
+                            validatecommand=self.get_validate_float(entry))
+        else:
+            raise ValueError("unknown kind of entry: {0}".format(kind))
+
+        return entry
+
     def get_combo(self, container):
         """Build a readonly Combobox: a value is chosen from the list, never typed.
 
