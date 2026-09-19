@@ -6,6 +6,7 @@
 # modify:   hiems MMXXI
 # -----------------------------------------------------------------------------
 """ This is the main module of Tkinterlite."""
+import datetime
 import os
 import sys
 import tkinter as tk
@@ -19,7 +20,6 @@ import ui.suppliers
 
 from engine import Engine
 from log import Log
-from clock import Clock
 
 #: The project directory, one level above ui/: the log lives there.
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -57,6 +57,7 @@ class Main(ttk.Frame):
         self.engine.events.subscribe("products", self.on_products_changed)
         self.engine.events.subscribe("categories", self.on_combo_changed)
         self.engine.events.subscribe("suppliers", self.on_combo_changed)
+        self.update_clock()
 
     def init_menu(self):
 
@@ -214,8 +215,6 @@ class Main(ttk.Frame):
     def on_open(self, evt=None):
 
         self.on_reset()
-        #Update clock
-        self.periodic_call()
 
     def on_reset(self, evt=None):
 
@@ -364,12 +363,16 @@ class Main(ttk.Frame):
     def on_log(self,):
         self.engine.open_log()
 
-    def periodic_call(self):
+    def update_clock(self):
+        """Write the time on the status bar, then ask Tk to do it again in a second.
 
-        self.parent.clock.check_queue(self.status_bar_text)
-
-        if self.parent.clock.is_alive():
-            self.after(1, self.periodic_call)
+        after() puts the next call in Tk's own queue of events, so there is no
+        thread, no queue.Queue and no polling every millisecond: the main loop
+        is the only thread there is, and the only one that touches widgets.
+        """
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.status_bar_text.set("Astral date: {0}".format(now))
+        self.after(1000, self.update_clock)
 
 
 class App(tk.Tk):
@@ -384,16 +387,10 @@ class App(tk.Tk):
         self.engine.tools.set_style(self.engine.config.get("window", "theme"))
         self.set_icon()
         self.set_info()
-        # set clock and start it.
-        self.set_clock()
 
         w = Main(self)
         w.on_open()
         w.pack(fill=tk.BOTH, expand=1)
-
-    def set_clock(self,):
-        self.clock = Clock()
-        self.clock.start()
 
     def set_title(self, title):
         s = "{0}".format(title)
@@ -428,8 +425,6 @@ class App(tk.Tk):
     def on_exit(self, evt=None):
         if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
             self.engine.db.con.close()
-            if self.clock is not None:
-                self.clock.stop()
             self.destroy()
 
 def main():
