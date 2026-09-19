@@ -31,7 +31,7 @@ __license__ = "GNU GPL, version 3 or later"
 __version__ = "42"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
-__date__ = "hiems MMXXI"
+__date__ = "autumnus MMXXVI"
 __status__ = "production"
 
 
