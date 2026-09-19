@@ -10,6 +10,10 @@ The standard library has `logging`, which does this and much more: levels,
 handlers, formats. This class does only what Tkinterlite needs, so that a
 reader can see what a logger does underneath: take the time, find out who is
 calling, append one entry to a file, and move the file aside when it is full.
+
+It also keeps the trace: with `python3 tkinterlite.py --trace`, trace() prints
+on the terminal, line by line, what the program is doing and what its
+variables hold, while the window is in use.
 """
 
 import datetime
@@ -27,8 +31,10 @@ class Log:
     #: How many full files are kept: .1 is the most recent, .3 the oldest.
     BACKUPS = 3
 
-    def __init__(self, path):
+    def __init__(self, path, tracing=False):
         self.path = path
+        #: True when the program was started with --trace.
+        self.tracing = tracing
 
     def __str__(self):
         return "class: {0}\npath: {1}".format(self.__class__.__name__, self.path)
@@ -36,6 +42,31 @@ class Log:
     def is_empty(self):
         """True when nothing has been written yet: the file is born with the first entry."""
         return not os.path.exists(self.path) or os.path.getsize(self.path) == 0
+
+    def trace(self, message):
+        """Print what the program is doing, when it was started with --trace.
+
+        Printed on the terminal and not written to the file: the trace is for
+        watching the program work, beside its window. Each line says when,
+        who - the class and method that called trace() - and what.
+
+        It prints the data too - a row, the values of a form, the arguments
+        of a statement - so it is for sample data like Northwind, never for a
+        database that holds real people.
+
+        inspect.currentframe() is the frame running this method; f_back is
+        the one that called it, and its local 'self' is the object at work.
+        """
+        if self.tracing:
+            caller = inspect.currentframe().f_back
+            owner = caller.f_locals.get("self")
+            where = caller.f_code.co_name
+            if owner is not None:
+                where = "{0}.{1}.{2}".format(owner.__class__.__module__,
+                                             owner.__class__.__name__,
+                                             where)
+            now = datetime.datetime.now().strftime("%H:%M:%S")
+            print("{0} {1:<34} {2}".format(now, where, message), flush=True)
 
     def error(self, message):
         """Something went wrong: when, where and what."""

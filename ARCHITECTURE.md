@@ -30,7 +30,7 @@ by method, read [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 | `tools.py`   | `Tools`  | widgets: styles, builders (tree, list, combo, entry, text)     |
 | `events.py`  | `Events` | the Observer: who changed what, told to whoever shows it       |
 | `windows.py` | `Windows` | one open window per name: the Singleton pattern, by name      |
-| `log.py`     | `Log`    | the log file, rotated                                          |
+| `log.py`     | `Log`    | the log file, rotated; the trace on the terminal (`--trace`)   |
 | `config.py`  | `Config` | `tkinterlite.ini`                                              |
 | `clock.py`   | `Clock`  | a thread that feeds the status bar through a queue             |
 | `ui/list_window.py`, `ui/dialog.py` | `ListWindow`, `Dialog` | what every list, every form share |

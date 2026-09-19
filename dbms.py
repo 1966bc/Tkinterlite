@@ -58,6 +58,11 @@ class DBMS:
         finally:
             cur.close()
 
+        if fetch == True:
+            self.log.trace("{0} {1} -> {2} rows".format(" ".join(sql.split()), args, len(rs)))
+        else:
+            self.log.trace("{0} {1} -> {2}".format(" ".join(sql.split()), args, self.get_dict(rs)))
+
         return rs
 
     def write(self, sql, args=()):
@@ -79,7 +84,16 @@ class DBMS:
         finally:
             cur.close()
 
+        self.log.trace("{0} {1} -> lastrowid {2}".format(" ".join(sql.split()), args, row_id))
+
         return row_id
+
+    def get_dict(self, row):
+        """A row as a dictionary, for the trace; None stays None."""
+        found = None
+        if row is not None:
+            found = dict(row)
+        return found
 
     def dump(self, folder):
         """Write the whole database as SQL into folder; return the file's path.

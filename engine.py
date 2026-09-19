@@ -33,9 +33,9 @@ class Engine:
         # Styles and widget helpers.
         self.tools = Tools()
         # Who changed what, told to the windows that show it: the Observer.
-        self.events = Events()
+        self.events = Events(log)
         # The open windows, one per name: the Singleton pattern, by name.
-        self.windows = Windows()
+        self.windows = Windows(log)
 
         self.no_selected = "Attention!\nNo record selected!"
         self.ask_to_delete = "Delete data?"

@@ -4,6 +4,16 @@
 it while it runs: seven things that happen, each traced through the code, file by file and method by
 method. Open the files beside it and read along.
 
+Better still, start the program with the trace on, and keep the terminal beside the window:
+
+```
+python3 tkinterlite.py --trace
+```
+
+Every step below prints a line as it happens - which class and method, and what its variables
+hold: the SQL and its arguments, the row read, the values saved, who is told, which windows are
+open. `Log.trace` (`log.py`) does it, and it is off unless asked for.
+
 1. [Start](#1-start)
 2. [One click on a product](#2-one-click-on-a-product)
 3. [Edit a product and save it](#3-edit-a-product-and-save-it)
@@ -21,7 +31,9 @@ application, `App`:
 
 ```python
 def main():
-    log = Log(os.path.join(PROJECT_DIR, "tkinterlite.log"))
+    options = sys.argv[1:]                    # refused if not in OPTIONS: ("--trace",)
+    ...
+    log = Log(os.path.join(PROJECT_DIR, "tkinterlite.log"), "--trace" in options)
     try:
         app = App("Tkinterlite", log)
     except Exception as exc:
@@ -50,8 +62,8 @@ self.log = log
 self.config = Config(self.get_file("tkinterlite.ini"))   # reads the .ini, line by line
 self.db = DBMS(self.get_file("northwind.sl3"), log)       # opens the database
 self.tools = Tools()                                      # styles and widget builders
-self.events = Events()                                    # the Observer's register
-self.windows = Windows()                                  # the open windows, one per name
+self.events = Events(log)                                 # the Observer's register
+self.windows = Windows(log)                               # the open windows, one per name
 ```
 
 - `Config.read` (`config.py`) goes through `tkinterlite.ini` and stops at the first line that is
@@ -170,6 +182,20 @@ self.engine.events.notify(self.TABLE, saved_id)       # "products", 1
 self.on_reset()
 self.engine.tools.set_selected(self.lst_products, product_id)
 ```
+
+With `--trace`, saving Beverages with a new description reads like this in the terminal:
+
+```
+ui.category.UI.save       row_id = 1, values = {'category': 'Beverages', 'description': ...
+dbms.DBMS.write           UPDATE categories SET category = ?, description = ?, enable = ?
+                          WHERE category_id = ? ['Beverages', ..., True, 1] -> lastrowid 0
+windows.Windows.forget    category: forgotten; dict_instances = ['categories']
+events.Events.notify      categories, row_id=1 -> ['ui.main.on_combo_changed',
+                                                   'ui.categories.on_changed']
+```
+
+Note `lastrowid 0`: after an UPDATE it says nothing about the row written, which is why `save`
+takes the id from `row_id` - the comment in `Dialog.save` says so, and here it can be seen.
 
 Selecting the row fires `<<TreeviewSelect>>` again, and [2](#2-one-click-on-a-product) updates the
 status bar. The dialog never touched the main window: it does not even know it exists. Saving a

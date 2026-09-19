@@ -15,6 +15,13 @@ import unittest
 from windows import Windows
 
 
+class QuietLog:
+    """Stands in for Log: the trace is off, so trace() says nothing."""
+
+    def trace(self, message):
+        pass
+
+
 class Event:
     """What Tk hands to a <Destroy> binding: the widget being destroyed."""
 
@@ -56,7 +63,7 @@ class FakeWindow:
 class TestWindows(unittest.TestCase):
 
     def setUp(self):
-        self.windows = Windows()
+        self.windows = Windows(QuietLog())
         self.built = []
 
     def build(self):

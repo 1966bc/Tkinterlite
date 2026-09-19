@@ -11,6 +11,13 @@ import unittest
 from events import Events
 
 
+class QuietLog:
+    """Stands in for Log: the trace is off, so trace() says nothing."""
+
+    def trace(self, message):
+        pass
+
+
 class Listener:
     """Stands in for a window: it remembers what it was told."""
 
@@ -24,7 +31,7 @@ class Listener:
 class TestEvents(unittest.TestCase):
 
     def setUp(self):
-        self.events = Events()
+        self.events = Events(QuietLog())
         self.listener = Listener()
 
     def test_subscriber_is_told_the_row(self):

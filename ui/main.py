@@ -269,6 +269,7 @@ class Main(ttk.Frame):
 
         self.cb_filter.set("")
         self.engine.tools.set_combo(self.cb_filter, captions)
+        self.engine.log.trace("dict_combo_values = {0}".format(self.dict_combo_values))
 
     def on_products_changed(self, product_id):
         """A product was saved or deleted: read the list again and land on it."""

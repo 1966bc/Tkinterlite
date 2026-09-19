@@ -21,6 +21,13 @@ python3 tkinterlite.py
 Python 3 with Tk 8.6. The database, the log and the configuration live beside the program, so
 it can be started from any folder. Window size and theme are in `tkinterlite.ini`.
 
+To watch it work, start it with the trace: the terminal shows, line by line, what the program does
+and what its variables hold, while you use the window.
+
+```
+python3 tkinterlite.py --trace
+```
+
 To see where the time goes, the profiler of the standard library runs it as it is:
 
 ```

@@ -124,6 +124,7 @@ class Dialog(tk.Toplevel):
         """
         values = self.get_values()
         values["enable"] = self.enable.get()
+        self.engine.log.trace("row_id = {0}, values = {1}".format(self.row_id, values))
 
         if self.row_id is not None:
             sql, args = self.engine.db.get_update(self.TABLE, self.row_id, values)

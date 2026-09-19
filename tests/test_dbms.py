@@ -47,6 +47,9 @@ class MemoryLog:
     def error(self, message):
         self.entries.append(message)
 
+    def trace(self, message):
+        pass
+
 
 class Store(DBMS):
     """DBMS on a database in memory, with the test schema and a MemoryLog."""

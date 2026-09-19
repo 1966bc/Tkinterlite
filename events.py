@@ -25,7 +25,9 @@ class Events:
     #: than being an event nobody ever hears.
     NAMES = ("products", "categories", "suppliers")
 
-    def __init__(self):
+    def __init__(self, log):
+        #: The log, for the trace (--trace).
+        self.log = log
         #: event name -> the callbacks to call, in the order they asked
         self.subscribers = {}
 
@@ -38,6 +40,7 @@ class Events:
         callbacks = self.subscribers.setdefault(event, [])
         if callback not in callbacks:
             callbacks.append(callback)
+        self.log.trace("{0}: {1}".format(event, self.get_names(callbacks)))
 
     def unsubscribe(self, event, callback):
         """Stop being told. A window that forgets this is told after it is gone."""
@@ -45,6 +48,7 @@ class Events:
         callbacks = self.subscribers.get(event, [])
         if callback in callbacks:
             callbacks.remove(callback)
+        self.log.trace("{0}: {1}".format(event, self.get_names(callbacks)))
 
     def notify(self, event, row_id=None):
         """Tell everyone who asked that this event happened.
@@ -55,8 +59,15 @@ class Events:
         while it is being told.
         """
         self.check(event)
-        for callback in list(self.subscribers.get(event, [])):
+        callbacks = list(self.subscribers.get(event, []))
+        self.log.trace("{0}, row_id={1} -> {2}".format(event, row_id, self.get_names(callbacks)))
+        for callback in callbacks:
             callback(row_id)
+
+    def get_names(self, callbacks):
+        """The callbacks as the trace shows them: module.method."""
+        return ["{0}.{1}".format(callback.__self__.__class__.__module__, callback.__name__)
+                for callback in callbacks]
 
     def check(self, event):
         """Refuse an event that is not in NAMES."""

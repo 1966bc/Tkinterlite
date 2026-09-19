@@ -88,6 +88,7 @@ class ListWindow(tk.Toplevel):
 
         self.engine.tools.set_list(self.lst_items, captions, enabled)
         self.engine.tools.set_count(self.items, len(rs))
+        self.engine.log.trace("dict_items = {0}".format(self.dict_items))
 
     def on_changed(self, row_id):
         """A row was saved: read the list again and land on it."""

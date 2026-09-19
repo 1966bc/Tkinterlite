@@ -33,7 +33,9 @@ sight.
 class Windows:
     """The windows open now, by name."""
 
-    def __init__(self):
+    def __init__(self, log):
+        #: The log, for the trace (--trace).
+        self.log = log
         #: The dictionary of instances: name -> the window open under that name.
         self.dict_instances = {}
 
@@ -50,6 +52,7 @@ class Windows:
         else:
             window.lift()
             window.focus_set()
+            self.log.trace("{0}: already open, brought to the front".format(name))
 
         return window
 
@@ -58,6 +61,7 @@ class Windows:
         window = self.dict_instances.get(name)
 
         if window is not None:
+            self.log.trace("{0}: closing the one open".format(name))
             window.on_cancel()
 
         return self.add(name, build)
@@ -73,6 +77,7 @@ class Windows:
         self.dict_instances[name] = window
         window.bind("<Destroy>", lambda evt: self.forget(name, window, evt), add="+")
         window.on_open()
+        self.log.trace("{0}: built; dict_instances = {1}".format(name, list(self.dict_instances)))
 
         return window
 
@@ -85,3 +90,5 @@ class Windows:
         """
         if str(evt.widget) == str(window) and self.dict_instances.get(name) is window:
             del self.dict_instances[name]
+            self.log.trace("{0}: forgotten; dict_instances = {1}".format(name,
+                                                                        list(self.dict_instances)))

@@ -48,6 +48,7 @@ class App(tk.Tk):
         main = Main(self)
         main.on_open()
         main.pack(fill=tk.BOTH, expand=1)
+        self.engine.log.trace("ready; the engine holds log, config, db, tools, events, windows")
 
     def set_icon(self):
         # The icon in 16, 32 and 48 pixels: the window manager picks the
@@ -72,6 +73,7 @@ class App(tk.Tk):
         nothing fails in silence. Tkinter calls this from inside its own
         except block, which is what log.exception() needs.
         """
+        self.engine.log.trace("{0}: {1}".format(exc.__name__, val))
         self.engine.log.exception("{0}: {1}".format(exc.__name__, val))
         messagebox.showerror(self.title(),
                              "{0}\n\nDetails in {1}".format(val, self.engine.log.path),
@@ -81,4 +83,5 @@ class App(tk.Tk):
         if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
             self.engine.db.con.close()
             self.clock.stop()
+            self.engine.log.trace("database closed, clock stopped: goodbye")
             self.destroy()

@@ -6,6 +6,8 @@
 # -----------------------------------------------------------------------------
 """Tests for log.py, on a file in a temporary directory."""
 
+import contextlib
+import io
 import os
 import tempfile
 import unittest
@@ -55,6 +57,35 @@ class TestLog(unittest.TestCase):
         self.log.error("second")
         text = self.get_text()
         self.assertLess(text.index("first"), text.index("second"))
+
+
+class TestTrace(unittest.TestCase):
+    """The trace prints who is at work and what, only when it is on."""
+
+    def setUp(self):
+        self.folder = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.folder.cleanup()
+
+    def get_printed(self, tracing):
+        log = Log(os.path.join(self.folder.name, "tkinterlite.log"), tracing)
+        printed = io.StringIO()
+        with contextlib.redirect_stdout(printed):
+            log.trace("values = {'company': 'Pavlova'}")
+        return printed.getvalue()
+
+    def test_on_it_prints_who_and_what(self):
+        text = self.get_printed(True)
+        self.assertIn("test_log.TestTrace.get_printed", text)
+        self.assertIn("values = {'company': 'Pavlova'}", text)
+
+    def test_off_it_prints_nothing(self):
+        self.assertEqual(self.get_printed(False), "")
+
+    def test_it_never_writes_the_file(self):
+        self.get_printed(True)
+        self.assertFalse(os.path.exists(os.path.join(self.folder.name, "tkinterlite.log")))
 
 
 class TestRotation(unittest.TestCase):
