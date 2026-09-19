@@ -194,6 +194,11 @@ every subclass must remember to skip it. The register does the same in plain sig
   `PRAGMA table_info`. A missing or unknown column is refused with the table's name.
 - The primary key is the column the schema marks as key, not the first one.
 
+Why it matters is written in the data themselves. When they were checked against Microsoft's
+Northwind in 2026, some rows had a category where the supplier should be and the price where the
+stock should be: values shifted by one column, saved years ago by the code that wrote rows by
+position. The README tells the story, under "The data: Northwind".
+
 ## Errors: they rise, and are caught once
 
 Before, `DBMS.read` caught every exception with a bare `except:`, wrote it to a log and returned

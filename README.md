@@ -45,9 +45,27 @@ python3 -m unittest discover -s tests -v
 `unittest`, from the standard library. The tests use a database in memory and temporary files:
 `northwind.sl3` is never touched.
 
-## Start again from the original data
+## The data: Northwind
 
-`tkinterlite.sql` holds the whole database, schema and data. To go back to it:
+The database is **Northwind**, the sample database Microsoft has shipped since the 1990s with
+Access and SQL Server. It describes Northwind Traders, an imaginary company that imports and
+exports specialty foods from around the world - Chai, Chang, Gustaf's Knäckebröd - with their
+categories and suppliers. Generations of programmers learned SQL on it. Tkinterlite keeps three
+of its tables: products, categories and suppliers.
+
+The values come from Microsoft's own script, `instnwnd.sql`, in
+[microsoft/sql-server-samples](https://github.com/microsoft/sql-server-samples), © Microsoft
+Corporation, under the MIT License: see [NORTHWIND-LICENSE.txt](NORTHWIND-LICENSE.txt). Two rows
+are Tkinterlite's own: the product Pizza and the category "No assigned".
+
+In 2026 the data were checked against that script, and 27 products and 7 suppliers had drifted
+over the years. Accented letters had been lost to a wrong encoding - Knäckebröd had become
+Knackebrod. And in some rows the values had slid into the next column - a category where the
+supplier should be, the price where the stock should be - the scars of the old code that wrote
+rows by position. Writing them by name, as Tkinterlite does now, is what prevents it.
+
+To start again from the original data - `tkinterlite.sql` holds the whole database, schema and
+data:
 
 ```
 rm northwind.sl3
