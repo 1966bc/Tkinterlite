@@ -26,11 +26,12 @@ is the most useful thing the project has to teach.
 |--------------|----------|----------------------------------------------------------------|
 | `engine.py`  | `Engine` | owns the parts below; paths, icons, messages                   |
 | `dbms.py`    | `DBMS`   | SQLite: read, write, statements built from the schema          |
-| `tools.py`   | `Tools`  | widgets: styles, builders (tree, list, combo, text), helpers   |
+| `tools.py`   | `Tools`  | widgets: styles, builders (tree, list, combo, entry, text)     |
 | `events.py`  | `Events` | the Observer: who changed what, told to whoever shows it       |
 | `log.py`     | `Log`    | the log file, rotated                                          |
 | `config.py`  | `Config` | `tkinterlite.ini`                                              |
-| `ui/*.py`    | `UI`     | one window each                                                |
+| `ui/base.py` | `ListWindow`, `Dialog` | what every list and every one-row form share     |
+| `ui/*.py`    | `UI`     | one window each, saying only what is its own                   |
 
 `Log`, `Config` and `Events` are written by hand on purpose. The standard library has `logging`
 and `configparser`, and their docstrings say so. This is a project for learning, and a
@@ -102,6 +103,27 @@ so it inherits from it. Engine *is a* database? No, it *has* one. That is why th
 Windows do not look Engine up any more either: each one receives it from the window that opens it,
 `self.engine = parent.engine`.
 
+## Inheritance where it belongs: `ui/base.py`
+
+Composition did not banish inheritance: it put it where *is a* is true. The lists of categories
+and suppliers were the same window written twice, and so were their dialogs. Now they are one
+`ListWindow` and one `Dialog`, and each module says only what is its own:
+
+```python
+class UI(ListWindow):                  class UI(Dialog):
+    TABLE = "categories"                   NAME = "category"
+    CAPTION = "category"                   TABLE = "categories"
+    DIALOG = ui.category.UI
+                                           def init_fields(self): ...
+                                           def set_values(self, row): ...
+                                           def get_values(self): ...
+```
+
+A list of categories *is a* list window; a category form *is a* dialog. The base classes do the
+rest once: the enable check box, reading the row by id, saving, telling the other windows, the
+buttons and their Alt keys. Each class adds a single parent to the chain, and each `__init__`
+calls the one above it: the line of inheritance is straight, with nothing left half built.
+
 ## The Observer: how a save reaches every window
 
 Before, a dialog that saved a category reloaded the list that had opened it, and selected a row by
@@ -111,12 +133,12 @@ it filled itself from a copy of the row kept by the list.
 Now a save goes like this:
 
 ```
-Category.save()
+Dialog.save()                                  in ui/base.py, for every dialog
   ├─ db.get_update(...) / db.get_insert(...)   statement built from the schema
   ├─ db.write(sql, args)                        the row is written
   ├─ close the dialog
   └─ events.notify("categories", saved_id)
-        ├─► Categories.on_changed(saved_id)    reload, land on the saved row
+        ├─► ListWindow.on_changed(saved_id)    reload, land on the saved row
         └─► Main.on_combo_changed(saved_id)    reload the combo
 ```
 
@@ -154,6 +176,13 @@ Now:
 - There is one net, at the top: `App.report_callback_exception`, which Tkinter calls for an
   exception in any callback. It writes the traceback to `tkinterlite.log` and shows the message.
   Before the main loop starts, `main()` guards the start the same way.
+
+## The clock
+
+The status bar shows the time. It used to take a `Thread` writing to a `queue.Queue`, drained by
+`after(1, ...)` a thousand times a second. Now `Main.update_clock` writes the time and asks Tk to
+call it again in a second with `after(1000, ...)`: the main loop is the only thread, and the only
+one that touches widgets.
 
 ## Configuration
 

@@ -40,7 +40,7 @@ class TestConfig(unittest.TestCase):
             f.write(text)
         return Config(path)
 
-    def assertRefused(self, text, words):
+    def assert_refused(self, text, words):
         with self.assertRaises(ValueError) as caught:
             self.get_config(text)
         self.assertIn(words, str(caught.exception))
@@ -60,16 +60,16 @@ class TestConfig(unittest.TestCase):
         self.assertEqual(config.get("database", "url"), "file:northwind.sl3?mode=ro")
 
     def test_line_outside_any_section(self):
-        self.assertRefused("theme = clam\n", "line 1: outside any section")
+        self.assert_refused("theme = clam\n", "line 1: outside any section")
 
     def test_line_without_equals(self):
-        self.assertRefused("[window]\n\nwidht 800\n", 'line 3: no "=" in "widht 800"')
+        self.assert_refused("[window]\n\nwidht 800\n", 'line 3: no "=" in "widht 800"')
 
     def test_key_twice(self):
-        self.assertRefused("[window]\nwidth = 1\nwidth = 2\n", "line 3: width twice in [window]")
+        self.assert_refused("[window]\nwidth = 1\nwidth = 2\n", "line 3: width twice in [window]")
 
     def test_section_twice(self):
-        self.assertRefused("[window]\n[window]\n", "line 2: section [window] twice")
+        self.assert_refused("[window]\n[window]\n", "line 2: section [window] twice")
 
     def test_missing_key(self):
         config = self.get_config(GOOD)

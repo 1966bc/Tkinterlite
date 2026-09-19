@@ -18,15 +18,21 @@ The rules this code is written by.
   nothing, no hidden side effects. Windows that do similar things behave the same way.
 - **Fail fast, fail safe, never silently**: on error stop near the cause and leave the database
   consistent (rollback). A failed read must not look like "no rows".
+- **By hand where it teaches**: where a library is not really needed, a small class written by
+  hand shows what it does underneath (`Log`, `Config`, `Events`), and its docstring names the
+  library it stands in for.
 
 ## Style
 
 - File header block with `project: Tkinterlite`, `authors: Giuseppe Costanzi (1966bc)`,
   `licence: GPL-3.0-or-later, see LICENSE`. No modification date: git keeps it per file. The
   release date, Latin season + Roman year (e.g. `hiems MMXXI`), lives once, in `__date__` next
-  to `__version__` in `frames/main.py`.
+  to `__version__` in `ui/main.py`.
 - Widget prefixes (Hungarian notation?): `lst_`, `cb_`, `txt_`, `lbl_`, `frm_`, `btn_`, `ent_`, `chk_`.
-- Button rows declared as tuples `(text, underline, command, "<Alt-x>")` and built in a loop.
+- Widgets used often are built by `Tools`: `get_tree`, `get_listbox`, `get_combo` (readonly),
+  `get_entry` (text, integer, float), `get_text`. Buttons come from `get_button_column`, given
+  `(label, command)` pairs: it underlines the first free letter and binds it to Alt.
+- A list window is a `ui.base.ListWindow`, a one-row form is a `ui.base.Dialog`.
 - ttk styles (`App.*`, `StatusBar.TLabel`, ...) are all defined in `Tools.set_style()`.
 - `.format()` strings.
 - Confirmations through `messagebox`, with the texts held by the engine (`ask_to_save`,
