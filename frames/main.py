@@ -143,7 +143,6 @@ class Main(ttk.Frame):
         self.lstProducts.tag_configure("is_zero", background=self.nametowidget(".").engine.get_rgb(255, 160, 122))
         self.lstProducts.bind("<<TreeviewSelect>>", self.on_prduct_selected)
         self.lstProducts.bind("<Double-1>", self.on_prduct_activated)
-        self.lblProdutcs.pack(fill=tk.BOTH, expand=1)
 
         #categories
         #-----------------------------------------------------------------------
@@ -151,7 +150,10 @@ class Main(ttk.Frame):
         self.cbCombo = ttk.Combobox(self.lblCombo, style="App.TCombobox")
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
-        self.lblCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, pady=5, expand=0)
+        # Packed before the products, so a short window shortens the list
+        # (which scrolls) instead of squeezing the combo out.
+        self.lblCombo.pack(side=tk.BOTTOM, anchor=tk.W, fill=tk.X, pady=5, expand=0)
+        self.lblProdutcs.pack(fill=tk.BOTH, expand=1)
 
         #buttons and radio
         #-----------------------------------------------------------------------

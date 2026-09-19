@@ -131,15 +131,7 @@ class Engine(DBMS, Tools, Clock):
                         inspect.stack()[0][3],
                         sys.exc_info()[1],
                         sys.exc_info()[0],
-                        sys.modules[__name__])              
-
-    def busy(self, caller):
-        caller.config(cursor="watch")
-        caller.update()
-
-    def not_busy(self, caller):
-        caller.config(cursor="")
-        caller.update()            
+                        sys.modules[__name__])
 
 
 def main():
