@@ -44,7 +44,6 @@ class Main(ttk.Frame):
         self.table = "products"
         self.primary_key = "product_id"
         self.option_id = tk.IntVar()
-        #self.selected_item = None
         self.dict_combo_values = {}
         self.status_bar_text = tk.StringVar()
         self.init_menu()
@@ -52,6 +51,12 @@ class Main(ttk.Frame):
         self.init_status_bar()
         self.init_ui()
         self.center_ui()
+        # The Observer at work: this window is told when a product is saved,
+        # and when a category or a supplier is, because its combo shows them.
+        # Whoever saves does not know this window exists.
+        self.engine.events.subscribe("products", self.on_products_changed)
+        self.engine.events.subscribe("categories", self.on_combo_changed)
+        self.engine.events.subscribe("suppliers", self.on_combo_changed)
 
     def init_menu(self):
 
@@ -148,7 +153,6 @@ class Main(ttk.Frame):
         self.lstProducts = self.engine.tools.get_tree(self.lblProdutcs, cols,)
         self.lstProducts.tag_configure("is_enable", background="light gray")
         self.lstProducts.tag_configure("is_zero", background=self.engine.tools.get_rgb(255, 160, 122))
-        self.lstProducts.bind("<<TreeviewSelect>>", self.on_prduct_selected)
         self.lstProducts.bind("<Double-1>", self.on_prduct_activated)
 
         #categories
@@ -215,7 +219,6 @@ class Main(ttk.Frame):
 
     def on_reset(self, evt=None):
 
-        self.selected_item = None
         sql = "SELECT * FROM {0} ORDER BY product ASC;".format(self.table)
         self.set_tree_values(sql, ())
         self.set_combo_values()
@@ -229,21 +232,21 @@ class Main(ttk.Frame):
     def on_suppliers(self):
         ui.suppliers.UI(self).on_open()
 
-    def on_prduct_selected(self, evt):
+    def on_products_changed(self, product_id):
+        """A product was saved or deleted: read the list again and land on it."""
+        self.on_reset()
+        self.engine.tools.set_selected(self.lstProducts, product_id)
 
-        if self.lstProducts.focus():
-            item_iid = self.lstProducts.selection()
-            pk = int(item_iid[0])
-            self.selected_item = self.engine.db.get_selected(self.table, self.primary_key, pk)        
+    def on_combo_changed(self, row_id):
+        """A category or a supplier was saved: the combo shows them."""
+        self.set_combo_values()
 
     def on_prduct_activated(self, evt=None):
 
-        if self.lstProducts.focus():
+        selection = self.lstProducts.selection()
 
-            item_iid = self.lstProducts.selection()
-
-            ui.product.UI(self, item_iid).on_open()
-
+        if selection:
+            ui.product.UI(self, int(selection[0])).on_open()
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
                                    self.engine.no_selected,

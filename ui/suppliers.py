@@ -23,10 +23,14 @@ class UI(tk.Toplevel):
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.table = "suppliers"
         self.primary_key = "supplier_id"
-        self.items = tk.IntVar()
+        self.items = tk.StringVar()
+        #: Position in the list -> supplier_id, filled by set_values.
+        self.dict_items = {}
         self.obj = None
         self.init_ui()
         self.engine.tools.center_me(self)
+        # Told when a supplier is saved, here or anywhere else.
+        self.engine.events.subscribe("suppliers", self.on_changed)
 
     def init_ui(self):
 
@@ -37,8 +41,9 @@ class UI(tk.Toplevel):
         ttk.Label(frm_left, style="App.TLabel", textvariable=self.items,).pack(fill=tk.X, expand=0)
 
         sb = ttk.Scrollbar(frm_left, orient=tk.VERTICAL)
-        self.lstItems = tk.Listbox(frm_left, yscrollcommand=sb.set,)
-        self.lstItems.bind("<<ListboxSelect>>", self.on_item_selected)
+        # exportselection=False: the selection stays when text is selected
+        # in another window, the dialog above this list included.
+        self.lstItems = tk.Listbox(frm_left, yscrollcommand=sb.set, exportselection=False)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
         sb.config(command=self.lstItems.yview)
         self.lstItems.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
@@ -69,51 +74,45 @@ class UI(tk.Toplevel):
         self.set_values()
 
     def set_values(self):
-
-        self.lstItems.delete(0, tk.END)
-        index = 0
-        self.dict_items = {}
-
+        """Read the list again, through the helpers of tools.py."""
         rs = self.engine.db.read(True, SQL, ())
 
-        if rs:
-            for i in rs:
-                s = "{:}".format(i["company"])
-                self.lstItems.insert(tk.END, s)
-                if i["enable"] != 1:
-                    self.lstItems.itemconfig(index, {"bg": "light gray"})
-                self.dict_items[index] = i["supplier_id"]
-                index += 1
+        self.dict_items.clear()
+        captions = []
+        enabled = []
+        for index, row in enumerate(rs):
+            self.dict_items[index] = row["supplier_id"]
+            captions.append(row["company"])
+            enabled.append(row["enable"])
 
-            msg = ("Items: {0}".format(self.lstItems.size()))
-            self.items.set(msg)
+        self.engine.tools.set_list(self.lstItems, captions, enabled)
+        self.engine.tools.set_count(self.items, len(rs))
+
+    def on_changed(self, supplier_id):
+        """A supplier was saved: read the list again and land on it."""
+        self.set_values()
+        self.engine.tools.set_list_id(self.lstItems, self.dict_items, supplier_id)
+        self.lstItems.focus_set()
 
     def on_add(self, evt=None):
 
         self.obj = ui.supplier.UI(self)
         self.obj.on_open()
 
-    def on_item_selected(self, evt=None):
-
-        if self.lstItems.curselection():
-            index = self.lstItems.curselection()[0]
-            pk = self.dict_items.get(index)
-            self.selected_item = self.engine.db.get_selected(self.table,
-                                                             self.primary_key,
-                                                             pk)
     def on_item_activated(self, evt=None):
 
-        if self.lstItems.curselection():
-            index = self.lstItems.curselection()[0]
-            self.obj = ui.supplier.UI(self, index)
-            self.obj.on_open()
+        supplier_id = self.engine.tools.get_list_id(self.lstItems, self.dict_items)
 
+        if supplier_id is not None:
+            self.obj = ui.supplier.UI(self, supplier_id)
+            self.obj.on_open()
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
                                    self.engine.no_selected,
                                    parent=self)
 
     def on_cancel(self, evt=None):
+        self.engine.events.unsubscribe("suppliers", self.on_changed)
         if self.obj is not None:
             self.obj.destroy()
         self.destroy()

@@ -11,12 +11,15 @@ from tkinter import messagebox
 
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, index=None):
+    def __init__(self, parent, row_id=None):
         super().__init__(name="product")
 
         self.parent = parent
         self.engine = parent.engine
-        self.index = index
+        #: The product being edited, None for a new one. The row itself is
+        #: read from the database when the window opens, never taken from a
+        #: copy held by the list.
+        self.row_id = row_id
         self.resizable(0, 0)
         self.transient(parent)
         self.columnconfigure(0, weight=1)
@@ -93,7 +96,7 @@ class UI(tk.Toplevel):
         self.bind("<Alt-s>", self.on_save)
         btn_save.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
-        if self.index is not None:
+        if self.row_id is not None:
             r += 1
             btn = ttk.Button(frm_right, style="App.TButton", text="Delete", underline=0, command=self.on_delete,)
             self.bind("<Alt-c>", self.on_delete)
@@ -109,7 +112,7 @@ class UI(tk.Toplevel):
         self.set_categories()
         self.set_suppliers()
 
-        if self.index is not None:
+        if self.row_id is not None:
             msg = "Update {0}".format(self.winfo_name().capitalize())
             self.set_values()
         else:
@@ -121,24 +124,14 @@ class UI(tk.Toplevel):
 
     def set_values(self,):
 
-        self.product.set(self.parent.selected_item["product"])
-        #set value on cbSuppliers
-        key = next(key
-                   for key, value
-                   in self.dict_suppliers.items()
-                   if value == self.parent.selected_item["supplier_id"])
-        self.cbSuppliers.current(key)
-        #set value on cbCategories
-        key = next(key
-                   for key, value
-                   in self.dict_categories.items()
-                   if value == self.parent.selected_item["category_id"])
-        self.cbCategories.current(key)
-
-        self.package.set(self.parent.selected_item["package"])
-        self.price.set(self.parent.selected_item["price"])
-        self.stock.set(self.parent.selected_item["stock"])
-        self.enable.set(self.parent.selected_item["enable"])
+        row = self.engine.db.get_selected(self.parent.table, self.parent.primary_key, self.row_id)
+        self.product.set(row["product"])
+        self.engine.tools.set_combo_id(self.cbSuppliers, self.dict_suppliers, row["supplier_id"])
+        self.engine.tools.set_combo_id(self.cbCategories, self.dict_categories, row["category_id"])
+        self.package.set(row["package"])
+        self.price.set(row["price"])
+        self.stock.set(row["stock"])
+        self.enable.set(row["enable"])
 
     def get_values(self,):
 
@@ -152,37 +145,30 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.engine.tools.on_fields_control(self.frm_main,
-                                               self.nametowidget(".").title()) == False: return
-
-        if messagebox.askyesno(self.nametowidget(".").title(),
-                               self.engine.ask_to_save,
-                               parent=self) == True:
-
-            values = self.get_values()
-
-            if self.index is not None:
-
-                key_value = self.parent.selected_item["product_id"]
-                sql, args = self.engine.db.get_update(self.parent.table,
-                                                      key_value,
-                                                      values)
-
+        if self.engine.tools.on_fields_control(self.frm_main, self.nametowidget(".").title()):
+            if messagebox.askyesno(self.nametowidget(".").title(),
+                                   self.engine.ask_to_save,
+                                   parent=self):
+                self.save()
             else:
+                messagebox.showinfo(self.nametowidget(".").title(),
+                                    self.engine.abort,
+                                    parent=self)
 
-                sql, args = self.engine.db.get_insert(self.parent.table, values)
+    def save(self):
+        """Write the row, close, and tell whoever shows products which one."""
+        values = self.get_values()
 
-            product_id = self.engine.db.write(sql, args)
-            self.parent.on_reset()
+        if self.row_id is not None:
+            sql, args = self.engine.db.get_update(self.parent.table, self.row_id, values)
+            self.engine.db.write(sql, args)
+            saved_id = self.row_id
+        else:
+            sql, args = self.engine.db.get_insert(self.parent.table, values)
+            saved_id = self.engine.db.write(sql, args)
 
-            if self.index is not None:
-                self.parent.lstProducts.selection_set(self.index)
-                self.parent.lstProducts.see(self.index)
-            else:
-                self.parent.lstProducts.selection_set(product_id)
-                self.parent.lstProducts.see(product_id)
-
-            self.on_cancel()
+        self.on_cancel()
+        self.engine.events.notify("products", saved_id)
 
     def on_delete(self, evt=None):
 
@@ -190,12 +176,11 @@ class UI(tk.Toplevel):
 
         if messagebox.askyesno(self.nametowidget(".").title(),
                                self.engine.ask_to_delete,
-                               parent=self) == True:
-
-            args = (self.parent.selected_item["product_id"],)
-            self.engine.db.write(sql, args)
-            self.parent.get_selected_combo_item()
+                               parent=self):
+            self.engine.db.write(sql, (self.row_id,))
             self.on_cancel()
+            # No row to land on: it is gone.
+            self.engine.events.notify("products", None)
         else:
             messagebox.showinfo(self.nametowidget(".").title(),
                                 self.engine.abort,

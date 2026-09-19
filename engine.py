@@ -12,6 +12,7 @@ import subprocess
 from dbms import DBMS
 from tools import Tools
 from config import Config
+from events import Events
 
 
 class Engine:
@@ -31,6 +32,8 @@ class Engine:
         self.db = DBMS(self.get_file("northwind.sl3"), log)
         # Styles and widget helpers.
         self.tools = Tools()
+        # Who changed what, told to the windows that show it: the Observer.
+        self.events = Events()
 
         self.no_selected = "Attention!\nNo record selected!"
         self.ask_to_delete = "Delete data?"
@@ -38,7 +41,7 @@ class Engine:
         self.abort = "Operation aborted!"
 
     def __str__(self):
-        return "class: {0}\nparts: log, config, db, tools".format(self.__class__.__name__)
+        return "class: {0}\nparts: log, config, db, tools, events".format(self.__class__.__name__)
 
     def get_python_version(self,):
         return "Python version:\n{0}".format(".".join(map(str, sys.version_info[:3])))

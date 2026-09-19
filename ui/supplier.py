@@ -10,12 +10,15 @@ from tkinter import ttk
 from tkinter import messagebox
 
 class UI(tk.Toplevel):
-    def __init__(self, parent, index=None):
+    def __init__(self, parent, row_id=None):
         super().__init__(name="supplier")
 
         self.parent = parent
         self.engine = parent.engine
-        self.index = index
+        #: The supplier being edited, None for a new one. The row itself is
+        #: read from the database when the window opens, never taken from a
+        #: copy held by the list.
+        self.row_id = row_id
         self.transient(parent)
         self.resizable(0, 0)
         self.columnconfigure(0, weight=1)
@@ -65,7 +68,7 @@ class UI(tk.Toplevel):
 
     def on_open(self):
 
-        if self.index is not None:
+        if self.row_id is not None:
             msg = "Edit {0}".format(self.winfo_name().title())
             self.set_values()
         else:
@@ -77,8 +80,9 @@ class UI(tk.Toplevel):
 
     def set_values(self,):
 
-        self.company.set(self.parent.selected_item["company"])
-        self.enable.set(self.parent.selected_item["enable"])
+        row = self.engine.db.get_selected(self.parent.table, self.parent.primary_key, self.row_id)
+        self.company.set(row["company"])
+        self.enable.set(row["enable"])
 
     def get_values(self,):
 
@@ -87,43 +91,30 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.engine.tools.on_fields_control(self.frm_main, self.nametowidget(".").title()) == False: return
-
-        if messagebox.askyesno(self.nametowidget(".").title(),
-                               self.engine.ask_to_save,
-                               parent=self) == True:
-
-            values = self.get_values()
-
-            if self.index is not None:
-
-                key_value = self.parent.selected_item["supplier_id"]
-                sql, args = self.engine.db.get_update(self.parent.table,
-                                                      key_value,
-                                                      values)
-
+        if self.engine.tools.on_fields_control(self.frm_main, self.nametowidget(".").title()):
+            if messagebox.askyesno(self.nametowidget(".").title(),
+                                   self.engine.ask_to_save,
+                                   parent=self):
+                self.save()
             else:
+                messagebox.showinfo(self.nametowidget(".").title(),
+                                    self.engine.abort,
+                                    parent=self)
 
-                sql, args = self.engine.db.get_insert(self.parent.table, values)
+    def save(self):
+        """Write the row, close, and tell whoever shows suppliers which one."""
+        values = self.get_values()
 
-            last_id = self.engine.db.write(sql, args)
-            self.parent.on_open()
-
-            if self.index is not None:
-                self.parent.lstItems.see(self.index)
-                self.parent.lstItems.selection_set(self.index)
-            else:
-                #force focus on listbox
-                idx = list(self.parent.dict_items.keys())[list(self.parent.dict_items.values()).index(last_id)]
-                self.parent.lstItems.selection_set(idx)
-                self.parent.lstItems.see(idx)
-
-            self.on_cancel()
-
+        if self.row_id is not None:
+            sql, args = self.engine.db.get_update(self.parent.table, self.row_id, values)
+            self.engine.db.write(sql, args)
+            saved_id = self.row_id
         else:
-            messagebox.showinfo(self.nametowidget(".").title(),
-                                self.engine.abort,
-                                parent=self)
+            sql, args = self.engine.db.get_insert(self.parent.table, values)
+            saved_id = self.engine.db.write(sql, args)
+
+        self.on_cancel()
+        self.engine.events.notify("suppliers", saved_id)
 
     def on_cancel(self, evt=None):
         self.destroy()
