@@ -23,7 +23,7 @@ class UI(tk.Toplevel):
 
         self.parent = parent
         self.engine = parent.engine
-        #: The facts, from the metadata in ui/main.py: version, date, author...
+        #: The facts, from the metadata in ui/app.py: version, date, author...
         self.info = info
         self.transient(parent)
         self.resizable(0, 0)

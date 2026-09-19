@@ -31,7 +31,9 @@ is the most useful thing the project has to teach.
 | `log.py`     | `Log`    | the log file, rotated                                          |
 | `config.py`  | `Config` | `tkinterlite.ini`                                              |
 | `clock.py`   | `Clock`  | a thread that feeds the status bar through a queue             |
-| `ui/base.py` | `ListWindow`, `Dialog` | what every list and every one-row form share     |
+| `ui/list_window.py`, `ui/dialog.py` | `ListWindow`, `Dialog` | what every list, every form share |
+| `ui/app.py`  | `App`    | the root window: engine, clock, the error net, version and date |
+| `ui/main.py` | `Main`   | the main window: the products                                  |
 | `ui/*.py`    | `UI`     | one window each, saying only what is its own                   |
 
 `Log`, `Config` and `Events` are written by hand on purpose. The standard library has `logging`
@@ -104,7 +106,7 @@ so it inherits from it. Engine *is a* database? No, it *has* one. That is why th
 Windows do not look Engine up any more either: each one receives it from the window that opens it,
 `self.engine = parent.engine`.
 
-## Inheritance where it belongs: `ui/base.py`
+## Inheritance where it belongs: `ListWindow` and `Dialog`
 
 Composition did not banish inheritance: it put it where *is a* is true. The lists of categories
 and suppliers were the same window written twice, and so were their dialogs. Now they are one
@@ -134,7 +136,7 @@ it filled itself from a copy of the row kept by the list.
 Now a save goes like this:
 
 ```
-Dialog.save()                                  in ui/base.py, for every dialog
+Dialog.save()                                  in ui/dialog.py, for every dialog
   ├─ db.get_update(...) / db.get_insert(...)   statement built from the schema
   ├─ db.write(sql, args)                        the row is written
   ├─ close the dialog

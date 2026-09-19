@@ -7,7 +7,8 @@ The rules this code is written by.
 - **English in the code**: identifiers, comments, docstrings, UI text.
 - **PEP 8**: 4 spaces, lines up to 100 columns, `lower_case_with_underscores` for functions and
   variables, `CapWords` for classes, `UPPER_CASE` for module constants.
-- **Object-oriented**: the logic lives in classes, one responsibility each.
+- **Object-oriented**: the logic lives in classes, one responsibility each, and one class per
+  module, named after it. Tests may keep their small stand-ins beside them.
 - **Böhm–Jacopini**: only sequence, `if`, loops and assignments. One exit per function: no
   `return` in the middle, no `break`/`continue`. A function that needs several exits is doing
   several things and must be split. `raise` is allowed, for real errors only.
@@ -27,7 +28,7 @@ The rules this code is written by.
 - File header block with `project: Tkinterlite`, `authors: Giuseppe Costanzi (1966bc)`,
   `licence: GPL-3.0-or-later, see LICENSE`. No modification date: git keeps it per file. The
   release date, Latin season + Roman year (e.g. `hiems MMXXI`), lives once, in `__date__` next
-  to `__version__` in `ui/main.py`.
+  to `__version__` in `ui/app.py`.
 - Widget prefixes (Hungarian notation?): `lst_`, `cb_`, `txt_`, `lbl_`, `frm_`, `btn_`, `ent_`, `chk_`.
 - Widgets used often are built by `Tools`: `get_tree`, `get_listbox`, `get_combo` (readonly),
   `get_entry` (text, integer, float), `get_text`. Buttons come from `get_button_column`, given

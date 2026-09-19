@@ -13,7 +13,7 @@ dialog with a Delete button.
 import tkinter as tk
 from tkinter import messagebox
 
-from ui.base import Dialog
+from ui.dialog import Dialog
 
 
 class UI(Dialog):

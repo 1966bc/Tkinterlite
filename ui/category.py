@@ -8,7 +8,7 @@
 
 import tkinter as tk
 
-from ui.base import Dialog
+from ui.dialog import Dialog
 
 
 class UI(Dialog):

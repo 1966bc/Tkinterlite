@@ -4,10 +4,12 @@
 # authors:  Giuseppe Costanzi (1966bc)
 # licence:  GPL-3.0-or-later, see LICENSE
 # -----------------------------------------------------------------------------
-"""The main window - the products, filtered by category or supplier - and the
-application that holds it."""
+"""The main window: the products, filtered by category or supplier.
 
-import os
+The module keeps the name it has had since 2017, a homage to C's main(); the
+program itself starts from main() in tkinterlite.py.
+"""
+
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
@@ -17,23 +19,6 @@ import ui.categories
 import ui.license
 import ui.product
 import ui.suppliers
-
-from clock import Clock
-from engine import Engine
-from log import Log
-
-#: The project directory, one level above ui/: the log lives there.
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-__author__ = "Giuseppe Costanzi (1966bc)"
-__copyright__ = "Copyleft"
-__credits__ = ["hal9000", ]
-__license__ = "GNU GPL, version 3 or later"
-__version__ = "42"
-__maintainer__ = "1966bc"
-__email__ = "giuseppecostanzi@gmail.com"
-__date__ = "autumnus MMXXVI"
-__status__ = "production"
 
 #: One product with the names of its supplier and category, for the status bar.
 SELECTED = ("SELECT p.product, s.company, c.category"
@@ -359,80 +344,3 @@ class Main(ttk.Frame):
         for message in self.parent.clock.drain():
             self.clock_text.set(message)
         self.after(200, self.check_clock)
-
-
-class App(tk.Tk):
-    """The application: the root window, the engine, the clock."""
-
-    def __init__(self, title, log):
-        super().__init__()
-
-        self.engine = Engine(log)
-
-        self.protocol("WM_DELETE_WINDOW", self.on_exit)
-        self.title(title)
-        self.engine.tools.set_style(self.engine.config.get("window", "theme"))
-        self.set_icon()
-        self.set_info()
-        # The clock thread, started before the window that shows it (clock.py).
-        self.clock = Clock()
-        self.clock.start()
-
-        main = Main(self)
-        main.on_open()
-        main.pack(fill=tk.BOTH, expand=1)
-
-    def set_icon(self):
-        # The icon in 16, 32 and 48 pixels: the window manager picks the
-        # size each place needs, so it is never scaled up and blurred.
-        icons = [tk.PhotoImage(data=data) for data in self.engine.get_icons("app")]
-        self.iconphoto(True, *icons)
-
-    def set_info(self):
-        """The facts the About window shows, from the metadata at the top of this module."""
-        self.info = {"name": self.title(),
-                     "version": __version__,
-                     "date": __date__,
-                     "author": __author__,
-                     "licence": __license__}
-
-    def report_callback_exception(self, exc, val, tb):
-        """Tkinter calls this for an exception raised in a callback.
-
-        A button, a menu, an after(): every error coming out of the interface
-        ends up here, the one place where it is handled. It is written to
-        the log with its traceback and shown, so the application goes on and
-        nothing fails in silence. Tkinter calls this from inside its own
-        except block, which is what log.exception() needs.
-        """
-        self.engine.log.exception("{0}: {1}".format(exc.__name__, val))
-        messagebox.showerror(self.title(),
-                             "{0}\n\nDetails in {1}".format(val, self.engine.log.path),
-                             parent=self)
-
-    def on_exit(self, evt=None):
-        if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
-            self.engine.db.con.close()
-            self.clock.stop()
-            self.destroy()
-
-
-def main():
-
-    # The log comes first, so that even a failure to start is written down.
-    log = Log(os.path.join(PROJECT_DIR, "tkinterlite.log"))
-
-    # Before the main loop there is no report_callback_exception yet:
-    # a failure here is written to the log, shown, and raised again.
-    try:
-        app = App("Tkinterlite", log)
-    except Exception as exc:
-        log.exception("start failed: {0}".format(exc))
-        messagebox.showerror("Tkinterlite", "{0}\n\nDetails in {1}".format(exc, log.path))
-        raise
-
-    app.mainloop()
-
-
-if __name__ == "__main__":
-    main()
