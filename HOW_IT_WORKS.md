@@ -1,15 +1,16 @@
 # Tkinterlite — How it works
 
 [ARCHITECTURE.md](ARCHITECTURE.md) says how the program is built and why. This document follows
-it while it runs: six things that happen, each traced through the code, file by file and method by
+it while it runs: seven things that happen, each traced through the code, file by file and method by
 method. Open the files beside it and read along.
 
 1. [Start](#1-start)
 2. [One click on a product](#2-one-click-on-a-product)
 3. [Edit a product and save it](#3-edit-a-product-and-save-it)
-4. [Something goes wrong](#4-something-goes-wrong)
-5. [One second of the clock](#5-one-second-of-the-clock)
-6. [Exit](#6-exit)
+4. [Open a window that is already open](#4-open-a-window-that-is-already-open)
+5. [Something goes wrong](#5-something-goes-wrong)
+6. [One second of the clock](#6-one-second-of-the-clock)
+7. [Exit](#7-exit)
 
 ## 1. Start
 
@@ -63,7 +64,7 @@ self.windows = Windows()                                  # the open windows, on
 the menus, texts and listboxes, which ttk cannot reach.
 
 **`Clock().start()`** (`clock.py`) starts a second thread. From now on it puts the time on a
-queue once a second. See [5](#5-one-second-of-the-clock).
+queue once a second. See [6](#6-one-second-of-the-clock).
 
 **`Main(self)`** (`ui/main.py`) builds the main window: menus, toolbar, status bar, the product
 list (`Tools.get_tree`), the filter combo (`Tools.get_combo`), the buttons
@@ -153,7 +154,7 @@ puts the values in that order, refuses a column that is missing or unknown, and 
 UPDATE products SET product = ?, supplier_id = ?, ... WHERE product_id = ?
 ```
 
-`DBMS.write` runs it and commits. If it fails, it rolls back - see [4](#4-something-goes-wrong).
+`DBMS.write` runs it and commits. If it fails, it rolls back - see [5](#5-something-goes-wrong).
 
 **Tell.** The dialog closes, and announces what it wrote:
 
@@ -175,7 +176,43 @@ status bar. The dialog never touched the main window: it does not even know it e
 category works the same way, and there *two* windows are told - the list of categories, which lands
 on the row, and the main window, whose combo shows categories.
 
-## 4. Something goes wrong
+## 4. Open a window that is already open
+
+Tools > Categories, while the list of categories is already on the screen. Every window has a
+fixed Tk name, and Tk turns it into a path: `.categories`. Building a second window with the same
+name does not raise. tkinter destroys the first one and builds the second on the same path.
+
+On the screen that looks right: one list. Underneath, two things went wrong:
+
+- The first window was destroyed by tkinter, not closed by its own `on_cancel`, so it never
+  unsubscribed. The Observer kept telling a window that no longer existed: after opening the list
+  twice there were three subscribers to `"categories"` - the main window, the list, and the ghost.
+- A dialog half filled in was thrown away without a word when Add was pressed again.
+
+That is why every window is opened through `Windows` (`windows.py`), a dictionary of instances,
+name → window, with two rules:
+
+```python
+self.engine.windows.show("categories", lambda: ui.categories.UI(self))
+```
+
+`Windows.show` finds `"categories"` in `dict_instances`, so it builds nothing: it calls `lift()`
+and `focus_set()` on the window already open, and the list comes to the front as it was left.
+Lists, About and License are opened this way.
+
+```python
+self.engine.windows.replace("category", lambda: self.DIALOG(self))
+```
+
+A dialog is about one row, so `Windows.replace` does the opposite: it closes the dialog already
+open through its own `on_cancel`, then builds the new one. Closing through `on_cancel` is the
+point - the window tidies up after itself.
+
+Either way the window is registered with a binding on `<Destroy>`, which Tk fires however a
+window is closed - a button, the X in the title bar, the end of the program - and `Windows.forget`
+takes it out of the dictionary. After Close, Tools > Categories builds a new list.
+
+## 5. Something goes wrong
 
 Say a query names a column that is not there, `SELECT stok FROM products`. In `DBMS.read`:
 
@@ -203,7 +240,7 @@ each other: the statement, then the traceback. Past 1 MB, `Log.rotate` moves the
 
 File > Log opens it - or says that it is empty, when nothing has gone wrong yet.
 
-## 5. One second of the clock
+## 6. One second of the clock
 
 Two threads are at work, and only one of them may touch a widget.
 
@@ -228,7 +265,7 @@ self.after(200, self.check_clock)
 once, so the main loop goes back to answering clicks. The thread makes data, the queue carries it,
 the main loop takes it.
 
-## 6. Exit
+## 7. Exit
 
 Close, Alt-C, the toolbar's exit icon or the window's X all call `App.on_exit`:
 
