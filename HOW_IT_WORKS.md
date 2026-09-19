@@ -13,8 +13,10 @@ method. Open the files beside it and read along.
 
 ## 1. Start
 
-`python3 tkinterlite.py` runs `main()` in **`tkinterlite.py`**. The first thing it makes is the
-log, so that even a failure to start is written down:
+`python3 tkinterlite.py` runs the function `main()`, defined in **`tkinterlite.py`** itself and
+called at its foot by `if __name__ == "__main__": main()` - the entry point, as `main()` is in C.
+`main()` makes the log first, so that even a failure to start is written down, and then the
+application, `App`:
 
 ```python
 def main():
