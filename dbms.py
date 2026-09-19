@@ -93,67 +93,118 @@ class DBMS:
             for line in self.con.iterdump():
                 f.write('%s\n' % line)
 
-    def get_fields(self, table):
-        """return fields name of the args table ordered by field number
+    def get_table_info(self, table):
+        """What a table is made of, asked of the schema.
 
-        @param name: table,
+        PRAGMA table_info says, for every column, its name and whether it is
+        the primary key: nothing is guessed from the order of the columns.
+
+        @param name: table
+        @return: (name, is primary key) per column, in table order
+        @rtype: list
+        """
+        rows = self.read(True, "PRAGMA table_info({0})".format(table))
+
+        if not rows:
+            raise ValueError("no table {0}".format(table))
+
+        return [(row["name"], bool(row["pk"])) for row in rows]
+
+    def get_primary_key(self, table):
+        """The primary key column of a table, asked of the schema.
+
+        @param name: table
+        @return: column name
+        @rtype: string
+        """
+        keys = [name for name, is_key in self.get_table_info(table) if is_key]
+
+        if len(keys) != 1:
+            raise ValueError("{0} has {1} primary key columns, not one".format(table,
+                                                                               len(keys)))
+
+        return keys[0]
+
+    def get_fields(self, table):
+        """Column names of a table, primary key excluded, in table order.
+
+        The key is left out because the schema says it is the key, not
+        because it happens to be the first column.
+
+        @param name: table
         @return: fields
         @rtype: tuple
         """
-        try:
-
-            columns = []
-            fields = []
-            sql = "SELECT * FROM {0}".format(table)
-            cur = self.con.cursor()
-            cur.execute(sql)
-
-            for field in cur.description:
-                columns.append(field[0])
-            cur.close()
-
-            for k, v in enumerate(columns):
-                if k > 0:
-                    fields.append(v)
-
-            return tuple(fields)
-        except:
-            self.on_log(self,
-                        inspect.stack()[0][3],
-                        sys.exc_info()[1],
-                        sys.exc_info()[0],
-                        sys.modules[__name__])
-        finally:
-            try:
-                cur.close()
-            except:
-                self.on_log(self,
-                            inspect.stack()[0][3],
-                            sys.exc_info()[1],
-                            sys.exc_info()[0],
-                            sys.modules[__name__])
-
+        return tuple(name for name, is_key in self.get_table_info(table) if not is_key)
 
     def get_update_sql(self, table, pk):
         """recive a table name and his pk to format an update sql statement
 
         @param name: table, pk
-        @return: sql formatted stringstring
+        @return: sql formatted string
         @rtype: string
         """
-        return "UPDATE {0} SET {1} =? WHERE {2} =?".format(table, " =?, ".join(self.get_fields(table)), pk)
+        assignments = ", ".join("{0} = ?".format(name) for name in self.get_fields(table))
 
-    def get_insert_sql(self, table, n):
-        """recive a table name and len of args, len(args),
-           to format an insert sql statement
+        return "UPDATE {0} SET {1} WHERE {2} = ?".format(table, assignments, pk)
 
-        @param name: table, n = len(args)
-        @return: sql formatted stringstring
+    def get_insert_sql(self, table):
+        """recive a table name to format an insert sql statement
+
+        @param name: table
+        @return: sql formatted string
         @rtype: string
         """
+        fields = self.get_fields(table)
 
-        return "INSERT INTO {0}({1})VALUES({2})".format(table, ",".join(self.get_fields(table)), ",".join("?"*n))
+        return "INSERT INTO {0}({1})VALUES({2})".format(table,
+                                                        ",".join(fields),
+                                                        ",".join("?" * len(fields)))
 
+    def get_args(self, table, values):
+        """The values of a row as a list, in the order the schema declares.
+
+        values is a dictionary keyed by column name, so no window has to know
+        the order of the columns. A missing column and an unknown one are
+        both refused, naming the table.
+
+        @param name: table, values
+        @return: args
+        @rtype: list
+        """
+        fields = self.get_fields(table)
+        missing = [name for name in fields if name not in values]
+        unknown = [name for name in values if name not in fields]
+
+        if missing or unknown:
+            raise ValueError("{0}: missing {1}, not a column {2}".format(table,
+                                                                        missing,
+                                                                        unknown))
+
+        return [values[name] for name in fields]
+
+    def get_insert(self, table, values):
+        """An INSERT and its args, with the values given by column name.
+
+        @param name: table, values
+        @return: sql, args
+        @rtype: tuple
+        """
+        return (self.get_insert_sql(table), self.get_args(table, values))
+
+    def get_update(self, table, key_value, values):
+        """An UPDATE and its args, with the values given by column name.
+
+        The primary key is asked of the schema and its value goes last.
+
+        @param name: table, key_value, values
+        @return: sql, args
+        @rtype: tuple
+        """
+        args = self.get_args(table, values)
+        args.append(key_value)
+
+        return (self.get_update_sql(table, self.get_primary_key(table)), args)
 
     def get_selected(self, table, field, *args):
         """recive table name, pk and return a dictionary keyed by column name

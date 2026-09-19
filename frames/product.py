@@ -141,13 +141,13 @@ class UI(tk.Toplevel):
 
     def get_values(self,):
 
-        return [self.product.get(),
-                self.dict_suppliers[self.cbSuppliers.current()],
-                self.dict_categories[self.cbCategories.current()],
-                self.package.get(),
-                self.price.get(),
-                self.stock.get(),
-                self.enable.get()]
+        return {"product": self.product.get(),
+                "supplier_id": self.dict_suppliers[self.cbSuppliers.current()],
+                "category_id": self.dict_categories[self.cbCategories.current()],
+                "package": self.package.get(),
+                "price": self.price.get(),
+                "stock": self.stock.get(),
+                "enable": self.enable.get()}
 
     def on_save(self, evt=None):
 
@@ -158,17 +158,18 @@ class UI(tk.Toplevel):
                                self.nametowidget(".").engine.ask_to_save,
                                parent=self) == True:
 
-            args = self.get_values()
+            values = self.get_values()
 
             if self.index is not None:
 
-                sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
-
-                args.append(self.parent.selected_item["product_id"])
+                key_value = self.parent.selected_item["product_id"]
+                sql, args = self.nametowidget(".").engine.get_update(self.parent.table,
+                                                                     key_value,
+                                                                     values)
 
             else:
 
-                sql = self.nametowidget(".").engine.get_insert_sql(self.parent.table, len(args))
+                sql, args = self.nametowidget(".").engine.get_insert(self.parent.table, values)
 
             product_id = self.nametowidget(".").engine.write(sql, args)
             self.parent.on_reset()
