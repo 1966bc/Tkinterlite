@@ -3,7 +3,8 @@
 How a small desktop application in Python, Tkinter and SQLite is put together, with the standard
 library only. Tkinterlite started in 2017 as a study; this document describes it after the 2026
 refactoring, and keeps the old design beside the new one, because the difference between the two
-is the most useful thing the project has to teach.
+is the most useful thing the project has to teach. To follow the program while it runs, method
+by method, read [HOW_IT_WORKS.md](HOW_IT_WORKS.md).
 
 ## The big picture
 

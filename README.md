@@ -43,6 +43,8 @@ sqlite3 northwind.sl3 < tkinterlite.sql
 
 - [ARCHITECTURE.md](ARCHITECTURE.md): the design, and the one it replaced. Composition instead
   of a mixin, the Observer, errors that rise to one net, a thread done right with Tkinter.
+- [HOW_IT_WORKS.md](HOW_IT_WORKS.md): the program followed while it runs - the start, a click,
+  a save, an error, a tick of the clock, the exit - method by method.
 - [CONVENTIONS.md](CONVENTIONS.md): the rules the code is written by.
 
 A few things are written by hand on purpose - the log, the configuration reader, the Observer -
