@@ -30,6 +30,7 @@ is the most useful thing the project has to teach.
 | `events.py`  | `Events` | the Observer: who changed what, told to whoever shows it       |
 | `log.py`     | `Log`    | the log file, rotated                                          |
 | `config.py`  | `Config` | `tkinterlite.ini`                                              |
+| `clock.py`   | `Clock`  | a thread that feeds the status bar through a queue             |
 | `ui/base.py` | `ListWindow`, `Dialog` | what every list and every one-row form share     |
 | `ui/*.py`    | `UI`     | one window each, saying only what is its own                   |
 
@@ -177,12 +178,29 @@ Now:
   exception in any callback. It writes the traceback to `tkinterlite.log` and shows the message.
   Before the main loop starts, `main()` guards the start the same way.
 
-## The clock
+## The clock: a thread, done right
 
-The status bar shows the time. It used to take a `Thread` writing to a `queue.Queue`, drained by
-`after(1, ...)` a thousand times a second. Now `Main.update_clock` writes the time and asks Tk to
-call it again in a second with `after(1000, ...)`: the main loop is the only thread, and the only
-one that touches widgets.
+Tkinter is single-threaded: only the thread running the main loop may touch a widget. A second
+thread that calls `label.config(...)` itself works on one machine and freezes on another, which
+is why threads in Tkinter are argued about so much. The clock in the status bar shows the pattern
+that works (`clock.py`):
+
+```
+  clock thread                       main loop (the only one touching widgets)
+  ────────────                       ─────────────────────────────────────────
+  Clock.run()                        Main.check_clock(), every 200 ms via after()
+    put the time ──► queue.Queue ──►   drain it, write the status bar
+    wait 1 s on an Event               ask again with after(200, ...)
+```
+
+The thread makes data, the queue carries it, the main loop takes it. The thread never touches a
+widget, and the main loop never waits for the thread. The thread is a `daemon`, and stops through
+a `threading.Event`, which wakes it at once instead of letting it sleep out its second.
+
+For a clock alone, `after(1000, ...)` would do; the thread is there to show the pattern for work
+that really blocks, such as reading a slow device or watching a folder. The first version of this
+clock had the right idea and paid for it: the queue was read with `after(1, ...)`, a thousand
+times a second, and every refresh of the main window started one more such loop.
 
 ## Configuration
 

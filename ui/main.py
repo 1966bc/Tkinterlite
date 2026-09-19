@@ -5,7 +5,6 @@
 # licence:  GPL-3.0-or-later, see LICENSE
 # -----------------------------------------------------------------------------
 """ This is the main module of Tkinterlite."""
-import datetime
 import os
 import sys
 import tkinter as tk
@@ -19,6 +18,7 @@ import ui.suppliers
 
 from engine import Engine
 from log import Log
+from clock import Clock
 
 #: The project directory, one level above ui/: the log lives there.
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -56,7 +56,7 @@ class Main(ttk.Frame):
         self.engine.events.subscribe("products", self.on_products_changed)
         self.engine.events.subscribe("categories", self.on_combo_changed)
         self.engine.events.subscribe("suppliers", self.on_combo_changed)
-        self.update_clock()
+        self.check_clock()
 
     def init_menu(self):
 
@@ -358,16 +358,17 @@ class Main(ttk.Frame):
     def on_log(self,):
         self.engine.open_log()
 
-    def update_clock(self):
-        """Write the time on the status bar, then ask Tk to do it again in a second.
+    def check_clock(self):
+        """Show what the clock thread has sent, and look again in 200 ms.
 
-        after() puts the next call in Tk's own queue of events, so there is no
-        thread, no queue.Queue and no polling every millisecond: the main loop
-        is the only thread there is, and the only one that touches widgets.
+        This runs on the main loop, the only thread that may touch a widget:
+        the clock thread only fills a queue, and this empties it. after(200)
+        asks often enough for a clock and costs nothing in between - the old
+        version asked every millisecond.
         """
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        self.status_bar_text.set("Astral date: {0}".format(now))
-        self.after(1000, self.update_clock)
+        for message in self.parent.clock.drain():
+            self.status_bar_text.set(message)
+        self.after(200, self.check_clock)
 
 
 class App(tk.Tk):
@@ -382,6 +383,9 @@ class App(tk.Tk):
         self.engine.tools.set_style(self.engine.config.get("window", "theme"))
         self.set_icon()
         self.set_info()
+        # The clock thread, started before the window that shows it (clock.py).
+        self.clock = Clock()
+        self.clock.start()
 
         w = Main(self)
         w.on_open()
@@ -420,6 +424,7 @@ class App(tk.Tk):
     def on_exit(self, evt=None):
         if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
             self.engine.db.con.close()
+            self.clock.stop()
             self.destroy()
 
 def main():
