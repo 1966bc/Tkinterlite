@@ -11,9 +11,11 @@ import datetime
 import sqlite3 as lite
 
 class DBMS:
-    def __init__(self,):
+    def __init__(self, database):
+        # The path is given by whoever creates the object: the application
+        # passes the file beside the program, a test passes ":memory:".
+        self.database = database
         self.set_connection()
-        #super().__init__()
 
     def __str__(self):
         return "class: {0}\nMRO: {1}".format(self.__class__.__name__,
@@ -21,7 +23,7 @@ class DBMS:
 
     def set_connection(self):
 
-        self.con = lite.connect("northwind.sl3",
+        self.con = lite.connect(self.database,
                                 detect_types=lite.PARSE_DECLTYPES|lite.PARSE_COLNAMES,
                                 isolation_level='IMMEDIATE')
         self.con.text_factory = lite.OptimizedUnicode
@@ -137,30 +139,6 @@ class DBMS:
         """
         return tuple(name for name, is_key in self.get_table_info(table) if not is_key)
 
-    def get_update_sql(self, table, pk):
-        """recive a table name and his pk to format an update sql statement
-
-        @param name: table, pk
-        @return: sql formatted string
-        @rtype: string
-        """
-        assignments = ", ".join("{0} = ?".format(name) for name in self.get_fields(table))
-
-        return "UPDATE {0} SET {1} WHERE {2} = ?".format(table, assignments, pk)
-
-    def get_insert_sql(self, table):
-        """recive a table name to format an insert sql statement
-
-        @param name: table
-        @return: sql formatted string
-        @rtype: string
-        """
-        fields = self.get_fields(table)
-
-        return "INSERT INTO {0}({1})VALUES({2})".format(table,
-                                                        ",".join(fields),
-                                                        ",".join("?" * len(fields)))
-
     def get_args(self, table, values):
         """The values of a row as a list, in the order the schema declares.
 
@@ -190,7 +168,12 @@ class DBMS:
         @return: sql, args
         @rtype: tuple
         """
-        return (self.get_insert_sql(table), self.get_args(table, values))
+        fields = self.get_fields(table)
+        sql = "INSERT INTO {0} ({1}) VALUES ({2})".format(table,
+                                                         ", ".join(fields),
+                                                         ", ".join("?" * len(fields)))
+
+        return (sql, self.get_args(table, values))
 
     def get_update(self, table, key_value, values):
         """An UPDATE and its args, with the values given by column name.
@@ -201,10 +184,14 @@ class DBMS:
         @return: sql, args
         @rtype: tuple
         """
+        assignments = ", ".join("{0} = ?".format(name) for name in self.get_fields(table))
+        sql = "UPDATE {0} SET {1} WHERE {2} = ?".format(table,
+                                                       assignments,
+                                                       self.get_primary_key(table))
         args = self.get_args(table, values)
         args.append(key_value)
 
-        return (self.get_update_sql(table, self.get_primary_key(table)), args)
+        return (sql, args)
 
     def get_selected(self, table, field, *args):
         """recive table name, pk and return a dictionary keyed by column name
@@ -217,20 +204,3 @@ class DBMS:
         sql = "SELECT * FROM {0} WHERE {1} = ?".format(table, field)
 
         return dict(self.read(False, sql, args))
-
-
-def main():
-
-    foo = DBMS()
-    print(foo)
-
-    sql = "SELECT name FROM sqlite_master WHERE type = 'table'"
-    rs = foo.read(True, sql)
-    if rs:
-        for i, row in enumerate(rs):
-            print(i, row["name"])
-
-    input('end')
-
-if __name__ == "__main__":
-    main()

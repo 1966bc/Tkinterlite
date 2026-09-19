@@ -19,7 +19,8 @@ from clock import Clock
 
 class Engine(DBMS, Tools, Clock):
     def __init__(self,):
-        super().__init__()
+        # The database beside the program, wherever it is started from.
+        super().__init__(self.get_file("northwind.sl3"))
 
         self.no_selected = "Attention!\nNo record selected!"
         self.ask_to_delete = "Delete data?"
@@ -139,14 +140,3 @@ class Engine(DBMS, Tools, Clock):
                         sys.exc_info()[1],
                         sys.exc_info()[0],
                         sys.modules[__name__])
-
-
-def main():
-    #testing some stuff
-    foo = Engine()
-    print(foo)
-    print(foo.set_connection())
-    input('end')
-
-if __name__ == "__main__":
-    main()
