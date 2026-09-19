@@ -77,11 +77,11 @@ class UI(tk.Toplevel):
 
         if rs:
             for i in rs:
-                s = "{:}".format(i[1])
+                s = "{:}".format(i["company"])
                 self.lstItems.insert(tk.END, s)
-                if i[2] != 1:
+                if i["enable"] != 1:
                     self.lstItems.itemconfig(index, {"bg": "light gray"})
-                self.dict_items[index] = i[0]
+                self.dict_items[index] = i["supplier_id"]
                 index += 1
 
             msg = ("Items: {0}".format(self.lstItems.size()))

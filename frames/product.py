@@ -120,24 +120,24 @@ class UI(tk.Toplevel):
 
     def set_values(self,):
 
-        self.product.set(self.parent.selected_item[1])
+        self.product.set(self.parent.selected_item["product"])
         #set value on cbSuppliers
         key = next(key
                    for key, value
                    in self.dict_suppliers.items()
-                   if value == self.parent.selected_item[2])
+                   if value == self.parent.selected_item["supplier_id"])
         self.cbSuppliers.current(key)
         #set value on cbCategories
         key = next(key
                    for key, value
                    in self.dict_categories.items()
-                   if value == self.parent.selected_item[3])
+                   if value == self.parent.selected_item["category_id"])
         self.cbCategories.current(key)
 
-        self.package.set(self.parent.selected_item[4])
-        self.price.set(self.parent.selected_item[5])
-        self.stock.set(self.parent.selected_item[6])
-        self.enable.set(self.parent.selected_item[7])
+        self.package.set(self.parent.selected_item["package"])
+        self.price.set(self.parent.selected_item["price"])
+        self.stock.set(self.parent.selected_item["stock"])
+        self.enable.set(self.parent.selected_item["enable"])
 
     def get_values(self,):
 
@@ -164,7 +164,7 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.parent.selected_item[0])
+                args.append(self.parent.selected_item["product_id"])
 
             else:
 
@@ -190,7 +190,7 @@ class UI(tk.Toplevel):
                                self.nametowidget(".").engine.ask_to_delete,
                                parent=self) == True:
 
-            args = (self.parent.selected_item[0],)
+            args = (self.parent.selected_item["product_id"],)
             self.nametowidget(".").engine.write(sql, args)
             self.parent.get_selected_combo_item()
             self.on_cancel()
@@ -208,9 +208,9 @@ class UI(tk.Toplevel):
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
-            self.dict_categories[index] = i[0]
+            self.dict_categories[index] = i["category_id"]
             index += 1
-            values.append(i[1])
+            values.append(i["category"])
 
         self.cbCategories["values"] = values
 
@@ -224,9 +224,9 @@ class UI(tk.Toplevel):
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
-            self.dict_suppliers[index] = i[0]
+            self.dict_suppliers[index] = i["supplier_id"]
             index += 1
-            values.append(i[1])
+            values.append(i["company"])
 
         self.cbSuppliers["values"] = values
 

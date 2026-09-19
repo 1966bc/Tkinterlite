@@ -272,15 +272,17 @@ class Main(ttk.Frame):
 
             for i in rs:
 
-                if i[7] == 0:
+                if i["enable"] == 0:
                     tag_config = ("is_enable")
-                elif i[6] < 1:
+                elif i["stock"] < 1:
                     tag_config = ("is_zero")
                 else:
                     tag_config = ("")
 
-                self.lstProducts.insert("", tk.END, iid=i[0], text=i[0],
-                                        values=(i[1], i[4], i[6], i[5]),
+                self.lstProducts.insert("", tk.END,
+                                        iid=i["product_id"], text=i["product_id"],
+                                        values=(i["product"], i["package"],
+                                                i["stock"], i["price"]),
                                         tags=tag_config)
 
         s = "{0} {1}".format("Products", len(self.lstProducts.get_children()))
@@ -296,13 +298,13 @@ class Main(ttk.Frame):
 
         if self.option_id.get() != 1:
             self.lblCombo["text"] = "Categories"
-            sql = "SELECT category_id, category\
+            sql = "SELECT category_id AS id, category AS caption\
                    FROM categories\
                    WHERE enable =1\
                    ORDER BY category;"
         else:
             self.lblCombo["text"] = "Suppliers"
-            sql = "SELECT supplier_id, company\
+            sql = "SELECT supplier_id AS id, company AS caption\
                    FROM suppliers\
                    WHERE enable =1\
                    ORDER BY company;"
@@ -310,9 +312,9 @@ class Main(ttk.Frame):
         rs = self.nametowidget(".").engine.read(True, sql, ())
 
         for i in rs:
-            self.dict_combo_values[index] = i[0]
+            self.dict_combo_values[index] = i["id"]
             index += 1
-            values.append(i[1])
+            values.append(i["caption"])
 
         self.cbCombo.set("")
         self.cbCombo["values"] = values

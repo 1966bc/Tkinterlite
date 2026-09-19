@@ -25,6 +25,10 @@ class DBMS:
                                 detect_types=lite.PARSE_DECLTYPES|lite.PARSE_COLNAMES,
                                 isolation_level='IMMEDIATE')
         self.con.text_factory = lite.OptimizedUnicode
+        # Every row can be read by column name, row["stock"], and not only
+        # by position, row[6], which silently changes meaning the day a
+        # column is added.
+        self.con.row_factory = lite.Row
 
 
     def read(self, fetch, sql, args=()):
@@ -152,20 +156,16 @@ class DBMS:
 
 
     def get_selected(self, table, field, *args):
-        """recive table name, pk and return a dictionary
+        """recive table name, pk and return a dictionary keyed by column name
 
         @param name: table,field,*args
         @return: dictionary
         @rtype: dictionary
         """
 
-        d = {}
         sql = "SELECT * FROM {0} WHERE {1} = ?".format(table, field)
 
-        for k, v in enumerate(self.read(False, sql, args)):
-            d[k] = v
-
-        return d
+        return dict(self.read(False, sql, args))
 
 
 def main():
@@ -176,8 +176,8 @@ def main():
     sql = "SELECT name FROM sqlite_master WHERE type = 'table'"
     rs = foo.read(True, sql)
     if rs:
-        for i in enumerate(rs):
-            print(i)
+        for i, row in enumerate(rs):
+            print(i, row["name"])
 
     input('end')
 

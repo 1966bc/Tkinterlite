@@ -83,9 +83,9 @@ class UI(tk.Toplevel):
 
     def set_values(self,):
 
-        self.category.set(self.parent.selected_item[1])
-        self.description.set(self.parent.selected_item[2])
-        self.enable.set(self.parent.selected_item[3])
+        self.category.set(self.parent.selected_item["category"])
+        self.description.set(self.parent.selected_item["description"])
+        self.enable.set(self.parent.selected_item["enable"])
 
     def get_values(self,):
 
@@ -107,7 +107,7 @@ class UI(tk.Toplevel):
 
                 sql = self.nametowidget(".").engine.get_update_sql(self.parent.table, self.parent.primary_key)
 
-                args.append(self.parent.selected_item[0])
+                args.append(self.parent.selected_item["category_id"])
 
             else:
 
