@@ -106,6 +106,13 @@ class Engine(DBMS, Tools, Clock):
                         sys.exc_info()[0],
                         sys.modules[__name__])
 
+    def get_icons(self, which):
+        """Every size of an icon: its file holds one base64 PNG per line."""
+        path = self.get_file(which)
+        with open(path, "r") as f:
+            icons = f.read().split()
+        return icons
+
     def get_log_file(self):
 
         try:

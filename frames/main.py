@@ -387,8 +387,10 @@ class App(tk.Tk):
         self.title(s)
 
     def set_icon(self):
-        icon = tk.PhotoImage(data=self.engine.get_icon("app"))
-        self.call("wm", "iconphoto", self._w, "-default", icon)
+        # The icon in 16, 32 and 48 pixels: the window manager picks the
+        # size each place needs, so it is never scaled up and blurred.
+        icons = [tk.PhotoImage(data=data) for data in self.engine.get_icons("app")]
+        self.iconphoto(True, *icons)
 
     def set_info(self,):
         msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\
