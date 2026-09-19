@@ -159,8 +159,9 @@ self.engine.db.write(sql, args)
 ```
 
 `DBMS.get_update` (`dbms.py`) does not know the table's columns in advance: it asks SQLite,
-with `PRAGMA table_info(products)`, which columns there are and which one is the primary key. It
-puts the values in that order, refuses a column that is missing or unknown, and returns:
+with `PRAGMA table_info(products)`, which columns there are and which one is the primary key -
+the first time only, then it remembers the answer in `dict_tables`. It puts the values in that
+order, refuses a column that is missing or unknown, and returns:
 
 ```
 UPDATE products SET product = ?, supplier_id = ?, ... WHERE product_id = ?

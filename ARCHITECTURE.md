@@ -237,6 +237,75 @@ times a second, and every refresh of the main window started one more such loop.
 `tkinterlite.ini`, read by `Config` line by line: `[sections]`, `key = value`, comments. Any
 other line stops the program at start, naming the file and the line number.
 
+## Small things worth knowing
+
+Details that are easy to miss in the code and worth learning from. Each one says what, why, and
+where to look.
+
+**The database**
+
+- **The schema is asked once per table, then remembered** - `DBMS.get_table_info`, `dbms.py`. A
+  save used to run `PRAGMA table_info` three times, once for each method `get_update` calls; the
+  answer now lives in `dict_tables`. Memoization by hand, what `functools.lru_cache` would do. The
+  code was already DRY - the repetition was in running it, not in writing it. It holds because the
+  program never changes the structure of a table while it runs.
+- **`lastrowid` means nothing after an UPDATE** - `Dialog.save`, `ui/dialog.py`. An INSERT returns
+  the id it made; after an UPDATE `lastrowid` still holds the last row inserted on the connection.
+  `python3 tkinterlite.py --trace` shows `lastrowid 0` after a save. The id comes from `row_id`.
+- **A LEFT JOIN, not a JOIN** - `SELECTED`, `ui/main.py`. A product whose supplier were missing
+  would still be found, with an empty name, instead of vanishing from the answer.
+
+**Tkinter**
+
+- **Land on a row by its id, never by its position** - `ListWindow.on_changed`,
+  `ui/list_window.py`. Renaming "Beverages" to "Zucchero" moves it to the end of the list: the old
+  position now belongs to another category.
+- **`exportselection=False`** - `Tools.get_listbox`, `tools.py`. Without it, selecting a word in
+  the dialog clears the selection of the list the dialog is about.
+- **Combo boxes are `readonly`** - `Tools.get_combo`. One that can be typed into accepts a
+  supplier that does not exist.
+- **Selecting from code fires `<<TreeviewSelect>>` too** - `Main.on_select`, `ui/main.py`. So
+  when the Observer lands on a saved product, the status bar follows by itself.
+- **A `PhotoImage` must be kept on `self`** - `Main.init_toolbar`, `ui/about.py`. One held only by
+  a local variable is collected by Python, and the button or label goes blank.
+- **The icon in three sizes** - `App.set_icon`, `ui/app.py`. `iconphoto` takes 16, 32 and 48
+  pixels, and the window manager picks the one each place needs instead of scaling one up.
+- **A negative button width is a minimum** - `Tools.BUTTON_WIDTH = -8`. Never narrower than eight
+  characters, never wider than its own words.
+- **The row height comes from the font** - `Tools.set_style`. A machine set to large text gets
+  taller rows, not clipped ones.
+
+**Threads**
+
+- **Only the main loop touches widgets** - `clock.py` and `Main.check_clock`. The thread puts
+  data on a `queue.Queue`; the main loop takes it with `after(200, ...)`, which schedules and
+  returns at once.
+- **Stop a thread with an `Event`, not a flag** - `Clock.run`. `stopping.wait(1.0)` is the sleep
+  and the check in one: it wakes the moment `stop()` is called.
+- **A daemon thread** - `Clock.__init__`. It ends with the program even if `stop()` is forgotten.
+
+**Errors, the log, the program**
+
+- **The net must be inside an `except`** - `App.report_callback_exception`, `ui/app.py`. Tkinter
+  calls it while it is handling the exception, which is what `traceback.format_exc()` in
+  `Log.exception` needs.
+- **Who is calling** - `Log.trace`, `log.py`. `inspect.currentframe().f_back` is the caller's
+  frame, and its local `self` is the object at work.
+- **Rotating a file by hand** - `Log.rotate`. `os.replace` overwrites its target, so moving `.2`
+  onto `.3` is also how the oldest copy goes.
+- **Split on the first `=` only** - `Config.read`, `config.py`. A value may contain one:
+  `url = file:northwind.sl3?mode=ro`.
+- **`Popen`, not `call`** - `Engine.open_file`, `engine.py`. `call` waits for the editor to be
+  closed, and the whole application would stand still meanwhile.
+- **An unknown option is refused, not ignored** - `main()`, `tkinterlite.py`. `--verbose` stops
+  the program with the usage, instead of starting it as if nothing had been said.
+
+**Tests**
+
+- **Stand-ins instead of the real thing** - `MemoryLog` in `tests/test_dbms.py`, `FakeWindow` in
+  `tests/test_windows.py`. Composition makes them possible: a collaborator is an argument, so a
+  test can pass a small class that writes down what it was asked.
+
 ## Tests
 
 ```

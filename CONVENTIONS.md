@@ -13,6 +13,9 @@ The rules this code is written by.
   `return` in the middle, no `break`/`continue`. A function that needs several exits is doing
   several things and must be split. `raise` is allowed, for real errors only.
 - **One thing per line**: a plain `if`/`else`, never `x if condition else y`.
+- **DRY**: every piece of knowledge is written once. Two copies start identical, one gets fixed
+  and the other does not: a list or a form repeated goes to a base class, a helper used twice
+  goes to `Tools` or `DBMS`.
 - **KISS and YAGNI**: the simplest solution that still reads clearly in two years; nothing
   written for an imagined future.
 - **Least surprise**: a name promises what the code does, no more. A `get_*` returns and writes

@@ -43,12 +43,13 @@ class MemoryLog:
 
     def __init__(self):
         self.entries = []
+        self.traced = []
 
     def error(self, message):
         self.entries.append(message)
 
     def trace(self, message):
-        pass
+        self.traced.append(message)
 
 
 class Store(DBMS):
@@ -79,6 +80,19 @@ class TestSchema(unittest.TestCase):
 
     def test_fields_leave_out_the_key_wherever_it_is(self):
         self.assertEqual(self.store.get_fields("lots"), ("code", "expiry"))
+
+    def test_schema_is_asked_once(self):
+        # get_update asks for the fields, the key and the args: the schema is
+        # read the first time only, and remembered.
+        self.store.get_update("suppliers", 2, {"company": "Pavlova", "enable": 1})
+        self.store.get_update("suppliers", 2, {"company": "Pavlova", "enable": 1})
+        asked = [line for line in self.store.log.traced if line.startswith("PRAGMA")]
+        self.assertEqual(len(asked), 1)
+
+    def test_unknown_table_is_refused_and_not_remembered(self):
+        with self.assertRaises(ValueError):
+            self.store.get_fields("customers")
+        self.assertNotIn("customers", self.store.dict_tables)
 
     def test_unknown_table_is_refused(self):
         with self.assertRaises(ValueError):

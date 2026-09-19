@@ -15,6 +15,9 @@ class DBMS:
         # ":memory:" and a log of its own.
         self.database = database
         self.log = log
+        #: table -> its columns as get_table_info returns them, remembered
+        #: after the first time they are asked of the schema.
+        self.dict_tables = {}
         self.set_connection()
 
     def __str__(self):
@@ -114,21 +117,29 @@ class DBMS:
         return path
 
     def get_table_info(self, table):
-        """What a table is made of, asked of the schema.
+        """What a table is made of, asked of the schema once and then remembered.
 
         PRAGMA table_info says, for every column, its name and whether it is
         the primary key: nothing is guessed from the order of the columns.
+
+        The answer is kept in dict_tables - memoization, by hand; the standard
+        library would do it with functools.lru_cache. A save used to ask the
+        same table three times, once for each method get_update calls. It is
+        safe because Tkinterlite changes the data and never the structure of
+        a table while it runs: a program that did ALTER TABLE would have to
+        forget that table first.
 
         @param name: table
         @return: (name, is primary key) per column, in table order
         @rtype: list
         """
-        rows = self.read(True, "PRAGMA table_info({0})".format(table))
+        if table not in self.dict_tables:
+            rows = self.read(True, "PRAGMA table_info({0})".format(table))
+            if not rows:
+                raise ValueError("no table {0}".format(table))
+            self.dict_tables[table] = [(row["name"], bool(row["pk"])) for row in rows]
 
-        if not rows:
-            raise ValueError("no table {0}".format(table))
-
-        return [(row["name"], bool(row["pk"])) for row in rows]
+        return self.dict_tables[table]
 
     def get_primary_key(self, table):
         """The primary key column of a table, asked of the schema.
