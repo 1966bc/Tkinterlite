@@ -347,9 +347,12 @@ class Main(ttk.Frame):
 
     def on_dump(self):
         self.engine.tools.busy(self)
-        self.engine.db.dump()
+        # Into dumps/, beside the program, not into whatever folder it was started from.
+        path = self.engine.db.dump(self.engine.get_file("dumps"))
         self.engine.tools.not_busy(self)
-        messagebox.showinfo(self.nametowidget(".").title(), "Dump executed.", parent=self)
+        messagebox.showinfo(self.nametowidget(".").title(),
+                            "Dump written to\n{0}".format(path),
+                            parent=self)
 
     def on_vacuum(self):
         sql = "VACUUM;"

@@ -6,6 +6,7 @@
 # modify:   hiems MMXX
 #-----------------------------------------------------------------------------
 import datetime
+import os
 import sqlite3 as lite
 
 class DBMS:
@@ -26,7 +27,6 @@ class DBMS:
         self.con = lite.connect(self.database,
                                 detect_types=lite.PARSE_DECLTYPES|lite.PARSE_COLNAMES,
                                 isolation_level='IMMEDIATE')
-        self.con.text_factory = lite.OptimizedUnicode
         # Every row can be read by column name, row["stock"], and not only
         # by position, row[6], which silently changes meaning the day a
         # column is added.
@@ -82,13 +82,23 @@ class DBMS:
 
         return row_id
 
-    def dump(self,):
+    def dump(self, folder):
+        """Write the whole database as SQL into folder; return the file's path.
 
-        dt = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
-        s = dt + ".sql"
-        with open(s, 'w') as f:
+        The file is named after the moment, YYYYMMDDHHMMSS.sql, so dumps
+        sort by date and never overwrite each other. The folder is created
+        the first time.
+        """
+        name = "{0}.sql".format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"))
+        path = os.path.join(folder, name)
+
+        os.makedirs(folder, exist_ok=True)
+
+        with open(path, "w", encoding="utf-8") as f:
             for line in self.con.iterdump():
-                f.write('%s\n' % line)
+                f.write("{0}\n".format(line))
+
+        return path
 
     def get_table_info(self, table):
         """What a table is made of, asked of the schema.

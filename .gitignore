@@ -3,3 +3,6 @@ tkinterlite.log*
 
 # Python's compiled files.
 __pycache__/
+
+# Database dumps written by File > Database > Dump.
+dumps/

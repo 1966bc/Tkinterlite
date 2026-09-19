@@ -11,7 +11,9 @@ Run them from the project directory:
     python3 -m unittest discover -s tests -v
 """
 
+import os
 import sqlite3
+import tempfile
 import unittest
 
 from dbms import DBMS
@@ -163,6 +165,27 @@ class TestReadWrite(unittest.TestCase):
         self.assertEqual(len(self.store.log.entries), 1)
         rows = self.store.read(True, "SELECT * FROM suppliers")
         self.assertEqual(len(rows), 2)
+
+
+class TestDump(unittest.TestCase):
+    """The whole database as SQL, into a folder that may not exist yet."""
+
+    def setUp(self):
+        self.store = Store()
+        self.folder = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self.store.con.close()
+        self.folder.cleanup()
+
+    def test_dump_creates_the_folder_and_the_file(self):
+        folder = os.path.join(self.folder.name, "dumps")
+        path = self.store.dump(folder)
+        self.assertEqual(os.path.dirname(path), folder)
+        with open(path, "r", encoding="utf-8") as f:
+            text = f.read()
+        self.assertIn("CREATE TABLE suppliers", text)
+        self.assertIn("Exotic Liquids", text)
 
 
 if __name__ == "__main__":
