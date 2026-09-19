@@ -18,6 +18,7 @@ class UI(tk.Toplevel):
         super().__init__(name="suppliers")
 
         self.parent = parent
+        self.engine = parent.engine
         self.attributes("-topmost", True)
         self.protocol("WM_DELETE_WINDOW", self.on_cancel)
         self.table = "suppliers"
@@ -25,7 +26,7 @@ class UI(tk.Toplevel):
         self.items = tk.IntVar()
         self.obj = None
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.engine.tools.center_me(self)
 
     def init_ui(self):
 
@@ -73,7 +74,7 @@ class UI(tk.Toplevel):
         index = 0
         self.dict_items = {}
 
-        rs = self.nametowidget(".").engine.read(True, SQL, ())
+        rs = self.engine.db.read(True, SQL, ())
 
         if rs:
             for i in rs:
@@ -97,9 +98,9 @@ class UI(tk.Toplevel):
         if self.lstItems.curselection():
             index = self.lstItems.curselection()[0]
             pk = self.dict_items.get(index)
-            self.selected_item = self.nametowidget(".").engine.get_selected(self.table,
-                                                                            self.primary_key,
-                                                                            pk)
+            self.selected_item = self.engine.db.get_selected(self.table,
+                                                             self.primary_key,
+                                                             pk)
     def on_item_activated(self, evt=None):
 
         if self.lstItems.curselection():
@@ -109,7 +110,7 @@ class UI(tk.Toplevel):
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
-                                   self.nametowidget(".").engine.no_selected,
+                                   self.engine.no_selected,
                                    parent=self)
 
     def on_cancel(self, evt=None):

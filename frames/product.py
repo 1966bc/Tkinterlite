@@ -15,6 +15,7 @@ class UI(tk.Toplevel):
         super().__init__(name="product")
 
         self.parent = parent
+        self.engine = parent.engine
         self.index = index
         self.resizable(0, 0)
         self.transient(parent)
@@ -28,9 +29,9 @@ class UI(tk.Toplevel):
         self.price = tk.DoubleVar()
         self.enable = tk.BooleanVar()
 
-        self.val_int = self.nametowidget(".").engine.get_validate_integer(self)
-        self.val_float = self.nametowidget(".").engine.get_validate_float(self)
-        self.nametowidget(".").engine.center_me(self)
+        self.val_int = self.engine.tools.get_validate_integer(self)
+        self.val_float = self.engine.tools.get_validate_float(self)
+        self.engine.tools.center_me(self)
         self.init_ui()
 
     def init_ui(self):
@@ -151,11 +152,11 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.nametowidget(".").engine.on_fields_control(self.frm_main,
-                                                           self.nametowidget(".").title()) == False: return
+        if self.engine.tools.on_fields_control(self.frm_main,
+                                               self.nametowidget(".").title()) == False: return
 
         if messagebox.askyesno(self.nametowidget(".").title(),
-                               self.nametowidget(".").engine.ask_to_save,
+                               self.engine.ask_to_save,
                                parent=self) == True:
 
             values = self.get_values()
@@ -163,15 +164,15 @@ class UI(tk.Toplevel):
             if self.index is not None:
 
                 key_value = self.parent.selected_item["product_id"]
-                sql, args = self.nametowidget(".").engine.get_update(self.parent.table,
-                                                                     key_value,
-                                                                     values)
+                sql, args = self.engine.db.get_update(self.parent.table,
+                                                      key_value,
+                                                      values)
 
             else:
 
-                sql, args = self.nametowidget(".").engine.get_insert(self.parent.table, values)
+                sql, args = self.engine.db.get_insert(self.parent.table, values)
 
-            product_id = self.nametowidget(".").engine.write(sql, args)
+            product_id = self.engine.db.write(sql, args)
             self.parent.on_reset()
 
             if self.index is not None:
@@ -188,16 +189,16 @@ class UI(tk.Toplevel):
         sql = "DELETE FROM products WHERE product_id=?;"
 
         if messagebox.askyesno(self.nametowidget(".").title(),
-                               self.nametowidget(".").engine.ask_to_delete,
+                               self.engine.ask_to_delete,
                                parent=self) == True:
 
             args = (self.parent.selected_item["product_id"],)
-            self.nametowidget(".").engine.write(sql, args)
+            self.engine.db.write(sql, args)
             self.parent.get_selected_combo_item()
             self.on_cancel()
         else:
             messagebox.showinfo(self.nametowidget(".").title(),
-                                self.nametowidget(".").engine.abort,
+                                self.engine.abort,
                                 parent=self)
 
     def set_categories(self):
@@ -206,7 +207,7 @@ class UI(tk.Toplevel):
         index = 0
         self.dict_categories = {}
         values = []
-        rs = self.nametowidget(".").engine.read(True, sql, ())
+        rs = self.engine.db.read(True, sql, ())
 
         for i in rs:
             self.dict_categories[index] = i["category_id"]
@@ -222,7 +223,7 @@ class UI(tk.Toplevel):
         self.dict_suppliers = {}
         values = []
 
-        rs = self.nametowidget(".").engine.read(True, sql, ())
+        rs = self.engine.db.read(True, sql, ())
 
         for i in rs:
             self.dict_suppliers[index] = i["supplier_id"]

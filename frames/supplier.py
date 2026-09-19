@@ -14,6 +14,7 @@ class UI(tk.Toplevel):
         super().__init__(name="supplier")
 
         self.parent = parent
+        self.engine = parent.engine
         self.index = index
         self.transient(parent)
         self.resizable(0, 0)
@@ -24,7 +25,7 @@ class UI(tk.Toplevel):
         self.company = tk.StringVar()
         self.enable = tk.BooleanVar()
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.engine.tools.center_me(self)
 
     def init_ui(self):
 
@@ -86,10 +87,10 @@ class UI(tk.Toplevel):
 
     def on_save(self, evt=None):
 
-        if self.nametowidget(".").engine.on_fields_control(self.frm_main, self.nametowidget(".").title()) == False: return
+        if self.engine.tools.on_fields_control(self.frm_main, self.nametowidget(".").title()) == False: return
 
         if messagebox.askyesno(self.nametowidget(".").title(),
-                               self.nametowidget(".").engine.ask_to_save,
+                               self.engine.ask_to_save,
                                parent=self) == True:
 
             values = self.get_values()
@@ -97,15 +98,15 @@ class UI(tk.Toplevel):
             if self.index is not None:
 
                 key_value = self.parent.selected_item["supplier_id"]
-                sql, args = self.nametowidget(".").engine.get_update(self.parent.table,
-                                                                     key_value,
-                                                                     values)
+                sql, args = self.engine.db.get_update(self.parent.table,
+                                                      key_value,
+                                                      values)
 
             else:
 
-                sql, args = self.nametowidget(".").engine.get_insert(self.parent.table, values)
+                sql, args = self.engine.db.get_insert(self.parent.table, values)
 
-            last_id = self.nametowidget(".").engine.write(sql, args)
+            last_id = self.engine.db.write(sql, args)
             self.parent.on_open()
 
             if self.index is not None:
@@ -121,7 +122,7 @@ class UI(tk.Toplevel):
 
         else:
             messagebox.showinfo(self.nametowidget(".").title(),
-                                self.nametowidget(".").engine.abort,
+                                self.engine.abort,
                                 parent=self)
 
     def on_cancel(self, evt=None):

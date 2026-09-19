@@ -11,17 +11,26 @@ import subprocess
 
 from dbms import DBMS
 from tools import Tools
-from clock import Clock
 from config import Config
 
 
+class Engine:
+    """The one object every window reaches: it owns the parts, it is none of them.
 
-class Engine(DBMS, Tools, Clock):
+    Composition, not inheritance: Engine is not a database, it has one. Each
+    part is an attribute, so a call says who does the work -
+    engine.db.read(...), engine.tools.center_me(...) - and each part can be
+    built and tested on its own.
+    """
+
     def __init__(self, log):
-        # The database beside the program, wherever it is started from.
-        super().__init__(self.get_file("northwind.sl3"), log)
+        self.log = log
         # The settings, read by the Config class from tkinterlite.ini.
         self.config = Config(self.get_file("tkinterlite.ini"))
+        # The database beside the program, wherever it is started from.
+        self.db = DBMS(self.get_file("northwind.sl3"), log)
+        # Styles and widget helpers.
+        self.tools = Tools()
 
         self.no_selected = "Attention!\nNo record selected!"
         self.ask_to_delete = "Delete data?"
@@ -29,13 +38,8 @@ class Engine(DBMS, Tools, Clock):
         self.abort = "Operation aborted!"
 
     def __str__(self):
-        return "class: {0}\nMRO:{1}".format(self.__class__.__name__,
-                       [x.__name__ for x in Engine.__mro__])
+        return "class: {0}\nparts: log, config, db, tools".format(self.__class__.__name__)
 
-    def get_clock(self,):
-        """Instance the clock."""
-        return Clock()
-        
     def get_python_version(self,):
         return "Python version:\n{0}".format(".".join(map(str, sys.version_info[:3])))
 

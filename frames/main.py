@@ -19,6 +19,7 @@ import frames.suppliers
 
 from engine import Engine
 from log import Log
+from clock import Clock
 
 #: The project directory, one level above frames/: the log lives there.
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,6 +40,7 @@ class Main(ttk.Frame):
         super().__init__()
 
         self.parent = parent
+        self.engine = parent.engine
         self.table = "products"
         self.primary_key = "product_id"
         self.option_id = tk.IntVar()
@@ -95,7 +97,7 @@ class Main(ttk.Frame):
             m_about.add_command(label=i[0], underline=0, command=i[1])
 
         for i in (m_main, m_file, s_databases, m_tools, m_about):
-            i.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237),)
+            i.config(bg=self.engine.tools.get_rgb(240, 240, 237),)
             i.config(fg="black")
 
         self.nametowidget(".").config(menu=m_main)
@@ -104,8 +106,8 @@ class Main(ttk.Frame):
 
         toolbar = tk.Frame(self, bd=1, relief=tk.RAISED)
 
-        img_exit = tk.PhotoImage(data=self.nametowidget(".").engine.get_icon("exit"))
-        img_info = tk.PhotoImage(data=self.nametowidget(".").engine.get_icon("info"))
+        img_exit = tk.PhotoImage(data=self.engine.get_icon("exit"))
+        img_info = tk.PhotoImage(data=self.engine.get_icon("info"))
 
         exitButton = tk.Button(toolbar, width=20, image=img_exit,
                                relief=tk.FLAT, command=self.parent.on_exit)
@@ -118,7 +120,7 @@ class Main(ttk.Frame):
         exitButton.pack(side=tk.LEFT, padx=2, pady=2)
         infoButton.pack(side=tk.LEFT, padx=2, pady=2)
 
-        toolbar.config(bg=self.nametowidget(".").engine.get_rgb(240, 240, 237))
+        toolbar.config(bg=self.engine.tools.get_rgb(240, 240, 237))
         toolbar.pack(side=tk.TOP, fill=tk.X)
 
     def init_status_bar(self):
@@ -143,9 +145,9 @@ class Main(ttk.Frame):
                 ["#4", "Price", "center", True, 20, 20],)
         
         self.lblProdutcs = ttk.LabelFrame(frm_left, style="App.TLabelframe", text="Products",)
-        self.lstProducts = self.nametowidget(".").engine.get_tree(self.lblProdutcs, cols,)
+        self.lstProducts = self.engine.tools.get_tree(self.lblProdutcs, cols,)
         self.lstProducts.tag_configure("is_enable", background="light gray")
-        self.lstProducts.tag_configure("is_zero", background=self.nametowidget(".").engine.get_rgb(255, 160, 122))
+        self.lstProducts.tag_configure("is_zero", background=self.engine.tools.get_rgb(255, 160, 122))
         self.lstProducts.bind("<<TreeviewSelect>>", self.on_prduct_selected)
         self.lstProducts.bind("<Double-1>", self.on_prduct_activated)
 
@@ -198,7 +200,7 @@ class Main(ttk.Frame):
         ws = self.nametowidget(".").winfo_screenwidth()
         hs = self.nametowidget(".").winfo_screenheight()
         # calculate position x, y
-        config = self.nametowidget(".").engine.config
+        config = self.engine.config
         w = config.get_int("window", "width")
         h = config.get_int("window", "height")
         x = (ws/2) - (w/2)
@@ -232,7 +234,7 @@ class Main(ttk.Frame):
         if self.lstProducts.focus():
             item_iid = self.lstProducts.selection()
             pk = int(item_iid[0])
-            self.selected_item = self.nametowidget(".").engine.get_selected(self.table, self.primary_key, pk)        
+            self.selected_item = self.engine.db.get_selected(self.table, self.primary_key, pk)        
 
     def on_prduct_activated(self, evt=None):
 
@@ -244,7 +246,7 @@ class Main(ttk.Frame):
 
         else:
             messagebox.showwarning(self.nametowidget(".").title(),
-                                   self.nametowidget(".").engine.no_selected,
+                                   self.engine.no_selected,
                                    parent=self)
 
     
@@ -271,7 +273,7 @@ class Main(ttk.Frame):
         for i in self.lstProducts.get_children():
             self.lstProducts.delete(i)
 
-        rs = self.nametowidget(".").engine.read(True, sql, args)
+        rs = self.engine.db.read(True, sql, args)
 
         if rs:
 
@@ -314,7 +316,7 @@ class Main(ttk.Frame):
                    WHERE enable =1\
                    ORDER BY company;"
 
-        rs = self.nametowidget(".").engine.read(True, sql, ())
+        rs = self.engine.db.read(True, sql, ())
 
         for i in rs:
             self.dict_combo_values[index] = i["id"]
@@ -328,7 +330,7 @@ class Main(ttk.Frame):
         frames.license.UI(self).on_open()
 
     def on_python_version(self):
-        s = self.nametowidget(".").engine.get_python_version()
+        s = self.engine.get_python_version()
         messagebox.showinfo(self.nametowidget(".").title(), s, parent=self)
 
     def on_tkinter_version(self):
@@ -341,20 +343,20 @@ class Main(ttk.Frame):
                             parent=self)
 
     def on_dump(self):
-        self.nametowidget(".").engine.busy(self)
-        self.nametowidget(".").engine.dump()
-        self.nametowidget(".").engine.not_busy(self)
+        self.engine.tools.busy(self)
+        self.engine.db.dump()
+        self.engine.tools.not_busy(self)
         messagebox.showinfo(self.nametowidget(".").title(), "Dump executed.", parent=self)
 
     def on_vacuum(self):
         sql = "VACUUM;"
-        self.nametowidget(".").engine.busy(self)
-        self.nametowidget(".").engine.write(sql)
-        self.nametowidget(".").engine.not_busy(self)
+        self.engine.tools.busy(self)
+        self.engine.db.write(sql)
+        self.engine.tools.not_busy(self)
         messagebox.showinfo(self.nametowidget(".").title(), "Vacuum executed.", parent=self)
 
     def on_log(self,):
-        self.nametowidget(".").engine.open_log()
+        self.engine.open_log()
 
     def periodic_call(self):
 
@@ -373,7 +375,7 @@ class App(tk.Tk):
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.set_title(kwargs["title"])
-        self.engine.set_style(self.engine.config.get("window", "theme"))
+        self.engine.tools.set_style(self.engine.config.get("window", "theme"))
         self.set_icon()
         self.set_info()
         # set clock and start it.
@@ -384,7 +386,7 @@ class App(tk.Tk):
         w.pack(fill=tk.BOTH, expand=1)
 
     def set_clock(self,):
-        self.clock = self.engine.get_clock()
+        self.clock = Clock()
         self.clock.start()
 
     def set_title(self, title):
@@ -419,7 +421,7 @@ class App(tk.Tk):
 
     def on_exit(self, evt=None):
         if messagebox.askokcancel(self.title(), "Do you want to quit?", parent=self):
-            self.engine.con.close()
+            self.engine.db.con.close()
             if self.clock is not None:
                 self.clock.stop()
             self.destroy()

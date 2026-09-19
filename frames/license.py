@@ -15,8 +15,9 @@ class UI(tk.Toplevel):
         super().__init__(name="license")
 
         self.parent = parent
+        self.engine = parent.engine
         self.init_ui()
-        self.nametowidget(".").engine.center_me(self)
+        self.engine.tools.center_me(self)
 
     def init_ui(self):
 
@@ -38,7 +39,7 @@ class UI(tk.Toplevel):
         
     def on_open(self):
 
-        msg = self.nametowidget(".").engine.get_license()
+        msg = self.engine.get_license()
         
         if msg:
             self.txLicense.insert("1.0", msg)
