@@ -198,9 +198,9 @@ class Main(ttk.Frame):
         ws = self.nametowidget(".").winfo_screenwidth()
         hs = self.nametowidget(".").winfo_screenheight()
         # calculate position x, y
-        d = self.nametowidget(".").engine.get_dimensions()
-        w = int(d["w"])
-        h = int(d["h"])
+        config = self.nametowidget(".").engine.config
+        w = config.get_int("window", "width")
+        h = config.get_int("window", "height")
         x = (ws/2) - (w/2)
         y = (hs/2) - (h/2)
         self.nametowidget(".").geometry("%dx%d+%d+%d" % (w, h, x, y))
@@ -373,7 +373,7 @@ class App(tk.Tk):
 
         self.protocol("WM_DELETE_WINDOW", self.on_exit)
         self.set_title(kwargs["title"])
-        self.engine.set_style(kwargs["theme"])
+        self.engine.set_style(self.engine.config.get("window", "theme"))
         self.set_icon()
         self.set_info()
         # set clock and start it.
@@ -437,9 +437,7 @@ def main():
     # Before the main loop there is no report_callback_exception yet:
     # a failure here is written to the log, shown, and raised again.
     try:
-        foo = Engine(log)
-        theme = foo.get_theme()
-        kwargs = {"title": "Tkinterlite", "theme": theme, "log": log}
+        kwargs = {"title": "Tkinterlite", "log": log}
         app = App(*args, **kwargs)
     except Exception as exc:
         log.exception("start failed: {0}".format(exc))

@@ -12,6 +12,7 @@ import subprocess
 from dbms import DBMS
 from tools import Tools
 from clock import Clock
+from config import Config
 
 
 
@@ -19,6 +20,8 @@ class Engine(DBMS, Tools, Clock):
     def __init__(self, log):
         # The database beside the program, wherever it is started from.
         super().__init__(self.get_file("northwind.sl3"), log)
+        # The settings, read by the Config class from tkinterlite.ini.
+        self.config = Config(self.get_file("tkinterlite.ini"))
 
         self.no_selected = "Attention!\nNo record selected!"
         self.ask_to_delete = "Delete data?"
@@ -49,16 +52,6 @@ class Engine(DBMS, Tools, Clock):
             else:
                 os.startfile(path)
 
-    def get_dimensions(self):
-        """The main window size, from the dimensions file: {"w": ..., "h": ...}."""
-        d = {}
-        with open(self.get_file("dimensions"), "r") as filestream:
-            for line in filestream:
-                currentline = line.split(",")
-                d[currentline[0]] = currentline[1]
-
-        return d
-
     def get_license(self):
         """get license"""
         with open(self.get_file("LICENSE"), "r") as f:
@@ -83,10 +76,3 @@ class Engine(DBMS, Tools, Clock):
     def open_log(self):
         """Open the log file with the program the system uses for text."""
         self.open_file(self.log.path)
-
-    def get_theme(self):
-        """The ttk theme name, from the theme file."""
-        with open(self.get_file("theme"), "r") as f:
-            theme = f.readline().strip()
-
-        return theme
