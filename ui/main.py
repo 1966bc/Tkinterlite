@@ -158,7 +158,7 @@ class Main(ttk.Frame):
         #categories
         #-----------------------------------------------------------------------
         self.lblCombo = ttk.LabelFrame(frm_left, style="App.TLabelframe", padding=2)
-        self.cbCombo = ttk.Combobox(self.lblCombo, style="App.TCombobox")
+        self.cbCombo = self.engine.tools.get_combo(self.lblCombo)
         self.cbCombo.bind("<<ComboboxSelected>>", self.get_selected_combo_item)
         self.cbCombo.pack(side=tk.TOP, anchor=tk.W, fill=tk.X, expand=1)
         # Packed before the products, so a short window shortens the list

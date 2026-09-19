@@ -57,12 +57,12 @@ class UI(tk.Toplevel):
 
         r += 1
         ttk.Label(frm_left, style="App.TLabel", text="Suppliers:",).grid(row=r, sticky=tk.W)
-        self.cbSuppliers = ttk.Combobox(frm_left,)
+        self.cbSuppliers = self.engine.tools.get_combo(frm_left)
         self.cbSuppliers.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1
         ttk.Label(frm_left, style="App.TLabel", text="Categories:",).grid(row=r, sticky=tk.W)
-        self.cbCategories = ttk.Combobox(frm_left,)
+        self.cbCategories = self.engine.tools.get_combo(frm_left)
         self.cbCategories.grid(row=r, column=c, sticky=tk.EW, **paddings)
 
         r += 1

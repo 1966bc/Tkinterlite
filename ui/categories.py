@@ -40,14 +40,8 @@ class UI(tk.Toplevel):
 
         ttk.Label(frm_left, style="App.TLabel", textvariable=self.items,).pack(fill=tk.X, expand=0)
 
-        sb = ttk.Scrollbar(frm_left, orient=tk.VERTICAL)
-        # exportselection=False: the selection stays when text is selected
-        # in another window, the dialog above this list included.
-        self.lstItems = tk.Listbox(frm_left, yscrollcommand=sb.set, exportselection=False)
+        self.lstItems = self.engine.tools.get_listbox(frm_left)
         self.lstItems.bind("<Double-Button-1>", self.on_item_activated)
-        sb.config(command=self.lstItems.yview)
-        self.lstItems.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
-        sb.pack(fill=tk.Y, expand=1)
 
         frm_right = ttk.Frame(frm_main, style="App.TFrame", padding=4)
 

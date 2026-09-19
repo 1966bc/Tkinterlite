@@ -404,6 +404,53 @@ class Tools:
         self.set_tree_tags(tree)
         return tree
 
+    def get_listbox(self, container):
+        """Build a Listbox with its scrollbar, packed into container.
+
+        exportselection=False keeps the selection when text is selected in
+        another widget: without it, selecting a word in the dialog opened
+        from the list clears the row the dialog is about.
+        """
+        listbox = tk.Listbox(container, exportselection=False)
+        scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, command=listbox.yview)
+        listbox.configure(yscrollcommand=scrollbar.set)
+
+        listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        return listbox
+
+    def get_combo(self, container):
+        """Build a readonly Combobox: a value is chosen from the list, never typed.
+
+        One line, but the rule it carries lives here once: a combo that can
+        be typed into accepts a supplier that does not exist, and every form
+        then has to check for it.
+        """
+        return ttk.Combobox(container, style="App.TCombobox", state="readonly")
+
+    def get_text(self, container):
+        """Build a Text with its scrollbar, packed into container, for reading.
+
+        Wrapped at word boundaries. It is filled with set_text, which leaves
+        it disabled: shown, selectable, not editable.
+        """
+        text = tk.Text(container, wrap=tk.WORD)
+        scrollbar = ttk.Scrollbar(container, orient=tk.VERTICAL, command=text.yview)
+        text.configure(yscrollcommand=scrollbar.set)
+
+        text.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        return text
+
+    def set_text(self, text, content):
+        """Put content in a Text built by get_text, and leave it read-only."""
+        text.configure(state=tk.NORMAL)
+        text.delete("1.0", tk.END)
+        text.insert("1.0", content)
+        text.configure(state=tk.DISABLED)
+
     def get_button_column(self, container, buttons, window=None):
         """A column of buttons, all the same width.
 
