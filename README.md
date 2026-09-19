@@ -9,7 +9,7 @@
 A complete desktop application - lists, forms, a database - written with Python, Tkinter and
 SQLite, and nothing else: the standard library only, no dependency to install.
 
-![Tkinterlite](screenshot.png)
+![How to create a full GUI application with Python, SQLite and Tkinter, batteries included.](banner.png)
 
 It manages the products, categories and suppliers of a small Northwind-style database. What it
 is really for is to be read: how such an application is put together, and why.
