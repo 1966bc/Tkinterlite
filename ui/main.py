@@ -11,6 +11,7 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 
+import ui.about
 import ui.license
 import ui.product
 import ui.categories
@@ -23,10 +24,10 @@ from clock import Clock
 #: The project directory, one level above ui/: the log lives there.
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-__author__ = "1966bc"
+__author__ = "Giuseppe Costanzi (1966bc)"
 __copyright__ = "Copyleft"
 __credits__ = ["hal9000", ]
-__license__ = "GNU GPL Version 3, 29 June 2007"
+__license__ = "GNU GPL, version 3 or later"
 __version__ = "42"
 __maintainer__ = "1966bc"
 __email__ = "giuseppecostanzi@gmail.com"
@@ -335,9 +336,7 @@ class Main(ttk.Frame):
         messagebox.showinfo(self.nametowidget(".").title(), s, parent=self)
 
     def on_about(self,):
-        messagebox.showinfo(self.nametowidget(".").title(),
-                            self.nametowidget(".").info,
-                            parent=self)
+        ui.about.UI(self, self.parent.info).on_open()
 
     def on_dump(self):
         self.engine.tools.busy(self)
@@ -356,7 +355,14 @@ class Main(ttk.Frame):
         messagebox.showinfo(self.nametowidget(".").title(), "Vacuum executed.", parent=self)
 
     def on_log(self,):
-        self.engine.open_log()
+        # The log is born with the first error: until then there is nothing to open, and saying
+        # so is better than a menu item that does nothing.
+        if self.engine.log.is_empty():
+            messagebox.showinfo(self.nametowidget(".").title(),
+                                "The log is empty: nothing has gone wrong so far.",
+                                parent=self)
+        else:
+            self.engine.open_log()
 
     def check_clock(self):
         """Show what the clock thread has sent, and look again in 200 ms.
@@ -402,10 +408,12 @@ class App(tk.Tk):
         self.iconphoto(True, *icons)
 
     def set_info(self,):
-        msg = "{0}\nauthor: {1}\ncopyright: {2}\ncredits: {3}\nlicense: {4}\nversion: {5}\
-               \nmaintainer: {6}\nemail: {7}\ndate: {8}\nstatus: {9}"
-        info = msg.format(self.title(), __author__, __copyright__, __credits__, __license__, __version__, __maintainer__, __email__, __date__, __status__)
-        self.info = info
+        """The facts the About window shows, from the metadata at the top of this module."""
+        self.info = {"name": self.title(),
+                     "version": __version__,
+                     "date": __date__,
+                     "author": __author__,
+                     "licence": __license__}
 
     def report_callback_exception(self, exc, val, tb):
         """Tkinter calls this for an exception raised in a callback.

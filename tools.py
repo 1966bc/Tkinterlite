@@ -211,6 +211,16 @@ class Tools:
                              padding=(6, 4), border=0, relief=tk.FLAT,
                              font="TkDefaultFont")
 
+        # The name of the application, in the About window: the default
+        # family, larger and bold, so it grows with the rest of the text.
+        self.style.configure("Title.TLabel",
+                             font=(base.cget("family"), base.cget("size") + 6, "bold"))
+        # Something that opens when clicked: the colour of the keyboard focus,
+        # underlined, the way a link has looked since the first browsers.
+        self.style.configure("Link.TLabel",
+                             foreground=focus,
+                             font=(base.cget("family"), base.cget("size"), "underline"))
+
         # Tk 8.6.8 ignores tag colours in a Treeview
         # (bugs.python.org/issue36468, fixed in Tk 8.6.10): the map has to be
         # filtered or every row is drawn in the default colour.

@@ -45,6 +45,11 @@ class TestLog(unittest.TestCase):
         self.assertIn("Traceback (most recent call last)", text)
         self.assertIn("ValueError", text)
 
+    def test_empty_until_the_first_entry(self):
+        self.assertTrue(self.log.is_empty())
+        self.log.error("first")
+        self.assertFalse(self.log.is_empty())
+
     def test_entries_are_appended(self):
         self.log.error("first")
         self.log.error("second")

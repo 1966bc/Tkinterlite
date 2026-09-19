@@ -51,12 +51,19 @@ class Engine:
         return os.path.join(os.path.dirname(__file__), file)
 
     def open_file(self, path):
-        """open file on linux and windows"""
-        if os.path.exists(path):
-            if os.name == 'posix':
-                subprocess.call(["xdg-open", path])
-            else:
-                os.startfile(path)
+        """Open a file with the program the system uses for it, on Linux and Windows.
+
+        Popen and not call: call would wait for that program to be closed,
+        and the whole application would stand still meanwhile. A file that
+        is not there raises, rather than nothing happening at all.
+        """
+        if not os.path.exists(path):
+            raise FileNotFoundError("no such file: {0}".format(path))
+
+        if os.name == "posix":
+            subprocess.Popen(["xdg-open", path])
+        else:
+            os.startfile(path)
 
     def get_license(self):
         """get license"""
