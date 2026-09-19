@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
 # project:  Tkinterlite
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXXI
+# authors:  Giuseppe Costanzi (1966bc)
+# licence:  GPL-3.0-or-later, see LICENSE
 # -----------------------------------------------------------------------------
 """ This is the main module of Tkinterlite."""
 import datetime

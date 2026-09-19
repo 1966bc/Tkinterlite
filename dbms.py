@@ -1,10 +1,9 @@
-#!/usr/bin/python3
-#-----------------------------------------------------------------------------
-# project:  tkinterlite
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
-#-----------------------------------------------------------------------------
+# -*- coding: utf-8 -*-
+# -----------------------------------------------------------------------------
+# project:  Tkinterlite
+# authors:  Giuseppe Costanzi (1966bc)
+# licence:  GPL-3.0-or-later, see LICENSE
+# -----------------------------------------------------------------------------
 import datetime
 import os
 import sqlite3 as lite

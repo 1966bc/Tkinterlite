@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 # -----------------------------------------------------------------------------
-# project:  tkinterlite
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXXI
-# -------------------------------------------------------------------------------
+# project:  Tkinterlite
+# authors:  Giuseppe Costanzi (1966bc)
+# licence:  GPL-3.0-or-later, see LICENSE
+# -----------------------------------------------------------------------------
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox

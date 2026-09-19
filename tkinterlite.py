@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-#-----------------------------------------------------------------------------
-# project:  tkinterlite
-# authors:  1966bc
-# mailto:   [giuseppecostanzi@gmail.com]
-# modify:   hiems MMXX
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# project:  Tkinterlite
+# authors:  Giuseppe Costanzi (1966bc)
+# licence:  GPL-3.0-or-later, see LICENSE
+# -----------------------------------------------------------------------------
 import sys
 import profile
 import pstats
